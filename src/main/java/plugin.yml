@@ -1,0 +1,4 @@
+name: Cantaloupe
+version: 0.01a
+description: A framework / wrapper used to allow cross-platform plugin development.
+main: org.cantaloupe.main.CantaloupeMain
