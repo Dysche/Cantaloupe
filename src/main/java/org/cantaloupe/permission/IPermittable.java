@@ -1,4 +1,4 @@
-package org.cantaloupe.user.permission;
+package org.cantaloupe.permission;
 
 import org.bukkit.World;
 

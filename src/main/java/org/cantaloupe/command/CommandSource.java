@@ -1,8 +1,8 @@
 package org.cantaloupe.command;
 
 import org.bukkit.command.CommandSender;
+import org.cantaloupe.permission.IPermissionHolder;
 import org.cantaloupe.text.Text;
-import org.cantaloupe.user.permission.IPermissionHolder;
 
 public class CommandSource implements IPermissionHolder {
 	private CommandSender handle = null;

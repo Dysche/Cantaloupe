@@ -1,4 +1,4 @@
-package org.cantaloupe.user.permission.group;
+package org.cantaloupe.permission.group;
 
 import java.util.HashMap;
 

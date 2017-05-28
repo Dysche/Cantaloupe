@@ -14,12 +14,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.inject.Injector;
+import org.cantaloupe.permission.IPermissionHolder;
+import org.cantaloupe.permission.IPermittable;
+import org.cantaloupe.permission.group.Group;
+import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.user.UserManager.Scopes;
-import org.cantaloupe.user.permission.IPermissionHolder;
-import org.cantaloupe.user.permission.IPermittable;
-import org.cantaloupe.user.permission.group.Group;
-import org.cantaloupe.user.permission.group.GroupManager;
 
 public class User implements IPermittable, IPermissionHolder {
 	private Player handle = null;

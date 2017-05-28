@@ -8,8 +8,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.user.User;
-import org.cantaloupe.user.permission.group.GroupManager;
 
 public class PlayerListener implements Listener {
 	@EventHandler

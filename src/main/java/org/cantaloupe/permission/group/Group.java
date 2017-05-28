@@ -1,4 +1,4 @@
-package org.cantaloupe.user.permission.group;
+package org.cantaloupe.permission.group;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.World;
+import org.cantaloupe.permission.IPermissionHolder;
+import org.cantaloupe.permission.IPermittable;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.user.User;
-import org.cantaloupe.user.permission.IPermissionHolder;
-import org.cantaloupe.user.permission.IPermittable;
 
 public abstract class Group implements IPermittable, IPermissionHolder {
 	private Map<String, List<String>> permissions = new HashMap<String, List<String>>();
