@@ -19,14 +19,17 @@ import org.cantaloupe.permission.group.Group;
 import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.user.UserManager.Scopes;
+import org.cantaloupe.world.Location;
 import org.cantaloupe.world.World;
+import org.joml.Vector2f;
+import org.joml.Vector3d;
 
 public class User implements IPermittable, IPermissionHolder {
-    private final Player               handle;
-    private final Injector<User>       injector;
-    private final PermissionAttachment permissionAttachment;
-    private final ArrayList<Group>     groups;
-    private final Map<String, List<String>>  permissions;
+    private final Player                    handle;
+    private final Injector<User>            injector;
+    private final PermissionAttachment      permissionAttachment;
+    private final ArrayList<Group>          groups;
+    private final Map<String, List<String>> permissions;
 
     private User(Player handle) {
         this.handle = handle;
@@ -81,13 +84,25 @@ public class User implements IPermittable, IPermissionHolder {
 
     public void onWorldSwitch(World old) {
         this.updatePermissionsWorld();
-        
+
         Optional<List<Consumer<User>>> consumers = this.getInjector().getConsumers(Scopes.WORLD_SWITCH);
         if (consumers.isPresent()) {
             for (Consumer<User> consumer : consumers.get()) {
                 consumer.accept(this);
             }
         }
+    }
+
+    public void teleport(Location location) {
+        this.handle.teleport(location.getHandle());
+    }
+
+    public void teleport(World world, Vector3d position) {
+        this.handle.teleport(Location.of(world, position).getHandle());
+    }
+
+    public void teleport(World world, Vector3d position, Vector2f rotation) {
+        this.handle.teleport(Location.of(world, position, rotation).getHandle());
     }
 
     public void sendMessage(Text text) {
@@ -263,15 +278,19 @@ public class User implements IPermittable, IPermissionHolder {
     public String getName() {
         return this.handle.getName();
     }
-    
+
     public World getWorld() {
-        return null;//this.handle.getWorld();
+        return Cantaloupe.getWorldManager().getWorld(this.handle.getWorld().getName());
+    }
+
+    public Location getLocation() {
+        return Location.of(this.handle.getLocation());
     }
 
     public Collection<Group> getGroups() {
         return this.groups;
     }
-    
+
     public Map<String, List<String>> getPermissions() {
         return this.permissions;
     }
@@ -279,7 +298,7 @@ public class User implements IPermittable, IPermissionHolder {
     public List<String> getPermissions(World world) {
         return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
     }
-    
+
     public Injector<User> getInjector() {
         return this.injector;
     }
