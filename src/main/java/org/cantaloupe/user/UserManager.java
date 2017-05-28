@@ -8,7 +8,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.cantaloupe.command.CommandSource;
 import org.cantaloupe.inject.Injector;
 import org.cantaloupe.inject.Scope;
 import org.cantaloupe.text.Text;
@@ -109,6 +111,14 @@ public class UserManager {
 		this.users.forEach((uuid, user) -> {
 			user.sendLegacyMessage(message);
 		});
+	}
+
+	public Optional<User> getUserFromCommandSource(CommandSource source) {
+		return this.tryGetUser(source.getName());
+	}
+	
+	public Optional<User> getUserFromCommandSender(CommandSender sender) {
+		return this.tryGetUser(sender.getName());
 	}
 
 	public Optional<User> getUserFromHandle(Player player) {

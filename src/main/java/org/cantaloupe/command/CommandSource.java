@@ -27,4 +27,12 @@ public class CommandSource implements IPermissionHolder {
 	public boolean hasPermission(String node) {
 		return this.handle.hasPermission(node);
 	}
+
+	public String getName() {
+		return this.handle.getName();
+	}
+
+	public CommandSender getHandle() {
+		return this.handle;
+	}
 }

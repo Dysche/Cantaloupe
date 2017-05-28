@@ -2,11 +2,14 @@ package org.cantaloupe.user;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.cantaloupe.Cantaloupe;
@@ -22,6 +25,7 @@ public class User implements IPermittable, IPermissionHolder {
 	private Player handle = null;
 	private Injector<User> injector = null;
 	private PermissionAttachment permissionAttachment = null;
+	private Map<String, List<String>> permissions = new HashMap<String, List<String>>();
 	private ArrayList<Group> groups = null;
 
 	private User(Player handle) {
@@ -74,6 +78,10 @@ public class User implements IPermittable, IPermissionHolder {
 		this.getInjector().clear();
 	}
 
+	public void onWorldSwitch(World old, World current) {
+		this.updatePermissionsWorld();
+	}
+
 	public void sendMessage(Text text) {
 		this.handle.spigot().sendMessage(text.getComponent());
 	}
@@ -104,27 +112,27 @@ public class User implements IPermittable, IPermissionHolder {
 		if (this.isInGroup(name)) {
 			return;
 		}
-		
+
 		Group group = GroupManager.getGroup(name);
-		for (String node : group.getPermissions()) {
-			this.permissionAttachment.setPermission(node, true);
+		for (String node : group.getPermissions(null)) {
+			this.permissionAttachment.setPermission(node, node.startsWith("-") ? false : true);
 		}
-		
+
 		this.groups.add(group);
 	}
 
 	public void joinGroup(Group group) {
-		for (String node : group.getPermissions()) {
-			this.permissionAttachment.setPermission(node, true);
+		for (String node : group.getPermissions(null)) {
+			this.permissionAttachment.setPermission(node, node.startsWith("-") ? false : true);
 		}
-		
+
 		this.groups.add(group);
 	}
 
 	public void leaveGroup(String name) {
 		Group group = GroupManager.getGroup(name);
 
-		for (String node : group.getPermissions()) {
+		for (String node : group.getPermissions(null)) {
 			boolean hasPermission = false;
 
 			for (Group g : this.groups) {
@@ -133,8 +141,8 @@ public class User implements IPermittable, IPermissionHolder {
 				}
 			}
 
-			if (!hasPermission) {
-				this.permissionAttachment.setPermission(node, true);
+			if (!hasPermission && !this.hasPermissionGlobal(node) && !this.hasPermissionWorld(node)) {
+				this.permissionAttachment.unsetPermission(node);
 			}
 		}
 
@@ -142,7 +150,7 @@ public class User implements IPermittable, IPermissionHolder {
 	}
 
 	public void leaveGroup(Group group) {
-		for (String node : group.getPermissions()) {
+		for (String node : group.getPermissions(null)) {
 			boolean hasPermission = false;
 
 			for (Group g : this.groups) {
@@ -151,8 +159,8 @@ public class User implements IPermittable, IPermissionHolder {
 				}
 			}
 
-			if (!hasPermission) {
-				this.permissionAttachment.setPermission(node, true);
+			if (!hasPermission && !this.hasPermissionGlobal(node) && !this.hasPermissionWorld(node)) {
+				this.permissionAttachment.unsetPermission(node);
 			}
 		}
 
@@ -160,34 +168,93 @@ public class User implements IPermittable, IPermissionHolder {
 	}
 
 	@Override
-	public void grantPermission(String node) {
-		this.permissionAttachment.setPermission(node, true);
+	public void setPermission(String node) {
+		this.permissions.get("_global_").add(node);
+		this.permissionAttachment.setPermission(node, node.startsWith("-") ? false : true);
 	}
 
 	@Override
-	public void revokePermission(String node) {
-		this.permissionAttachment.setPermission(node, false);
+	public void setPermission(World world, String node) {
+		if (!this.permissions.containsKey(world.getName())) {
+			this.permissions.put(world.getName(), new ArrayList<String>());
+		}
+
+		this.permissions.get(world.getName()).add(node);
+		this.permissionAttachment.setPermission(node, node.startsWith("-") ? false : true);
+	}
+
+	@Override
+	public void unsetPermission(String node) {
+		this.permissions.get("_global_").remove(node);
+
+		if (!this.hasPermissionGroup(node) && !this.hasPermissionWorld(node)) {
+			this.permissionAttachment.unsetPermission(node);
+		}
+	}
+
+	@Override
+	public void unsetPermission(World world, String node) {
+		if (this.permissions.containsKey(world.getName())) {
+			this.permissions.get(world.getName()).remove(node);
+
+			if (!this.hasPermissionGlobal(node) && !this.hasPermissionGroup(node)) {
+				this.permissionAttachment.unsetPermission(node);
+			}
+		}
 	}
 
 	@Override
 	public boolean hasPermission(String node) {
-		boolean hasPermission = this.handle.hasPermission(node);
+		return this.handle.hasPermission(node);
+	}
 
-		if (!hasPermission) {
-			for (Group group : this.groups) {
-				if (group.hasPermission(node)) {
+	private boolean hasPermissionGlobal(String node) {
+		return this.permissions.get("_global_").contains(node);
+	}
+
+	private boolean hasPermissionGroup(String node) {
+		for (Group group : this.groups) {
+			if (group.hasPermission(node)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean hasPermissionWorld(String node) {
+		for (String world : this.permissions.keySet()) {
+			if (this.toHandle().getWorld().getName().equals(world)) {
+				if (this.permissions.get(world).contains(node)) {
 					return true;
+				} else {
+					return false;
 				}
 			}
+		}
 
-			return false;
-		} else {
-			return hasPermission;
+		return false;
+	}
+
+	private void updatePermissionsWorld() {
+		if (this.permissions.containsKey(this.handle.getWorld().getName())) {
+			for (String node : this.permissions.get(this.handle.getWorld().getName())) {
+				this.permissionAttachment.setPermission(node, node.startsWith("-") ? false : true);
+			}
 		}
 	}
 
 	public Player toHandle() {
 		return this.handle;
+	}
+
+	public Map<String, List<String>> getPermissions() {
+		return this.permissions;
+	}
+
+	public List<String> getPermissions(World world) {
+		return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName())
+				: this.permissions.get("_global_");
 	}
 
 	public UUID getUUID() {
