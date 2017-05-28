@@ -30,13 +30,11 @@ public class CantaloupePluginManager {
             public void run() {
                 while (!isReady()) {
                     if (pluginQueue.size() > 0) {
-                        for (CantaloupePlugin plugin : pluginQueue) {
-                            if (plugin.isEnabled()) {
-                                loadedPlugins.put(plugin.getName(), plugin);
-                                pluginQueue.remove(plugin);
+                        while (!pluginQueue.isEmpty()) {
+                            CantaloupePlugin plugin = pluginQueue.poll();
 
-                                plugin.onStart();
-                            }
+                            loadedPlugins.put(plugin.getName(), plugin);
+                            plugin.onStart();
                         }
                     } else {
                         markReady();
@@ -62,7 +60,7 @@ public class CantaloupePluginManager {
         this.pluginQueue.clear();
         this.pluginQueue = null;
 
-        this.loadedPlugins.forEach((string, plugin) -> plugin.onStop());
+        this.loadedPlugins.forEach((ID, plugin) -> plugin.onStop());
         this.loadedPlugins.clear();
         this.loadedPlugins = null;
 

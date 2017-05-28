@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.cantaloupe.Cantaloupe;
@@ -45,6 +46,15 @@ public class PlayerListener implements Listener {
 
             // Format
             event.setFormat("<" + GroupManager.getPrefixFor(user).toLegacy() + user.getName() + "> " + event.getMessage());
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerSwitchWorld(PlayerChangedWorldEvent event) {
+        Optional<User> userOpt = Cantaloupe.getUserManager().getUserFromHandle(event.getPlayer());
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.onWorldSwitch(Cantaloupe.getWorldManager().getWorldFromHandle(event.getFrom()));
         }
     }
 }

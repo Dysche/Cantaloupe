@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.cantaloupe.Cantaloupe;
@@ -20,18 +19,20 @@ import org.cantaloupe.permission.group.Group;
 import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.user.UserManager.Scopes;
+import org.cantaloupe.world.World;
 
 public class User implements IPermittable, IPermissionHolder {
-    private Player                    handle               = null;
-    private Injector<User>            injector             = null;
-    private PermissionAttachment      permissionAttachment = null;
-    private Map<String, List<String>> permissions          = new HashMap<String, List<String>>();
-    private ArrayList<Group>          groups               = null;
+    private final Player               handle;
+    private final Injector<User>       injector;
+    private final PermissionAttachment permissionAttachment;
+    private final ArrayList<Group>     groups;
+    private final Map<String, List<String>>  permissions;
 
     private User(Player handle) {
         this.handle = handle;
         this.injector = new Injector<User>();
 
+        this.permissions = new HashMap<String, List<String>>();
         this.permissionAttachment = this.handle.addAttachment(Cantaloupe.getInstance());
         this.groups = new ArrayList<Group>();
     }
@@ -78,8 +79,15 @@ public class User implements IPermittable, IPermissionHolder {
         this.getInjector().clear();
     }
 
-    public void onWorldSwitch(World old, World current) {
+    public void onWorldSwitch(World old) {
         this.updatePermissionsWorld();
+        
+        Optional<List<Consumer<User>>> consumers = this.getInjector().getConsumers(Scopes.WORLD_SWITCH);
+        if (consumers.isPresent()) {
+            for (Consumer<User> consumer : consumers.get()) {
+                consumer.accept(this);
+            }
+        }
     }
 
     public void sendMessage(Text text) {
@@ -248,14 +256,6 @@ public class User implements IPermittable, IPermissionHolder {
         return this.handle;
     }
 
-    public Map<String, List<String>> getPermissions() {
-        return this.permissions;
-    }
-
-    public List<String> getPermissions(World world) {
-        return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
-    }
-
     public UUID getUUID() {
         return this.handle.getUniqueId();
     }
@@ -263,12 +263,24 @@ public class User implements IPermittable, IPermissionHolder {
     public String getName() {
         return this.handle.getName();
     }
-
-    public Injector<User> getInjector() {
-        return this.injector;
+    
+    public World getWorld() {
+        return null;//this.handle.getWorld();
     }
 
     public Collection<Group> getGroups() {
         return this.groups;
+    }
+    
+    public Map<String, List<String>> getPermissions() {
+        return this.permissions;
+    }
+
+    public List<String> getPermissions(World world) {
+        return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
+    }
+    
+    public Injector<User> getInjector() {
+        return this.injector;
     }
 }

@@ -150,5 +150,7 @@ public class UserManager {
         public static final Scope LEAVE  = Scope.of("user", "leave");
         public static final Scope LOAD   = Scope.of("user", "load");
         public static final Scope UNLOAD = Scope.of("user", "unload");
+        
+        public static final Scope WORLD_SWITCH = Scope.of("user", "world_switch");
     }
 }

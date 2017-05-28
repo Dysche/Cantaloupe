@@ -6,12 +6,14 @@ import org.cantaloupe.command.CommandManager;
 import org.cantaloupe.main.CantaloupeMain;
 import org.cantaloupe.plugin.CantaloupePluginManager;
 import org.cantaloupe.user.UserManager;
+import org.cantaloupe.world.WorldManager;
 import org.cantaloupe.wrapper.listeners.PlayerListener;
 
 public class Cantaloupe {
     private static CantaloupeMain          instance       = null;
     private static CantaloupePluginManager pluginManager  = null;
     private static UserManager             userManager    = null;
+    private static WorldManager            worldManager   = null;
     private static CommandManager          commandManager = null;
 
     public static void initialize(CantaloupeMain plugin) {
@@ -26,6 +28,10 @@ public class Cantaloupe {
         // Plugin Manager
         pluginManager = new CantaloupePluginManager();
         pluginManager.load();
+
+        // World Manager
+        worldManager = new WorldManager();
+        worldManager.load();
 
         // User Manager
         userManager = new UserManager();
@@ -77,6 +83,10 @@ public class Cantaloupe {
         commandManager.unload();
         commandManager = null;
 
+        // World Manager
+        worldManager.unload();
+        worldManager = null;
+
         System.out.println("Deinitialized Cantaloupe.");
     }
 
@@ -94,11 +104,15 @@ public class Cantaloupe {
         return pluginManager;
     }
 
+    public static UserManager getUserManager() {
+        return userManager;
+    }
+    
     public static CommandManager getCommandManager() {
         return commandManager;
     }
-
-    public static UserManager getUserManager() {
-        return userManager;
+    
+    public static WorldManager getWorldManager() {
+        return worldManager;
     }
 }

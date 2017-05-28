@@ -1,6 +1,6 @@
 package org.cantaloupe.permission;
 
-import org.bukkit.World;
+import org.cantaloupe.world.World;
 
 public interface IPermittable {
     public void setPermission(String node);
