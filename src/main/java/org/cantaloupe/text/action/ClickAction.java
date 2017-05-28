@@ -19,7 +19,7 @@ public abstract class ClickAction<R> extends TextAction<R> {
             super(command);
         }
     }
-    
+
     public static final class ChangePage extends ClickAction<Integer> {
         ChangePage(int page) {
             super(page);

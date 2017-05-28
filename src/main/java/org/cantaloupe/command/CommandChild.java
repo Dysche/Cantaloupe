@@ -12,102 +12,102 @@ import org.cantaloupe.command.args.parsing.SingleArg;
 import org.cantaloupe.text.Text;
 
 public class CommandChild {
-	private CommandSpec owner = null;
-	private CommandSpec spec = null;
-	private String name = null;
-	private List<String> aliases = null;
+    private CommandSpec  owner   = null;
+    private CommandSpec  spec    = null;
+    private String       name    = null;
+    private List<String> aliases = null;
 
-	protected CommandChild(CommandSpec owner, CommandSpec spec, String name, List<String> aliases) {
-		this.owner = owner;
-		this.spec = spec;
-		this.name = name;
-		this.aliases = aliases;
-	}
+    protected CommandChild(CommandSpec owner, CommandSpec spec, String name, List<String> aliases) {
+        this.owner = owner;
+        this.spec = spec;
+        this.name = name;
+        this.aliases = aliases;
+    }
 
-	protected boolean execute(CommandSource source, String[] arguments) {
-		if(!source.hasPermission(spec.getPermission())) {
-			source.sendMessage("No perms.");
-			
-			return true;
-		}
-		
-		if (arguments.length == 0) {
-			CommandContext context = processArguments(source, arguments);		
-			if(context == null) {
-				return true;
-			}
-			
-			return spec.getExecutor().execute(source, context) == CommandResult.SUCCESS;
-		} else if (arguments.length >= 1) {
-			CommandChild child = getChild(arguments[0]);
+    protected boolean execute(CommandSource source, String[] arguments) {
+        if (!source.hasPermission(spec.getPermission())) {
+            source.sendMessage("No perms.");
 
-			if (child != null) {
-				return child.execute(source, Arrays.copyOfRange(arguments, 1, arguments.length));
-			} else {
-				CommandContext context = processArguments(source, arguments);		
-				if(context == null) {
-					return true;
-				}
+            return true;
+        }
 
-				return spec.getExecutor().execute(source, context) == CommandResult.SUCCESS;
-			}
-		}
+        if (arguments.length == 0) {
+            CommandContext context = processArguments(source, arguments);
+            if (context == null) {
+                return true;
+            }
 
-		return false;
-	}
-	
-	private CommandContext processArguments(CommandSource source, String[] args) {
-		CommandContext context = new CommandContext();
-		ArrayList<SingleArg> arguments = new ArrayList<SingleArg>();
+            return spec.getExecutor().execute(source, context) == CommandResult.SUCCESS;
+        } else if (arguments.length >= 1) {
+            CommandChild child = getChild(arguments[0]);
 
-		for(int i = 0; i < args.length; i++) {
-			arguments.add(new SingleArg(args[i], i, i + 1));
-		}
-		
-		try {
-			spec.getArguments().parse(source, new CommandArgs(this.spec, String.join(" ", args), arguments), context);
-		} catch (ArgumentParseException e) {
-			source.sendMessage(e.getText());
-		}
-		
-		return context;
-	}
+            if (child != null) {
+                return child.execute(source, Arrays.copyOfRange(arguments, 1, arguments.length));
+            } else {
+                CommandContext context = processArguments(source, arguments);
+                if (context == null) {
+                    return true;
+                }
 
-	private CommandChild getChild(String argument) {
-		for (CommandChild child : this.spec.getChildren()) {
-			if (child.getName().equals(argument) || child.getAliases().contains(argument)) {
-				return child;
-			}
-		}
+                return spec.getExecutor().execute(source, context) == CommandResult.SUCCESS;
+            }
+        }
 
-		return null;
-	}
+        return false;
+    }
 
-	public String getName() {
-		return this.name;
-	}
+    private CommandContext processArguments(CommandSource source, String[] args) {
+        CommandContext context = new CommandContext();
+        ArrayList<SingleArg> arguments = new ArrayList<SingleArg>();
 
-	public String getPermission() {
-		return this.spec.getPermission();
-	}
+        for (int i = 0; i < args.length; i++) {
+            arguments.add(new SingleArg(args[i], i, i + 1));
+        }
 
-	public Optional<Text> getUsage() {
-		return this.spec.getUsage();
-	}
+        try {
+            spec.getArguments().parse(source, new CommandArgs(this.spec, String.join(" ", args), arguments), context);
+        } catch (ArgumentParseException e) {
+            source.sendMessage(e.getText());
+        }
 
-	public Optional<Text> getHelp() {
-		return this.spec.getHelp();
-	}
+        return context;
+    }
 
-	public Optional<Text> getDescription() {
-		return this.spec.getDescription();
-	}
+    private CommandChild getChild(String argument) {
+        for (CommandChild child : this.spec.getChildren()) {
+            if (child.getName().equals(argument) || child.getAliases().contains(argument)) {
+                return child;
+            }
+        }
 
-	public List<String> getAliases() {
-		return this.aliases;
-	}
+        return null;
+    }
 
-	public CommandSpec getOwner() {
-		return this.owner;
-	}
+    public String getName() {
+        return this.name;
+    }
+
+    public String getPermission() {
+        return this.spec.getPermission();
+    }
+
+    public Optional<Text> getUsage() {
+        return this.spec.getUsage();
+    }
+
+    public Optional<Text> getHelp() {
+        return this.spec.getHelp();
+    }
+
+    public Optional<Text> getDescription() {
+        return this.spec.getDescription();
+    }
+
+    public List<String> getAliases() {
+        return this.aliases;
+    }
+
+    public CommandSpec getOwner() {
+        return this.owner;
+    }
 }

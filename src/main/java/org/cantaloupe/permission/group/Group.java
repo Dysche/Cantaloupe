@@ -12,76 +12,75 @@ import org.cantaloupe.text.Text;
 import org.cantaloupe.user.User;
 
 public abstract class Group implements IPermittable, IPermissionHolder {
-	private Map<String, List<String>> permissions = new HashMap<String, List<String>>();
+    private Map<String, List<String>> permissions = new HashMap<String, List<String>>();
 
-	{
-		this.permissions = new HashMap<String, List<String>>();
-		this.permissions.put("_global_", new ArrayList<String>());
-	}
+    {
+        this.permissions = new HashMap<String, List<String>>();
+        this.permissions.put("_global_", new ArrayList<String>());
+    }
 
-	public abstract void initialize();
+    public abstract void initialize();
 
-	public boolean hasPermission(User user, String node) {
-		for(String world : this.permissions.keySet()) {
-			if(user.toHandle().getWorld().getName().equals(world)) {
-				if(this.permissions.get(world).contains(node)) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		}
-		
-		return this.permissions.get("_global_").contains(node);
-	}
-	
-	@Override
-	public boolean hasPermission(String node) {
-		return this.permissions.get("_global_").contains(node);
-	}
+    public boolean hasPermission(User user, String node) {
+        for (String world : this.permissions.keySet()) {
+            if (user.toHandle().getWorld().getName().equals(world)) {
+                if (this.permissions.get(world).contains(node)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
 
-	@Override
-	public void setPermission(World world, String node) {
-		if (!this.permissions.containsKey(world.getName())) {
-			this.permissions.put(world.getName(), new ArrayList<String>());
-		}
+        return this.permissions.get("_global_").contains(node);
+    }
 
-		this.permissions.get(world.getName()).add(node);
-	}
+    @Override
+    public boolean hasPermission(String node) {
+        return this.permissions.get("_global_").contains(node);
+    }
 
-	@Override
-	public void setPermission(String node) {
-		this.permissions.get("_global_").add(node);
-	}
+    @Override
+    public void setPermission(World world, String node) {
+        if (!this.permissions.containsKey(world.getName())) {
+            this.permissions.put(world.getName(), new ArrayList<String>());
+        }
 
-	@Override
-	public void unsetPermission(World world, String node) {
-		if(this.getPermissions().containsKey(world.getName())) {
-			this.permissions.get(world.getName()).remove(node);
-		}
-	}
-	
-	@Override
-	public void unsetPermission(String node) {
-		this.permissions.get("_global_").remove(node);
-	}
+        this.permissions.get(world.getName()).add(node);
+    }
 
-	public boolean isDefault() {
-		return false;
-	}
+    @Override
+    public void setPermission(String node) {
+        this.permissions.get("_global_").add(node);
+    }
 
-	public abstract String getName();
+    @Override
+    public void unsetPermission(World world, String node) {
+        if (this.getPermissions().containsKey(world.getName())) {
+            this.permissions.get(world.getName()).remove(node);
+        }
+    }
 
-	public abstract Text getPrefix();
+    @Override
+    public void unsetPermission(String node) {
+        this.permissions.get("_global_").remove(node);
+    }
 
-	public abstract Text getDescription();
+    public boolean isDefault() {
+        return false;
+    }
 
-	public Map<String, List<String>> getPermissions() {
-		return this.permissions;
-	}
+    public abstract String getName();
 
-	public List<String> getPermissions(World world) {
-		return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName())
-				: this.permissions.get("_global_");
-	}
+    public abstract Text getPrefix();
+
+    public abstract Text getDescription();
+
+    public Map<String, List<String>> getPermissions() {
+        return this.permissions;
+    }
+
+    public List<String> getPermissions(World world) {
+        return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
+    }
 }

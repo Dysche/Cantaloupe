@@ -4,7 +4,7 @@ import org.cantaloupe.text.Text;
 
 public class TextMessageException extends Exception {
     private static final long serialVersionUID = -5281221645176698853L;
-    private final Text message;
+    private final Text        message;
 
     public TextMessageException() {
         this.message = null;
@@ -27,7 +27,7 @@ public class TextMessageException extends Exception {
     @Override
     public String getMessage() {
         Text message = getText();
-        
+
         return message == null ? null : message.toPlain();
     }
 

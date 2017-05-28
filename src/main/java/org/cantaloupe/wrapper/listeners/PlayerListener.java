@@ -12,40 +12,39 @@ import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.user.User;
 
 public class PlayerListener implements Listener {
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent event) {
-		User user = User.of(event.getPlayer());
-		Cantaloupe.getUserManager().addUser(user);
-		user.onJoin();
-		user.onLoad();
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        User user = User.of(event.getPlayer());
+        Cantaloupe.getUserManager().addUser(user);
+        user.onJoin();
+        user.onLoad();
 
-		event.setJoinMessage(null);
-	}
+        event.setJoinMessage(null);
+    }
 
-	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent event) {
-		Optional<User> userOpt = Cantaloupe.getUserManager().getUserFromHandle(event.getPlayer());
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Optional<User> userOpt = Cantaloupe.getUserManager().getUserFromHandle(event.getPlayer());
 
-		if (userOpt.isPresent()) {
-			User user = userOpt.get();
-			user.onUnload();
-			user.onLeave();
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.onUnload();
+            user.onLeave();
 
-			Cantaloupe.getUserManager().removeUser(user);
-		}
+            Cantaloupe.getUserManager().removeUser(user);
+        }
 
-		event.setQuitMessage(null);
-	}
+        event.setQuitMessage(null);
+    }
 
-	@EventHandler
-	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		Optional<User> userOpt = Cantaloupe.getUserManager().getUserFromHandle(event.getPlayer());
-		if (userOpt.isPresent()) {
-			User user = userOpt.get();
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        Optional<User> userOpt = Cantaloupe.getUserManager().getUserFromHandle(event.getPlayer());
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
 
-			// Format
-			event.setFormat("<" + GroupManager.getPrefixFor(user).toLegacy() + user.getName() + "> "
-					+ event.getMessage());
-		}
-	}
+            // Format
+            event.setFormat("<" + GroupManager.getPrefixFor(user).toLegacy() + user.getName() + "> " + event.getMessage());
+        }
+    }
 }
