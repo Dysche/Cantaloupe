@@ -20,7 +20,7 @@ public class WorldManager {
     }
 
     public void unload() {
-        this.worlds.keySet().forEach(this::unregisterWorld);
+        this.worlds.clear();      
     }
 
     public void registerWorld(org.bukkit.World world) {

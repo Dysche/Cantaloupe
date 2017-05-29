@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.cantaloupe.command.CommandSpec.ErrorType;
 import org.cantaloupe.command.args.ArgumentParseException;
 import org.cantaloupe.command.args.CommandArgs;
 import org.cantaloupe.command.args.CommandContext;
@@ -25,31 +26,35 @@ public class CommandChild {
     }
 
     protected boolean execute(CommandSource source, String[] arguments) {
-        if (!source.hasPermission(spec.getPermission())) {
-            source.sendMessage("No perms.");
+        if (!source.hasPermission(this.spec.getPermission())) {
+            if(this.spec.getErrors().containsKey(ErrorType.NO_PERMS)) {
+                source.sendMessage(this.spec.getErrors().get(ErrorType.NO_PERMS));
+            } else {
+                source.sendMessage("You do not have the required permissions to execute that command.");
+            }
 
             return true;
         }
 
         if (arguments.length == 0) {
-            CommandContext context = processArguments(source, arguments);
+            CommandContext context = this.processArguments(source, arguments);
             if (context == null) {
                 return true;
             }
 
-            return spec.getExecutor().execute(source, context) == CommandResult.SUCCESS;
+            return this.spec.getExecutor().execute(source, context) == CommandResult.SUCCESS;
         } else if (arguments.length >= 1) {
             CommandChild child = getChild(arguments[0]);
 
             if (child != null) {
                 return child.execute(source, Arrays.copyOfRange(arguments, 1, arguments.length));
             } else {
-                CommandContext context = processArguments(source, arguments);
+                CommandContext context = this.processArguments(source, arguments);
                 if (context == null) {
                     return true;
                 }
 
-                return spec.getExecutor().execute(source, context) == CommandResult.SUCCESS;
+                return this.spec.getExecutor().execute(source, context) == CommandResult.SUCCESS;
             }
         }
 

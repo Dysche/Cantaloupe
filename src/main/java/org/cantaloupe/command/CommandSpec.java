@@ -169,6 +169,6 @@ public class CommandSpec {
     }
 
     public enum ErrorType {
-        NOT_ENOUGH_ARGUMENTS, NOT_BOOLEAN, NOT_LONG, NOT_NUMBER, NOT_INTEGER
+        NO_PERMS, NOT_ENOUGH_ARGUMENTS, NOT_BOOLEAN, NOT_LONG, NOT_NUMBER, NOT_INTEGER
     }
 }

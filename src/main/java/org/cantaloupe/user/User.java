@@ -78,6 +78,8 @@ public class User implements IPermittable, IPermissionHolder {
                 consumer.accept(this);
             }
         }
+        
+        this.permissionAttachment.remove();
 
         this.getInjector().clear();
     }
@@ -95,6 +97,14 @@ public class User implements IPermittable, IPermissionHolder {
 
     public void teleport(Location location) {
         this.handle.teleport(location.getHandle());
+    }
+    
+    public void teleport(Vector3d position) {
+        this.handle.teleport(Location.of(this.getWorld(), position).getHandle());
+    }
+
+    public void teleport(Vector3d position, Vector2f rotation) {
+        this.handle.teleport(Location.of(this.getWorld(), position, rotation).getHandle());
     }
 
     public void teleport(World world, Vector3d position) {
@@ -285,6 +295,14 @@ public class User implements IPermittable, IPermissionHolder {
 
     public Location getLocation() {
         return Location.of(this.handle.getLocation());
+    }
+    
+    public Location getEyeLocation() {
+        return Location.of(this.handle.getEyeLocation());
+    }
+    
+    public Location getBedSpawnLocation() {
+        return Location.of(this.handle.getBedSpawnLocation());
     }
 
     public Collection<Group> getGroups() {

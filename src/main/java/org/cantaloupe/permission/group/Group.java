@@ -81,6 +81,6 @@ public abstract class Group implements IPermittable, IPermissionHolder {
     }
 
     public List<String> getPermissions(World world) {
-        return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
+        return world != null && this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
     }
 }

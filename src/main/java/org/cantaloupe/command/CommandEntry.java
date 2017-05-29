@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.cantaloupe.command.CommandSpec.ErrorType;
 import org.cantaloupe.command.args.ArgumentParseException;
 import org.cantaloupe.command.args.CommandArgs;
 import org.cantaloupe.command.args.CommandContext;
@@ -37,7 +38,11 @@ public class CommandEntry {
                 CommandSource source = new CommandSource(sender);
 
                 if (!source.hasPermission(spec.getPermission())) {
-                    source.sendMessage("No perms.");
+                    if(spec.getErrors().containsKey(ErrorType.NO_PERMS)) {
+                        source.sendMessage(spec.getErrors().get(ErrorType.NO_PERMS));
+                    } else {
+                        source.sendMessage("You do not have the required permissions to execute that command.");
+                    }
 
                     return true;
                 }

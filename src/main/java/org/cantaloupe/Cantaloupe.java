@@ -1,11 +1,14 @@
 package org.cantaloupe;
 
+import java.io.IOException;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.cantaloupe.command.CommandManager;
 import org.cantaloupe.main.CantaloupeMain;
 import org.cantaloupe.plugin.CantaloupePluginManager;
 import org.cantaloupe.user.UserManager;
+import org.cantaloupe.util.CantaloupeClassLoader;
 import org.cantaloupe.world.WorldManager;
 import org.cantaloupe.wrapper.listeners.PlayerListener;
 
@@ -19,11 +22,15 @@ public class Cantaloupe {
     public static void initialize(CantaloupeMain plugin) {
         System.out.println("Initializing Cantaloupe.");
 
-        // Listeners
+        // Internal
+        registerLibraries();
         registerListeners();
 
         // Variables
         instance = plugin;
+
+        // User Manager
+        userManager = new UserManager();
 
         // Plugin Manager
         pluginManager = new CantaloupePluginManager();
@@ -34,7 +41,6 @@ public class Cantaloupe {
         worldManager.load();
 
         // User Manager
-        userManager = new UserManager();
         userManager.load();
 
         // Command Manager
@@ -96,6 +102,14 @@ public class Cantaloupe {
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), plugin);
     }
 
+    private static void registerLibraries() {
+        try {
+            CantaloupeClassLoader.addFile("libs/joml-1.9.3.jar");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static CantaloupeMain getInstance() {
         return instance;
     }
@@ -107,11 +121,11 @@ public class Cantaloupe {
     public static UserManager getUserManager() {
         return userManager;
     }
-    
+
     public static CommandManager getCommandManager() {
         return commandManager;
     }
-    
+
     public static WorldManager getWorldManager() {
         return worldManager;
     }
