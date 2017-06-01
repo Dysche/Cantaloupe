@@ -31,7 +31,8 @@ public class Cantaloupe {
 
         // User Manager
         userManager = new UserManager();
-
+        userManager.load();
+        
         // Plugin Manager
         pluginManager = new CantaloupePluginManager();
         pluginManager.load();
@@ -39,9 +40,6 @@ public class Cantaloupe {
         // World Manager
         worldManager = new WorldManager();
         worldManager.load();
-
-        // User Manager
-        userManager.load();
 
         // Command Manager
         commandManager = new CommandManager();

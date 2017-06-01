@@ -23,6 +23,8 @@ import org.cantaloupe.world.Location;
 import org.cantaloupe.world.World;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 public class User implements IPermittable, IPermissionHolder {
     private final Player                    handle;
@@ -80,7 +82,6 @@ public class User implements IPermittable, IPermissionHolder {
         }
         
         this.permissionAttachment.remove();
-
         this.getInjector().clear();
     }
 
@@ -95,6 +96,10 @@ public class User implements IPermittable, IPermissionHolder {
         }
     }
 
+    public void teleport(org.bukkit.Location handle) {
+        this.handle.teleport(handle);
+    }
+    
     public void teleport(Location location) {
         this.handle.teleport(location.getHandle());
     }
@@ -112,6 +117,38 @@ public class User implements IPermittable, IPermissionHolder {
     }
 
     public void teleport(World world, Vector3d position, Vector2f rotation) {
+        this.handle.teleport(Location.of(world, position, rotation).getHandle());
+    }
+    
+    public void teleport(Vector3f position) {
+        this.handle.teleport(Location.of(this.getWorld(), position).getHandle());
+    }
+
+    public void teleport(Vector3f position, Vector2f rotation) {
+        this.handle.teleport(Location.of(this.getWorld(), position, rotation).getHandle());
+    }
+
+    public void teleport(World world, Vector3f position) {
+        this.handle.teleport(Location.of(world, position).getHandle());
+    }
+
+    public void teleport(World world, Vector3f position, Vector2f rotation) {
+        this.handle.teleport(Location.of(world, position, rotation).getHandle());
+    }
+    
+    public void teleport(Vector3i position) {
+        this.handle.teleport(Location.of(this.getWorld(), position).getHandle());
+    }
+
+    public void teleport(Vector3i position, Vector2f rotation) {
+        this.handle.teleport(Location.of(this.getWorld(), position, rotation).getHandle());
+    }
+
+    public void teleport(World world, Vector3i position) {
+        this.handle.teleport(Location.of(world, position).getHandle());
+    }
+
+    public void teleport(World world, Vector3i position, Vector2f rotation) {
         this.handle.teleport(Location.of(world, position, rotation).getHandle());
     }
 
