@@ -19,8 +19,9 @@ import org.cantaloupe.permission.group.Group;
 import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.user.UserManager.Scopes;
-import org.cantaloupe.world.Location;
 import org.cantaloupe.world.World;
+import org.cantaloupe.world.location.ImmutableLocation;
+import org.cantaloupe.world.location.Location;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -80,7 +81,7 @@ public class User implements IPermittable, IPermissionHolder {
                 consumer.accept(this);
             }
         }
-        
+
         this.permissionAttachment.remove();
         this.getInjector().clear();
     }
@@ -99,57 +100,57 @@ public class User implements IPermittable, IPermissionHolder {
     public void teleport(org.bukkit.Location handle) {
         this.handle.teleport(handle);
     }
-    
+
     public void teleport(Location location) {
         this.handle.teleport(location.getHandle());
     }
-    
+
     public void teleport(Vector3d position) {
-        this.handle.teleport(Location.of(this.getWorld(), position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).getHandle());
     }
 
     public void teleport(Vector3d position, Vector2f rotation) {
-        this.handle.teleport(Location.of(this.getWorld(), position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).getHandle());
     }
 
     public void teleport(World world, Vector3d position) {
-        this.handle.teleport(Location.of(world, position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position).getHandle());
     }
 
     public void teleport(World world, Vector3d position, Vector2f rotation) {
-        this.handle.teleport(Location.of(world, position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position, rotation).getHandle());
     }
-    
+
     public void teleport(Vector3f position) {
-        this.handle.teleport(Location.of(this.getWorld(), position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).getHandle());
     }
 
     public void teleport(Vector3f position, Vector2f rotation) {
-        this.handle.teleport(Location.of(this.getWorld(), position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).getHandle());
     }
 
     public void teleport(World world, Vector3f position) {
-        this.handle.teleport(Location.of(world, position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position).getHandle());
     }
 
     public void teleport(World world, Vector3f position, Vector2f rotation) {
-        this.handle.teleport(Location.of(world, position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position, rotation).getHandle());
     }
-    
+
     public void teleport(Vector3i position) {
-        this.handle.teleport(Location.of(this.getWorld(), position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).getHandle());
     }
 
     public void teleport(Vector3i position, Vector2f rotation) {
-        this.handle.teleport(Location.of(this.getWorld(), position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).getHandle());
     }
 
     public void teleport(World world, Vector3i position) {
-        this.handle.teleport(Location.of(world, position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position).getHandle());
     }
 
     public void teleport(World world, Vector3i position, Vector2f rotation) {
-        this.handle.teleport(Location.of(world, position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position, rotation).getHandle());
     }
 
     public void sendMessage(Text text) {
@@ -330,16 +331,16 @@ public class User implements IPermittable, IPermissionHolder {
         return Cantaloupe.getWorldManager().getWorld(this.handle.getWorld().getName());
     }
 
-    public Location getLocation() {
-        return Location.of(this.handle.getLocation());
+    public ImmutableLocation getLocation() {
+        return ImmutableLocation.of(this.handle.getLocation());
     }
-    
-    public Location getEyeLocation() {
-        return Location.of(this.handle.getEyeLocation());
+
+    public ImmutableLocation getEyeLocation() {
+        return ImmutableLocation.of(this.handle.getEyeLocation());
     }
-    
-    public Location getBedSpawnLocation() {
-        return Location.of(this.handle.getBedSpawnLocation());
+
+    public ImmutableLocation getBedSpawnLocation() {
+        return ImmutableLocation.of(this.handle.getBedSpawnLocation());
     }
 
     public Collection<Group> getGroups() {
