@@ -13,6 +13,10 @@ public class World {
         this.handle = handle;
     }
 
+    public org.bukkit.World toHandle() {
+        return this.handle;
+    }
+    
     public List<User> getPlayers() {
         ArrayList<User> users = new ArrayList<User>();
 
@@ -21,10 +25,6 @@ public class World {
         });
 
         return users;
-    }
-
-    public org.bukkit.World getHandle() {
-        return this.handle;
     }
 
     public String getName() {

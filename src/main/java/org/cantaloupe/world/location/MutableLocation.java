@@ -12,7 +12,7 @@ public class MutableLocation implements Location {
     protected final org.bukkit.Location handle;
 
     private MutableLocation(Location other) {
-        this.handle = other.getHandle().clone();
+        this.handle = other.toHandle().clone();
         this.world = other.getWorld();
     }
 
@@ -22,32 +22,32 @@ public class MutableLocation implements Location {
     }
 
     private MutableLocation(World world, Vector3d position) {
-        this.handle = new org.bukkit.Location(world.getHandle(), position.x, position.y, position.z);
+        this.handle = new org.bukkit.Location(world.toHandle(), position.x, position.y, position.z);
         this.world = world;
     }
 
     private MutableLocation(World world, Vector3f position) {
-        this.handle = new org.bukkit.Location(world.getHandle(), position.x, position.y, position.z);
+        this.handle = new org.bukkit.Location(world.toHandle(), position.x, position.y, position.z);
         this.world = world;
     }
 
     private MutableLocation(World world, Vector3i position) {
-        this.handle = new org.bukkit.Location(world.getHandle(), position.x, position.y, position.z);
+        this.handle = new org.bukkit.Location(world.toHandle(), position.x, position.y, position.z);
         this.world = world;
     }
 
     private MutableLocation(World world, Vector3d position, Vector2f rotation) {
-        this.handle = new org.bukkit.Location(world.getHandle(), position.x, position.y, position.z, rotation.x, rotation.y);
+        this.handle = new org.bukkit.Location(world.toHandle(), position.x, position.y, position.z, rotation.x, rotation.y);
         this.world = world;
     }
 
     private MutableLocation(World world, Vector3f position, Vector2f rotation) {
-        this.handle = new org.bukkit.Location(world.getHandle(), position.x, position.y, position.z, rotation.x, rotation.y);
+        this.handle = new org.bukkit.Location(world.toHandle(), position.x, position.y, position.z, rotation.x, rotation.y);
         this.world = world;
     }
 
     private MutableLocation(World world, Vector3i position, Vector2f rotation) {
-        this.handle = new org.bukkit.Location(world.getHandle(), position.x, position.y, position.z, rotation.x, rotation.y);
+        this.handle = new org.bukkit.Location(world.toHandle(), position.x, position.y, position.z, rotation.x, rotation.y);
         this.world = world;
     }
 
@@ -371,22 +371,22 @@ public class MutableLocation implements Location {
         return this;
     }
 
+    @Override
+    public Location clone() {
+        return MutableLocation.of(this);
+    }
+    
     public ImmutableLocation toImmutable() {
         return ImmutableLocation.of(this);
     }
-
+    
     @Override
-    public Location clone() {
-        return MutableLocation.of(this.handle.clone());
+    public org.bukkit.Location toHandle() {
+        return this.handle;
     }
 
     @Override
     public World getWorld() {
         return this.world;
-    }
-
-    @Override
-    public org.bukkit.Location getHandle() {
-        return this.handle;
     }
 }

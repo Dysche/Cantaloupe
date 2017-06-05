@@ -11,12 +11,12 @@ import org.cantaloupe.command.CommandSpec;
 public abstract class CantaloupePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
-
+        this.onInit();
     }
 
     @Override
     public void onDisable() {
-
+        this.onDeinit();
     }
 
     public void registerCommand(CommandSpec spec, String name, String... aliases) {
@@ -35,7 +35,11 @@ public abstract class CantaloupePlugin extends JavaPlugin {
         return Cantaloupe.getCommandManager().getCommands(this);
     }
 
-    public abstract void onStart();
+    public void onPreInit() {}
 
-    public abstract void onStop();
+    public abstract void onInit();
+
+    public abstract void onDeinit();
+
+    public void onPostInit() {}
 }

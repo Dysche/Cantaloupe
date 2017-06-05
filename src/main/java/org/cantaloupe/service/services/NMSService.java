@@ -7,10 +7,17 @@ public class NMSService implements Service {
     private String serverPackage = null;
     private String bukkitPackage = null;
 
+    private String serverVersion = null;
+    private int    intVersion    = -1;
+
     @Override
     public void load() {
-        this.serverPackage = "net.minecraft.server." + this.getStringVersion() + ".";
-        this.bukkitPackage = "org.bukkit.craftbukkit." + this.getStringVersion() + ".";
+        String version = Bukkit.getServer().getClass().getPackage().getName();
+        this.serverVersion = version.substring(version.lastIndexOf('.') + 1);       
+        this.intVersion = Integer.parseInt(this.getServerVersion().split("_")[1]);
+        
+        this.serverPackage = "net.minecraft.server." + this.getServerVersion() + ".";
+        this.bukkitPackage = "org.bukkit.craftbukkit." + this.getServerVersion() + ".";
     }
 
     @Override
@@ -19,14 +26,12 @@ public class NMSService implements Service {
         this.bukkitPackage = null;
     }
 
-    public String getStringVersion() {
-        String version = Bukkit.getServer().getClass().getPackage().getName();
-
-        return version.substring(version.lastIndexOf('.') + 1);
+    public String getServerVersion() {
+        return this.serverVersion;
     }
 
-    public int getVersion() {
-        return Integer.parseInt(this.getStringVersion().split("_")[1]);
+    public int getIntVersion() {
+        return this.intVersion;
     }
 
     public String getServerPackage() {

@@ -23,7 +23,7 @@ public class Cantaloupe {
     private static WorldManager            worldManager   = null;
     private static CommandManager          commandManager = null;
     private static ServiceManager          serviceManager = null;
-    
+
     public static void initialize(CantaloupeMain plugin) {
         System.out.println("Initializing Cantaloupe.");
 
@@ -37,10 +37,6 @@ public class Cantaloupe {
         // User Manager
         userManager = new UserManager();
         userManager.load();
-        
-        // Plugin Manager
-        pluginManager = new CantaloupePluginManager();
-        pluginManager.load();
 
         // World Manager
         worldManager = new WorldManager();
@@ -48,29 +44,20 @@ public class Cantaloupe {
 
         // Command Manager
         commandManager = new CommandManager();
-        
+
         // Service Manager
         serviceManager = new ServiceManager();
         serviceManager.registerService(NMSService.class);
         serviceManager.registerService(PacketService.class);
         serviceManager.registerService(ParticleService.class);
         serviceManager.load();
-        
-        // Post Initalization
-        new Thread() {
-            @Override
-            public void run() {
-                while (!pluginManager.isReady()) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
 
-                postInitialize();
-            }
-        }.start();
+        // Plugin Manager
+        pluginManager = new CantaloupePluginManager();
+        pluginManager.load();
+
+        // Post Initialization
+        postInitialize();
 
         System.out.println("Initialized Cantaloupe.");
     }
@@ -80,6 +67,9 @@ public class Cantaloupe {
 
         // User Manager
         userManager.finish();
+        
+        // Plugin Manager
+        pluginManager.finish();
 
         System.out.println("Post-initialized Cantaloupe.");
     }
@@ -91,6 +81,10 @@ public class Cantaloupe {
         pluginManager.unload();
         pluginManager = null;
 
+        // Service Manager
+        serviceManager.unload();
+        serviceManager = null;
+
         // User Manager
         userManager.unload();
         userManager = null;
@@ -98,14 +92,10 @@ public class Cantaloupe {
         // World Manager
         worldManager.unload();
         worldManager = null;
-        
+
         // Command Manager
         commandManager.unload();
         commandManager = null;
-        
-        // Service Manager
-        serviceManager.unload();
-        serviceManager = null;
 
         System.out.println("Deinitialized Cantaloupe.");
     }
@@ -135,7 +125,7 @@ public class Cantaloupe {
     public static UserManager getUserManager() {
         return userManager;
     }
-    
+
     public static WorldManager getWorldManager() {
         return worldManager;
     }
@@ -143,7 +133,7 @@ public class Cantaloupe {
     public static CommandManager getCommandManager() {
         return commandManager;
     }
-    
+
     public static ServiceManager getServiceManager() {
         return serviceManager;
     }

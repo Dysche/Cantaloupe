@@ -19,52 +19,34 @@ public class CantaloupePluginManager {
     }
 
     public void load() {
-        for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-            if (plugin instanceof CantaloupePlugin) {
-                this.pluginQueue.add((CantaloupePlugin) plugin);
+        for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
+            if (p instanceof CantaloupePlugin) {
+                CantaloupePlugin plugin = (CantaloupePlugin) p;
+                
+                loadedPlugins.put(plugin.getName(), plugin);
+                plugin.onPreInit();
             }
         }
 
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                while (!isReady()) {
-                    if (pluginQueue.size() > 0) {
-                        while (!pluginQueue.isEmpty()) {
-                            CantaloupePlugin plugin = pluginQueue.poll();
-
-                            loadedPlugins.put(plugin.getName(), plugin);
-                            plugin.onStart();
-                        }
-                    } else {
-                        markReady();
-                    }
-
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-
-        thread.start();
+        markReady();
     }
-
-    private void markReady() {
-        this.ready = true;
+    
+    public void finish() {
+        this.loadedPlugins.forEach((ID, plugin) -> plugin.onPostInit());
     }
 
     public void unload() {
         this.pluginQueue.clear();
         this.pluginQueue = null;
 
-        this.loadedPlugins.forEach((ID, plugin) -> plugin.onStop());
         this.loadedPlugins.clear();
         this.loadedPlugins = null;
 
         this.ready = false;
+    }
+    
+    private void markReady() {
+        this.ready = true;
     }
 
     public boolean isReady() {

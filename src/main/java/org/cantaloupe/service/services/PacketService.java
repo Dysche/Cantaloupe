@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.service.Service;
+import org.cantaloupe.service.services.ParticleService.ParticleProperty;
 import org.cantaloupe.service.services.ParticleService.ParticleType;
 import org.cantaloupe.user.User;
 import org.cantaloupe.util.ReflectionHelper;
@@ -11,34 +12,54 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 public class PacketService implements Service {
-    private NMSService nmsService        = null;
-    private Class<?>   packetClass       = null;
-    private Class<?>   enumParticleClass = null;
+    private NMSService nmsService          = null;
+    private Class<?>   packetClass         = null;
+
+    // Particle Classes
+    private Class<?>   particlePacketClass = null;
+    private Class<?>   enumParticleClass   = null;
+    private Enum<?>[]  enumParticleValues  = null;
 
     @Override
     public void load() {
         this.nmsService = Cantaloupe.getServiceManager().getService(NMSService.class);
         this.packetClass = this.nmsService.getNMSClass("Packet");
-        this.enumParticleClass = this.nmsService.getNMSClass("EnumParticle");
+
+        // Particle Classes
+        this.particlePacketClass = this.nmsService.getNMSClass(this.nmsService.getIntVersion() < 7 ? "Packet63WorldParticles" : "PacketPlayOutWorldParticles");
+
+        if (this.nmsService.getIntVersion() > 7) {
+            this.enumParticleClass = this.nmsService.getNMSClass("EnumParticle");
+        }
+
+        try {
+            this.enumParticleValues = (Enum<?>[]) this.enumParticleClass.getDeclaredMethod("values").invoke(null);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void unload() {
         this.nmsService = null;
+        this.packetClass = null;
+
+        this.enumParticleClass = null;
+        this.enumParticleValues = null;
     }
 
-    public void sendParticlePacket(User user, ParticleType type, Vector3d position, Vector3f offset, boolean longDistance, float speed, int amount, int... data) {
+    protected void sendParticlePacket(User user, ParticleType type, Vector3d position, Vector3f offset, boolean longDistance, float speed, int amount, int... data) {
         float offsetX = offset.x;
         float offsetY = offset.y;
         float offsetZ = offset.z;
 
         if (type.getRequiredVersion() != -1) {
-            if (type.getRequiredVersion() > this.nmsService.getVersion()) {
+            if (type.getRequiredVersion() > this.nmsService.getIntVersion()) {
                 return;
             }
         }
 
-        if (type.isColorable()) {
+        if (type.hasProperty(ParticleProperty.COLORABLE)) {
             if (offsetX > 0) {
                 offsetX /= 255f;
             } else {
@@ -50,10 +71,9 @@ public class PacketService implements Service {
         }
 
         try {
-            Class<?> packetClass = this.nmsService.getNMSClass(this.nmsService.getVersion() < 7 ? "Packet63WorldParticles" : "PacketPlayOutWorldParticles");
-            Object packet = packetClass.newInstance();
+            Object packet = this.particlePacketClass.newInstance();
 
-            if (this.nmsService.getVersion() < 7) {
+            if (this.nmsService.getIntVersion() < 7) {
                 String name = type.getName();
 
                 if (data.length > 0) {
@@ -62,9 +82,7 @@ public class PacketService implements Service {
 
                 ReflectionHelper.setPrivateField("a", packet, name);
             } else {
-                Enum<?>[] values = (Enum<?>[]) this.enumParticleClass.getDeclaredMethod("values").invoke(null);
-
-                ReflectionHelper.setPrivateField("a", packet, values[type.getID()]);
+                ReflectionHelper.setPrivateField("a", packet, this.enumParticleValues[type.getID()]);
                 ReflectionHelper.setPrivateField("j", packet, longDistance);
 
                 if (data.length > 0) {
@@ -84,7 +102,7 @@ public class PacketService implements Service {
             ReflectionHelper.setPrivateField("i", packet, amount);
 
             this.sendPacket(user, packet);
-        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException e) {
+        } catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchFieldException e) {
             e.printStackTrace();
         }
     }

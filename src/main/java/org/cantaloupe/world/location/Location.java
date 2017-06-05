@@ -82,22 +82,24 @@ public interface Location {
 
     public Location clone();
 
+    public org.bukkit.Location toHandle();
+    
     public World getWorld();
 
     public default Vector3d getPosition() {
-        return new Vector3d(this.getHandle().getX(), this.getHandle().getY(), this.getHandle().getZ());
+        return new Vector3d(this.toHandle().getX(), this.toHandle().getY(), this.toHandle().getZ());
     }
 
     public default Vector3i getBlockPosition() {
-        return new Vector3i(this.getHandle().getBlockX(), this.getHandle().getBlockY(), this.getHandle().getBlockZ());
+        return new Vector3i(this.toHandle().getBlockX(), this.toHandle().getBlockY(), this.toHandle().getBlockZ());
     }
 
     public default Vector3i getChunkPosition() {
-        return new Vector3i(this.getHandle().getChunk().getX(), 0, this.getHandle().getChunk().getZ());
+        return new Vector3i(this.toHandle().getChunk().getX(), 0, this.toHandle().getChunk().getZ());
     }
 
     public default Vector3d getDirection() {
-        return new Vector3d(this.getHandle().getDirection().getX(), this.getHandle().getDirection().getY(), this.getHandle().getDirection().getZ());
+        return new Vector3d(this.toHandle().getDirection().getX(), this.toHandle().getDirection().getY(), this.toHandle().getDirection().getZ());
     }
 
     public default Vector2f getRotation() {
@@ -105,16 +107,14 @@ public interface Location {
     }
 
     public default float getYaw() {
-        return this.getHandle().getYaw();
+        return this.toHandle().getYaw();
     }
 
     public default float getPitch() {
-        return this.getHandle().getPitch();
+        return this.toHandle().getPitch();
     }
 
     public default Block getBlock() {
-        return this.getHandle().getBlock();
+        return this.toHandle().getBlock();
     }
-
-    public org.bukkit.Location getHandle();
 }

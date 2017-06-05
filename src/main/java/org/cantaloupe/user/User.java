@@ -102,55 +102,55 @@ public class User implements IPermittable, IPermissionHolder {
     }
 
     public void teleport(Location location) {
-        this.handle.teleport(location.getHandle());
+        this.handle.teleport(location.toHandle());
     }
 
     public void teleport(Vector3d position) {
-        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).toHandle());
     }
 
     public void teleport(Vector3d position, Vector2f rotation) {
-        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).toHandle());
     }
 
     public void teleport(World world, Vector3d position) {
-        this.handle.teleport(ImmutableLocation.of(world, position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position).toHandle());
     }
 
     public void teleport(World world, Vector3d position, Vector2f rotation) {
-        this.handle.teleport(ImmutableLocation.of(world, position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position, rotation).toHandle());
     }
 
     public void teleport(Vector3f position) {
-        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).toHandle());
     }
 
     public void teleport(Vector3f position, Vector2f rotation) {
-        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).toHandle());
     }
 
     public void teleport(World world, Vector3f position) {
-        this.handle.teleport(ImmutableLocation.of(world, position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position).toHandle());
     }
 
     public void teleport(World world, Vector3f position, Vector2f rotation) {
-        this.handle.teleport(ImmutableLocation.of(world, position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position, rotation).toHandle());
     }
 
     public void teleport(Vector3i position) {
-        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).toHandle());
     }
 
     public void teleport(Vector3i position, Vector2f rotation) {
-        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).toHandle());
     }
 
     public void teleport(World world, Vector3i position) {
-        this.handle.teleport(ImmutableLocation.of(world, position).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position).toHandle());
     }
 
     public void teleport(World world, Vector3i position, Vector2f rotation) {
-        this.handle.teleport(ImmutableLocation.of(world, position, rotation).getHandle());
+        this.handle.teleport(ImmutableLocation.of(world, position, rotation).toHandle());
     }
 
     public void sendMessage(Text text) {
