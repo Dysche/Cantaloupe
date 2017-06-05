@@ -7,6 +7,10 @@ import org.bukkit.plugin.Plugin;
 import org.cantaloupe.command.CommandManager;
 import org.cantaloupe.main.CantaloupeMain;
 import org.cantaloupe.plugin.CantaloupePluginManager;
+import org.cantaloupe.service.ServiceManager;
+import org.cantaloupe.service.services.NMSService;
+import org.cantaloupe.service.services.PacketService;
+import org.cantaloupe.service.services.ParticleService;
 import org.cantaloupe.user.UserManager;
 import org.cantaloupe.util.CantaloupeClassLoader;
 import org.cantaloupe.world.WorldManager;
@@ -18,7 +22,8 @@ public class Cantaloupe {
     private static UserManager             userManager    = null;
     private static WorldManager            worldManager   = null;
     private static CommandManager          commandManager = null;
-
+    private static ServiceManager          serviceManager = null;
+    
     public static void initialize(CantaloupeMain plugin) {
         System.out.println("Initializing Cantaloupe.");
 
@@ -43,7 +48,14 @@ public class Cantaloupe {
 
         // Command Manager
         commandManager = new CommandManager();
-
+        
+        // Service Manager
+        serviceManager = new ServiceManager();
+        serviceManager.registerService(NMSService.class);
+        serviceManager.registerService(PacketService.class);
+        serviceManager.registerService(ParticleService.class);
+        serviceManager.load();
+        
         // Post Initalization
         new Thread() {
             @Override
@@ -83,13 +95,17 @@ public class Cantaloupe {
         userManager.unload();
         userManager = null;
 
-        // Command Manager
-        commandManager.unload();
-        commandManager = null;
-
         // World Manager
         worldManager.unload();
         worldManager = null;
+        
+        // Command Manager
+        commandManager.unload();
+        commandManager = null;
+        
+        // Service Manager
+        serviceManager.unload();
+        serviceManager = null;
 
         System.out.println("Deinitialized Cantaloupe.");
     }
@@ -119,12 +135,16 @@ public class Cantaloupe {
     public static UserManager getUserManager() {
         return userManager;
     }
+    
+    public static WorldManager getWorldManager() {
+        return worldManager;
+    }
 
     public static CommandManager getCommandManager() {
         return commandManager;
     }
-
-    public static WorldManager getWorldManager() {
-        return worldManager;
+    
+    public static ServiceManager getServiceManager() {
+        return serviceManager;
     }
 }
