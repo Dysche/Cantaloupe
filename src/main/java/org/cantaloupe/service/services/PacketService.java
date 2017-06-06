@@ -4,11 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.service.Service;
+import org.cantaloupe.service.services.ParticleService.ParticleData;
 import org.cantaloupe.service.services.ParticleService.ParticleProperty;
 import org.cantaloupe.service.services.ParticleService.ParticleType;
 import org.cantaloupe.user.User;
 import org.cantaloupe.util.ReflectionHelper;
-import org.joml.Vector3d;
+import org.cantaloupe.world.location.Location;
 import org.joml.Vector3f;
 
 public class PacketService implements Service {
@@ -48,19 +49,13 @@ public class PacketService implements Service {
         this.enumParticleValues = null;
     }
 
-    protected void sendParticlePacket(User user, ParticleType type, Vector3d position, Vector3f offset, boolean longDistance, float speed, int amount, int... data) {
+    protected void sendParticlePacket(User[] users, ParticleType type, ParticleData data, Location location, Vector3f offset, boolean longDistance, float speed, int amount) {
         float offsetX = offset.x;
         float offsetY = offset.y;
         float offsetZ = offset.z;
 
-        if (type.getRequiredVersion() != -1) {
-            if (type.getRequiredVersion() > this.nmsService.getIntVersion()) {
-                return;
-            }
-        }
-
         if (type.hasProperty(ParticleProperty.COLORABLE)) {
-            if (offsetX > 0) {
+            if (offsetX > 0f) {
                 offsetX /= 255f;
             } else {
                 offsetX = Float.MIN_NORMAL;
@@ -76,8 +71,8 @@ public class PacketService implements Service {
             if (this.nmsService.getIntVersion() < 7) {
                 String name = type.getName();
 
-                if (data.length > 0) {
-                    name += "_" + data[0] + "_" + data[1];
+                if (data != null) {
+                    name += data.getPacketDataString();
                 }
 
                 ReflectionHelper.setPrivateField("a", packet, name);
@@ -85,23 +80,27 @@ public class PacketService implements Service {
                 ReflectionHelper.setPrivateField("a", packet, this.enumParticleValues[type.getID()]);
                 ReflectionHelper.setPrivateField("j", packet, longDistance);
 
-                if (data.length > 0) {
-                    ReflectionHelper.setPrivateField("k", packet, type == ParticleType.ITEM_CRACK ? data : new int[] {
-                            data[0] | (data[1] << 12)
+                if (data != null) {
+                    int[] packetData = data.getPacketData();
+
+                    ReflectionHelper.setPrivateField("k", packet, type == ParticleType.ITEM_CRACK ? packetData : new int[] {
+                            packetData[0] | (packetData[1] << 12)
                     });
                 }
             }
 
-            ReflectionHelper.setPrivateField("b", packet, (float) position.x);
-            ReflectionHelper.setPrivateField("c", packet, (float) position.y);
-            ReflectionHelper.setPrivateField("d", packet, (float) position.z);
+            ReflectionHelper.setPrivateField("b", packet, (float) location.getPosition().x);
+            ReflectionHelper.setPrivateField("c", packet, (float) location.getPosition().y);
+            ReflectionHelper.setPrivateField("d", packet, (float) location.getPosition().z);
             ReflectionHelper.setPrivateField("e", packet, offsetX);
             ReflectionHelper.setPrivateField("f", packet, offsetY);
             ReflectionHelper.setPrivateField("g", packet, offsetZ);
             ReflectionHelper.setPrivateField("h", packet, speed);
             ReflectionHelper.setPrivateField("i", packet, amount);
 
-            this.sendPacket(user, packet);
+            for (User user : users) {
+                this.sendPacket(user, packet);
+            }
         } catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchFieldException e) {
             e.printStackTrace();
         }
