@@ -3,6 +3,7 @@ package org.cantaloupe.config;
 import java.io.File;
 import java.io.IOException;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -42,6 +43,10 @@ public class YMLConfig {
 
     public void put(String key, Object value) {
         this.object.set(key, value);
+    }
+
+    public ConfigurationSection getSection(String name) {
+        return this.object.getConfigurationSection(name);
     }
 
     @SuppressWarnings("unchecked")

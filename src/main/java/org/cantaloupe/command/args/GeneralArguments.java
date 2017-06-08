@@ -47,12 +47,12 @@ public class GeneralArguments {
         return new BooleanElement(key);
     }
 
-    public static CommandElement user(String key) {
-        return new UserCommandElement(key, false);
+    public static CommandElement player(String key) {
+        return new PlayerCommandElement(key, false);
     }
 
-    public static CommandElement userOrSource(String key) {
-        return new UserCommandElement(key, true);
+    public static CommandElement playerOrSource(String key) {
+        return new PlayerCommandElement(key, true);
     }
 
     public static CommandElement seq(CommandElement... elements) {
@@ -115,10 +115,10 @@ public class GeneralArguments {
         }
     }
 
-    private static class UserCommandElement extends KeyElement {
+    private static class PlayerCommandElement extends KeyElement {
         private final boolean returnSource;
 
-        protected UserCommandElement(String key, boolean returnSource) {
+        protected PlayerCommandElement(String key, boolean returnSource) {
             super(key);
 
             this.returnSource = returnSource;
@@ -127,7 +127,7 @@ public class GeneralArguments {
         @Override
         protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
             try {
-                return Cantaloupe.getUserManager().tryGetUser(args.next()).get();
+                return Cantaloupe.getPlayerManager().tryGetPlayer(args.next()).get();
             } catch (ArgumentParseException e) {
                 if (this.returnSource && source instanceof Player) {
                     return source;

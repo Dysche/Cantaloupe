@@ -1,4 +1,4 @@
-package org.cantaloupe.user;
+package org.cantaloupe.player;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,16 +9,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.inject.Injector;
+import org.cantaloupe.inventory.menu.Menu;
 import org.cantaloupe.permission.IPermissionHolder;
 import org.cantaloupe.permission.IPermittable;
 import org.cantaloupe.permission.group.Group;
 import org.cantaloupe.permission.group.GroupManager;
+import org.cantaloupe.player.PlayerManager.Scopes;
 import org.cantaloupe.text.Text;
-import org.cantaloupe.user.UserManager.Scopes;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.location.ImmutableLocation;
 import org.cantaloupe.world.location.Location;
@@ -27,57 +27,59 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
-public class User implements IPermittable, IPermissionHolder {
-    private final Player                    handle;
-    private final Injector<User>            injector;
+public class Player implements IPermittable, IPermissionHolder {
+    private final org.bukkit.entity.Player  handle;
+    private final Injector<Player>          injector;
     private final PermissionAttachment      permissionAttachment;
     private final ArrayList<Group>          groups;
     private final Map<String, List<String>> permissions;
+    
+    private Menu currentMenu = null;
 
-    private User(Player handle) {
+    private Player(org.bukkit.entity.Player handle) {
         this.handle = handle;
-        this.injector = new Injector<User>();
+        this.injector = new Injector<Player>();
 
         this.permissions = new HashMap<String, List<String>>();
         this.permissionAttachment = this.handle.addAttachment(Cantaloupe.getInstance());
         this.groups = new ArrayList<Group>();
     }
 
-    public static User of(Player handle) {
-        return new User(handle);
+    public static Player of(org.bukkit.entity.Player handle) {
+        return new Player(handle);
     }
 
     public void onJoin() {
-        Optional<List<Consumer<User>>> consumers = this.getInjector().getConsumers(Scopes.JOIN);
+        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.JOIN);
         if (consumers.isPresent()) {
-            for (Consumer<User> consumer : consumers.get()) {
+            for (Consumer<Player> consumer : consumers.get()) {
                 consumer.accept(this);
             }
         }
     }
 
     public void onLoad() {
-        Optional<List<Consumer<User>>> consumers = this.getInjector().getConsumers(Scopes.LOAD);
+        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.LOAD);
         if (consumers.isPresent()) {
-            for (Consumer<User> consumer : consumers.get()) {
+            for (Consumer<Player> consumer : consumers.get()) {
                 consumer.accept(this);
             }
         }
     }
 
     public void onLeave() {
-        Optional<List<Consumer<User>>> consumers = this.getInjector().getConsumers(Scopes.LEAVE);
+        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.LEAVE);
         if (consumers.isPresent()) {
-            for (Consumer<User> consumer : consumers.get()) {
+            for (Consumer<Player> consumer : consumers.get()) {
                 consumer.accept(this);
             }
         }
     }
 
     public void onUnload() {
-        Optional<List<Consumer<User>>> consumers = this.getInjector().getConsumers(Scopes.UNLOAD);
+        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.UNLOAD);
         if (consumers.isPresent()) {
-            for (Consumer<User> consumer : consumers.get()) {
+            for (Consumer<Player> consumer : consumers.get()) {
                 consumer.accept(this);
             }
         }
@@ -89,9 +91,9 @@ public class User implements IPermittable, IPermissionHolder {
     public void onWorldSwitch(World old) {
         this.updatePermissionsWorld();
 
-        Optional<List<Consumer<User>>> consumers = this.getInjector().getConsumers(Scopes.WORLD_SWITCH);
+        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.WORLD_SWITCH);
         if (consumers.isPresent()) {
-            for (Consumer<User> consumer : consumers.get()) {
+            for (Consumer<Player> consumer : consumers.get()) {
                 consumer.accept(this);
             }
         }
@@ -314,8 +316,18 @@ public class User implements IPermittable, IPermissionHolder {
             }
         }
     }
+    
+    public void openMenu(Menu menu) {
+        this.currentMenu = menu;
+        this.currentMenu.open();
+    }
+    
+    public void closeMenu() {
+        this.currentMenu = null;       
+        this.handle.closeInventory();
+    }
 
-    public Player toHandle() {
+    public org.bukkit.entity.Player toHandle() {
         return this.handle;
     }
 
@@ -354,8 +366,12 @@ public class User implements IPermittable, IPermissionHolder {
     public List<String> getPermissions(World world) {
         return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
     }
+    
+    public Menu getCurrentMenu() {
+        return this.currentMenu;
+    }
 
-    public Injector<User> getInjector() {
+    public Injector<Player> getInjector() {
         return this.injector;
     }
 }

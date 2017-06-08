@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cantaloupe.Cantaloupe;
-import org.cantaloupe.user.User;
+import org.cantaloupe.player.Player;
 
 public class World {
     private final org.bukkit.World handle;
@@ -17,14 +17,14 @@ public class World {
         return this.handle;
     }
     
-    public List<User> getPlayers() {
-        ArrayList<User> users = new ArrayList<User>();
+    public List<Player> getPlayers() {
+        ArrayList<Player> players = new ArrayList<Player>();
 
         this.handle.getPlayers().forEach(player -> {
-            users.add(Cantaloupe.getUserManager().getUserFromHandle(player).get());
+            players.add(Cantaloupe.getPlayerManager().getPlayerFromHandle(player).get());
         });
 
-        return users;
+        return players;
     }
 
     public String getName() {

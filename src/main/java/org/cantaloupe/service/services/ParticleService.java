@@ -8,7 +8,7 @@ import org.bukkit.Material;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.math.color.ColorRGB;
 import org.cantaloupe.service.Service;
-import org.cantaloupe.user.User;
+import org.cantaloupe.player.Player;
 import org.cantaloupe.world.location.Location;
 import org.joml.Vector3f;
 
@@ -18,93 +18,94 @@ public class ParticleService implements Service {
 
     @Override
     public void load() {
-        this.packetService = Cantaloupe.getServiceManager().getService(PacketService.class);
         this.nmsService = Cantaloupe.getServiceManager().getService(NMSService.class);
+        this.packetService = Cantaloupe.getServiceManager().getService(PacketService.class);
     }
 
     @Override
     public void unload() {
+        this.nmsService = null;
         this.packetService = null;
     }
 
     // Normal (Offset)
-    public void display(ParticleType type, Location location, Vector3f offset, float range, int amount, Collection<User> users) {
-        this.display(type, location, offset, range > 256f, 0f, amount, users.toArray(new User[0]));
+    public void display(ParticleType type, Location location, Vector3f offset, float range, int amount, Collection<Player> players) {
+        this.display(type, location, offset, range > 256f, 0f, amount, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, float range, int amount, User... users) {
-        this.display(type, location, offset, range > 256f, 0f, amount, users);
+    public void display(ParticleType type, Location location, Vector3f offset, float range, int amount, Player... players) {
+        this.display(type, location, offset, range > 256f, 0f, amount, players);
     }
 
-    public void display(ParticleType type, Location location, float range, int amount, Collection<User> users) {
-        this.display(type, location, new Vector3f(), range > 256f, 0f, amount, users.toArray(new User[0]));
+    public void display(ParticleType type, Location location, float range, int amount, Collection<Player> players) {
+        this.display(type, location, new Vector3f(), range > 256f, 0f, amount, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, Location location, float range, int amount, User... users) {
-        this.display(type, location, new Vector3f(), range > 256f, 0f, amount, users);
+    public void display(ParticleType type, Location location, float range, int amount, Player... players) {
+        this.display(type, location, new Vector3f(), range > 256f, 0f, amount, players);
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, float range, Collection<User> users) {
-        this.display(type, location, offset, range > 256f, 0f, 1, users.toArray(new User[0]));
+    public void display(ParticleType type, Location location, Vector3f offset, float range, Collection<Player> players) {
+        this.display(type, location, offset, range > 256f, 0f, 1, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, float range, User... users) {
-        this.display(type, location, offset, range > 256f, 0f, 1, users);
+    public void display(ParticleType type, Location location, Vector3f offset, float range, Player... players) {
+        this.display(type, location, offset, range > 256f, 0f, 1, players);
     }
 
-    public void display(ParticleType type, Location location, float range, Collection<User> users) {
-        this.display(type, location, new Vector3f(), range > 256f, 0f, 1, users.toArray(new User[0]));
+    public void display(ParticleType type, Location location, float range, Collection<Player> players) {
+        this.display(type, location, new Vector3f(), range > 256f, 0f, 1, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, Location location, float range, User... users) {
-        this.display(type, location, new Vector3f(), range > 256f, 0f, 1, users);
+    public void display(ParticleType type, Location location, float range, Player... players) {
+        this.display(type, location, new Vector3f(), range > 256f, 0f, 1, players);
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, int amount, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, Location location, Vector3f offset, int amount, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, location, offset, this.isLongDistance(location, userArray), 0f, amount, userArray);
+        this.display(type, location, offset, this.isLongDistance(location, playerArray), 0f, amount, playerArray);
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, int amount, User... users) {
-        this.display(type, location, offset, this.isLongDistance(location, users), 0f, amount, users);
+    public void display(ParticleType type, Location location, Vector3f offset, int amount, Player... players) {
+        this.display(type, location, offset, this.isLongDistance(location, players), 0f, amount, players);
     }
 
-    public void display(ParticleType type, Location location, int amount, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, Location location, int amount, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, location, new Vector3f(), this.isLongDistance(location, userArray), 0f, amount, userArray);
+        this.display(type, location, new Vector3f(), this.isLongDistance(location, playerArray), 0f, amount, playerArray);
     }
 
-    public void display(ParticleType type, Location location, int amount, User... users) {
-        this.display(type, location, new Vector3f(), this.isLongDistance(location, users), 0f, amount, users);
+    public void display(ParticleType type, Location location, int amount, Player... players) {
+        this.display(type, location, new Vector3f(), this.isLongDistance(location, players), 0f, amount, players);
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, Location location, Vector3f offset, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, location, offset, this.isLongDistance(location, userArray), 0f, 1, userArray);
+        this.display(type, location, offset, this.isLongDistance(location, playerArray), 0f, 1, playerArray);
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, User... users) {
-        this.display(type, location, offset, this.isLongDistance(location, users), 0f, 1, users);
+    public void display(ParticleType type, Location location, Vector3f offset, Player... players) {
+        this.display(type, location, offset, this.isLongDistance(location, players), 0f, 1, players);
     }
 
-    public void display(ParticleType type, Location location, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, Location location, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, location, new Vector3f(), this.isLongDistance(location, userArray), 0f, 1, userArray);
+        this.display(type, location, new Vector3f(), this.isLongDistance(location, playerArray), 0f, 1, playerArray);
     }
 
-    public void display(ParticleType type, Location location, User... users) {
-        this.display(type, location, new Vector3f(), this.isLongDistance(location, users), 0f, 1, users);
+    public void display(ParticleType type, Location location, Player... players) {
+        this.display(type, location, new Vector3f(), this.isLongDistance(location, players), 0f, 1, players);
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, boolean longDistance, float speed, int amount, Collection<User> users) {
-        this.display(type, location, offset, longDistance, speed, amount, users.toArray(new User[0]));
+    public void display(ParticleType type, Location location, Vector3f offset, boolean longDistance, float speed, int amount, Collection<Player> players) {
+        this.display(type, location, offset, longDistance, speed, amount, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, Location location, Vector3f offset, boolean longDistance, float speed, int amount, User... users) {
+    public void display(ParticleType type, Location location, Vector3f offset, boolean longDistance, float speed, int amount, Player... players) {
         if (!this.isSupported(type)) {
             throw new ParticleVersionException("This particle effect isn't supported by your server version.");
         }
@@ -117,87 +118,87 @@ public class ParticleService implements Service {
             throw new IllegalArgumentException("This particle effect requires water at its location.");
         }
 
-        this.packetService.sendParticlePacket(users, type, null, location, offset, longDistance, speed, amount);
+        this.packetService.sendParticlePacket(players, type, null, location, offset, longDistance, speed, amount);
     }
 
     // Data
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, float range, int amount, Collection<User> users) {
-        this.display(type, data, location, offset, range > 256f, 0f, amount, users.toArray(new User[0]));
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, float range, int amount, Collection<Player> players) {
+        this.display(type, data, location, offset, range > 256f, 0f, amount, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, float range, int amount, User... users) {
-        this.display(type, data, location, offset, range > 256f, 0f, amount, users);
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, float range, int amount, Player... players) {
+        this.display(type, data, location, offset, range > 256f, 0f, amount, players);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, float range, int amount, Collection<User> users) {
-        this.display(type, data, location, new Vector3f(), range > 256f, 0f, amount, users.toArray(new User[0]));
+    public void display(ParticleType type, ParticleData data, Location location, float range, int amount, Collection<Player> players) {
+        this.display(type, data, location, new Vector3f(), range > 256f, 0f, amount, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, float range, int amount, User... users) {
-        this.display(type, data, location, new Vector3f(), range > 256f, 0f, amount, users);
+    public void display(ParticleType type, ParticleData data, Location location, float range, int amount, Player... players) {
+        this.display(type, data, location, new Vector3f(), range > 256f, 0f, amount, players);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, float range, Collection<User> users) {
-        this.display(type, data, location, offset, range > 256f, 0f, 1, users.toArray(new User[0]));
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, float range, Collection<Player> players) {
+        this.display(type, data, location, offset, range > 256f, 0f, 1, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, float range, User... users) {
-        this.display(type, data, location, offset, range > 256f, 0f, 1, users);
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, float range, Player... players) {
+        this.display(type, data, location, offset, range > 256f, 0f, 1, players);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, float range, Collection<User> users) {
-        this.display(type, data, location, new Vector3f(), range > 256f, 0f, 1, users.toArray(new User[0]));
+    public void display(ParticleType type, ParticleData data, Location location, float range, Collection<Player> players) {
+        this.display(type, data, location, new Vector3f(), range > 256f, 0f, 1, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, float range, User... users) {
-        this.display(type, data, location, new Vector3f(), range > 256f, 0f, 1, users);
+    public void display(ParticleType type, ParticleData data, Location location, float range, Player... players) {
+        this.display(type, data, location, new Vector3f(), range > 256f, 0f, 1, players);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, int amount, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, int amount, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, data, location, offset, this.isLongDistance(location, userArray), 0f, amount, userArray);
+        this.display(type, data, location, offset, this.isLongDistance(location, playerArray), 0f, amount, playerArray);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, int amount, User... users) {
-        this.display(type, data, location, offset, this.isLongDistance(location, users), 0f, amount, users);
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, int amount, Player... players) {
+        this.display(type, data, location, offset, this.isLongDistance(location, players), 0f, amount, players);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, int amount, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, ParticleData data, Location location, int amount, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, data, location, new Vector3f(), this.isLongDistance(location, userArray), 0f, amount, userArray);
+        this.display(type, data, location, new Vector3f(), this.isLongDistance(location, playerArray), 0f, amount, playerArray);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, int amount, User... users) {
-        this.display(type, data, location, new Vector3f(), this.isLongDistance(location, users), 0f, amount, users);
+    public void display(ParticleType type, ParticleData data, Location location, int amount, Player... players) {
+        this.display(type, data, location, new Vector3f(), this.isLongDistance(location, players), 0f, amount, players);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, data, location, offset, this.isLongDistance(location, userArray), 0f, 1, userArray);
+        this.display(type, data, location, offset, this.isLongDistance(location, playerArray), 0f, 1, playerArray);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, User... users) {
-        this.display(type, data, location, offset, this.isLongDistance(location, users), 0f, 1, users);
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, Player... players) {
+        this.display(type, data, location, offset, this.isLongDistance(location, players), 0f, 1, players);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, ParticleData data, Location location, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, data, location, new Vector3f(), this.isLongDistance(location, userArray), 0f, 1, userArray);
+        this.display(type, data, location, new Vector3f(), this.isLongDistance(location, playerArray), 0f, 1, playerArray);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, User... users) {
-        this.display(type, data, location, new Vector3f(), this.isLongDistance(location, users), 0f, 1, users);
+    public void display(ParticleType type, ParticleData data, Location location, Player... players) {
+        this.display(type, data, location, new Vector3f(), this.isLongDistance(location, players), 0f, 1, players);
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, boolean longDistance, float speed, int amount, Collection<User> users) {
-        this.display(type, data, location, offset, longDistance, speed, amount, users.toArray(new User[0]));
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, boolean longDistance, float speed, int amount, Collection<Player> players) {
+        this.display(type, data, location, offset, longDistance, speed, amount, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, boolean longDistance, float speed, int amount, User... users) {
+    public void display(ParticleType type, ParticleData data, Location location, Vector3f offset, boolean longDistance, float speed, int amount, Player... players) {
         if (!this.isSupported(type)) {
             throw new ParticleVersionException("This particle effect isn't supported by your server version.");
         }
@@ -210,29 +211,29 @@ public class ParticleService implements Service {
             throw new ParticleDataException("The particle effect's data type is incorrect.");
         }
 
-        this.packetService.sendParticlePacket(users, type, data, location, offset, longDistance, speed, amount);
+        this.packetService.sendParticlePacket(players, type, data, location, offset, longDistance, speed, amount);
     }
 
     // Color
-    public void display(ParticleType type, Location location, ColorRGB color, float range, Collection<User> users) {
-        this.display(type, location, color, range > 256f, 1f, 0, users.toArray(new User[0]));
+    public void display(ParticleType type, Location location, ColorRGB color, float range, Collection<Player> players) {
+        this.display(type, location, color, range > 256f, 1f, 0, players.toArray(new Player[0]));
     }
 
-    public void display(ParticleType type, Location location, ColorRGB color, float range, User... users) {
-        this.display(type, location, color, range > 256f, 1f, 0, users);
+    public void display(ParticleType type, Location location, ColorRGB color, float range, Player... players) {
+        this.display(type, location, color, range > 256f, 1f, 0, players);
     }
 
-    public void display(ParticleType type, Location location, ColorRGB color, Collection<User> users) {
-        User[] userArray = users.toArray(new User[0]);
+    public void display(ParticleType type, Location location, ColorRGB color, Collection<Player> players) {
+        Player[] playerArray = players.toArray(new Player[0]);
 
-        this.display(type, location, color, this.isLongDistance(location, userArray), 1f, 0, userArray);
+        this.display(type, location, color, this.isLongDistance(location, playerArray), 1f, 0, playerArray);
     }
 
-    public void display(ParticleType type, Location location, ColorRGB color, User... users) {
-        this.display(type, location, color, this.isLongDistance(location, users), 1f, 0, users);
+    public void display(ParticleType type, Location location, ColorRGB color, Player... players) {
+        this.display(type, location, color, this.isLongDistance(location, players), 1f, 0, players);
     }
 
-    private void display(ParticleType type, Location location, ColorRGB color, boolean longDistance, float speed, int amount, User... users) {
+    private void display(ParticleType type, Location location, ColorRGB color, boolean longDistance, float speed, int amount, Player... players) {
         if (!this.isSupported(type)) {
             throw new ParticleVersionException("This particle effect isn't supported by your server version.");
         }
@@ -249,14 +250,14 @@ public class ParticleService implements Service {
             throw new IllegalArgumentException("This particle effect isn't colorable.");
         }
 
-        this.packetService.sendParticlePacket(users, type, null, location, color.toVector(), longDistance, speed, amount);
+        this.packetService.sendParticlePacket(players, type, null, location, color.toVector(), longDistance, speed, amount);
     }
 
-    private boolean isLongDistance(Location location, User[] users) {
+    private boolean isLongDistance(Location location, Player[] players) {
         String world = location.getWorld().getName();
 
-        for (User user : users) {
-            Location playerLocation = user.getLocation();
+        for (Player player : players) {
+            Location playerLocation = player.getLocation();
 
             if (!world.equals(playerLocation.getWorld().getName()) || playerLocation.toHandle().distanceSquared(location.toHandle()) < 65536) {
                 continue;

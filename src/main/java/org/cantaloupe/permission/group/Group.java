@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.cantaloupe.permission.IPermissionHolder;
 import org.cantaloupe.permission.IPermittable;
+import org.cantaloupe.player.Player;
 import org.cantaloupe.text.Text;
-import org.cantaloupe.user.User;
 import org.cantaloupe.world.World;
 
 public abstract class Group implements IPermittable, IPermissionHolder {
@@ -21,9 +21,9 @@ public abstract class Group implements IPermittable, IPermissionHolder {
 
     public abstract void initialize();
 
-    public boolean hasPermission(User user, String node) {
+    public boolean hasPermission(Player player, String node) {
         for (String world : this.permissions.keySet()) {
-            if (user.toHandle().getWorld().getName().equals(world)) {
+            if (player.toHandle().getWorld().getName().equals(world)) {
                 if (this.permissions.get(world).contains(node)) {
                     return true;
                 } else {

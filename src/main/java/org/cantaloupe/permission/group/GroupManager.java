@@ -3,7 +3,7 @@ package org.cantaloupe.permission.group;
 import java.util.HashMap;
 
 import org.cantaloupe.text.Text;
-import org.cantaloupe.user.User;
+import org.cantaloupe.player.Player;
 
 public class GroupManager {
     private static HashMap<String, Group> registeredGroups = new HashMap<String, Group>();
@@ -26,10 +26,10 @@ public class GroupManager {
         return registeredGroups.get(name);
     }
 
-    public static Text getPrefixFor(User user) {
+    public static Text getPrefixFor(Player player) {
         Text prefix = Text.of();
 
-        for (Group group : user.getGroups()) {
+        for (Group group : player.getGroups()) {
             prefix.addChild(Text.of("[").addChild(group.getPrefix()).addChild(Text.of("]")));
         }
 

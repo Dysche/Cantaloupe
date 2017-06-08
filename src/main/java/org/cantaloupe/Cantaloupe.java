@@ -6,12 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.cantaloupe.command.CommandManager;
 import org.cantaloupe.main.CantaloupeMain;
+import org.cantaloupe.player.PlayerManager;
 import org.cantaloupe.plugin.CantaloupePluginManager;
 import org.cantaloupe.service.ServiceManager;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.service.services.ParticleService;
-import org.cantaloupe.user.UserManager;
 import org.cantaloupe.util.CantaloupeClassLoader;
 import org.cantaloupe.world.WorldManager;
 import org.cantaloupe.wrapper.listeners.PlayerListener;
@@ -19,7 +19,7 @@ import org.cantaloupe.wrapper.listeners.PlayerListener;
 public class Cantaloupe {
     private static CantaloupeMain          instance       = null;
     private static CantaloupePluginManager pluginManager  = null;
-    private static UserManager             userManager    = null;
+    private static PlayerManager           playerManager  = null;
     private static WorldManager            worldManager   = null;
     private static CommandManager          commandManager = null;
     private static ServiceManager          serviceManager = null;
@@ -34,9 +34,9 @@ public class Cantaloupe {
         // Variables
         instance = plugin;
 
-        // User Manager
-        userManager = new UserManager();
-        userManager.load();
+        // Player Manager
+        playerManager = new PlayerManager();
+        playerManager.load();
 
         // World Manager
         worldManager = new WorldManager();
@@ -65,9 +65,9 @@ public class Cantaloupe {
     private static void postInitialize() {
         System.out.println("Post-initializing Cantaloupe.");
 
-        // User Manager
-        userManager.finish();
-        
+        // Player Manager
+        playerManager.finish();
+
         // Plugin Manager
         pluginManager.finish();
 
@@ -85,9 +85,9 @@ public class Cantaloupe {
         serviceManager.unload();
         serviceManager = null;
 
-        // User Manager
-        userManager.unload();
-        userManager = null;
+        // Player Manager
+        playerManager.unload();
+        playerManager = null;
 
         // World Manager
         worldManager.unload();
@@ -122,8 +122,8 @@ public class Cantaloupe {
         return pluginManager;
     }
 
-    public static UserManager getUserManager() {
-        return userManager;
+    public static PlayerManager getPlayerManager() {
+        return playerManager;
     }
 
     public static WorldManager getWorldManager() {

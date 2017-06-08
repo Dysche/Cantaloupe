@@ -7,7 +7,7 @@ import org.cantaloupe.service.Service;
 import org.cantaloupe.service.services.ParticleService.ParticleData;
 import org.cantaloupe.service.services.ParticleService.ParticleProperty;
 import org.cantaloupe.service.services.ParticleService.ParticleType;
-import org.cantaloupe.user.User;
+import org.cantaloupe.player.Player;
 import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.location.Location;
 import org.joml.Vector3f;
@@ -49,7 +49,7 @@ public class PacketService implements Service {
         this.enumParticleValues = null;
     }
 
-    protected void sendParticlePacket(User[] users, ParticleType type, ParticleData data, Location location, Vector3f offset, boolean longDistance, float speed, int amount) {
+    protected void sendParticlePacket(Player[] players, ParticleType type, ParticleData data, Location location, Vector3f offset, boolean longDistance, float speed, int amount) {
         float offsetX = offset.x;
         float offsetY = offset.y;
         float offsetZ = offset.z;
@@ -98,16 +98,16 @@ public class PacketService implements Service {
             ReflectionHelper.setPrivateField("h", packet, speed);
             ReflectionHelper.setPrivateField("i", packet, amount);
 
-            for (User user : users) {
-                this.sendPacket(user, packet);
+            for (Player player : players) {
+                this.sendPacket(player, packet);
             }
         } catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchFieldException e) {
             e.printStackTrace();
         }
     }
 
-    private void sendPacket(User user, Object packet) {
-        Object craftPlayer = this.nmsService.getNMSBukkitClass("entity.CraftPlayer").cast(user.toHandle());
+    private void sendPacket(Player player, Object packet) {
+        Object craftPlayer = this.nmsService.getNMSBukkitClass("entity.CraftPlayer").cast(player.toHandle());
 
         try {
             Object handle = craftPlayer.getClass().getDeclaredMethod("getHandle").invoke(craftPlayer);
