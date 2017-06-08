@@ -22,7 +22,7 @@ public class CantaloupePluginManager {
         for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
             if (p instanceof CantaloupePlugin) {
                 CantaloupePlugin plugin = (CantaloupePlugin) p;
-                
+
                 loadedPlugins.put(plugin.getName(), plugin);
                 plugin.onPreInit();
             }
@@ -30,7 +30,7 @@ public class CantaloupePluginManager {
 
         markReady();
     }
-    
+
     public void finish() {
         this.loadedPlugins.forEach((ID, plugin) -> plugin.onPostInit());
     }
@@ -44,7 +44,7 @@ public class CantaloupePluginManager {
 
         this.ready = false;
     }
-    
+
     private void markReady() {
         this.ready = true;
     }
@@ -55,6 +55,10 @@ public class CantaloupePluginManager {
 
     public boolean isPluginLoaded(String ID) {
         return this.loadedPlugins.containsKey(ID);
+    }
+
+    public CantaloupePlugin getPlugin(String ID) {
+        return this.loadedPlugins.get(ID);
     }
 
     public Map<String, CantaloupePlugin> getPlugins() {

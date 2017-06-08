@@ -1,6 +1,8 @@
 package org.cantaloupe.service.services;
 
 import org.bukkit.Bukkit;
+import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.service.Service;
 
 public class NMSService implements Service {
@@ -10,12 +12,20 @@ public class NMSService implements Service {
     private String serverVersion = null;
     private int    intVersion    = -1;
 
+    public NMSService() {
+        if (Cantaloupe.getServiceManager().provide(NMSService.class) != null) {
+            CantaloupePlugin provider = Cantaloupe.getServiceManager().getProvider(NMSService.class);
+            
+            throw new RuntimeException("'" + provider.getID() + "' is trying to initialize a Cantaloupe base service.");
+        }
+    }
+    
     @Override
     public void load() {
         String version = Bukkit.getServer().getClass().getPackage().getName();
-        this.serverVersion = version.substring(version.lastIndexOf('.') + 1);       
+        this.serverVersion = version.substring(version.lastIndexOf('.') + 1);
         this.intVersion = Integer.parseInt(this.getServerVersion().split("_")[1]);
-        
+
         this.serverPackage = "net.minecraft.server." + this.getServerVersion() + ".";
         this.bukkitPackage = "org.bukkit.craftbukkit." + this.getServerVersion() + ".";
     }
@@ -24,6 +34,8 @@ public class NMSService implements Service {
     public void unload() {
         this.serverPackage = null;
         this.bukkitPackage = null;
+        this.serverVersion = null;
+        this.intVersion = -1;
     }
 
     public String getServerVersion() {

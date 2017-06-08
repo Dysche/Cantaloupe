@@ -9,9 +9,6 @@ import org.cantaloupe.main.CantaloupeMain;
 import org.cantaloupe.player.PlayerManager;
 import org.cantaloupe.plugin.CantaloupePluginManager;
 import org.cantaloupe.service.ServiceManager;
-import org.cantaloupe.service.services.NMSService;
-import org.cantaloupe.service.services.PacketService;
-import org.cantaloupe.service.services.ParticleService;
 import org.cantaloupe.util.CantaloupeClassLoader;
 import org.cantaloupe.world.WorldManager;
 import org.cantaloupe.wrapper.listeners.PlayerListener;
@@ -47,9 +44,6 @@ public class Cantaloupe {
 
         // Service Manager
         serviceManager = new ServiceManager();
-        serviceManager.registerService(NMSService.class);
-        serviceManager.registerService(PacketService.class);
-        serviceManager.registerService(ParticleService.class);
         serviceManager.load();
 
         // Plugin Manager

@@ -42,4 +42,8 @@ public abstract class CantaloupePlugin extends JavaPlugin {
     public abstract void onDeinit();
 
     public void onPostInit() {}
+    
+    public String getID() {
+        return this.getName();
+    }
 }
