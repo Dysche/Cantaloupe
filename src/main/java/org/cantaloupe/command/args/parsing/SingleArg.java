@@ -1,5 +1,7 @@
 package org.cantaloupe.command.args.parsing;
 
+import org.cantaloupe.util.GuavaUtils;
+
 import com.google.common.base.Objects;
 
 public final class SingleArg {
@@ -45,6 +47,6 @@ public final class SingleArg {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("value", this.value).add("startIdx", this.startIndex).add("endIdx", this.endIndex).toString();
+        return GuavaUtils.toStringHelper(this).add("value", this.value).add("startIdx", this.startIndex).add("endIdx", this.endIndex).toString();
     }
 }

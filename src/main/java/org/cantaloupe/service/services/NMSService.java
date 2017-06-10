@@ -1,8 +1,6 @@
 package org.cantaloupe.service.services;
 
 import org.bukkit.Bukkit;
-import org.cantaloupe.Cantaloupe;
-import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.service.Service;
 
 public class NMSService implements Service {
@@ -12,14 +10,6 @@ public class NMSService implements Service {
     private String serverVersion = null;
     private int    intVersion    = -1;
 
-    public NMSService() {
-        if (Cantaloupe.getServiceManager().provide(NMSService.class) != null) {
-            CantaloupePlugin provider = Cantaloupe.getServiceManager().getProvider(NMSService.class);
-            
-            throw new RuntimeException("'" + provider.getID() + "' is trying to initialize a Cantaloupe base service.");
-        }
-    }
-    
     @Override
     public void load() {
         String version = Bukkit.getServer().getClass().getPackage().getName();

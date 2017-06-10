@@ -3,12 +3,11 @@ package org.cantaloupe.service.services;
 import java.lang.reflect.InvocationTargetException;
 
 import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.player.Player;
 import org.cantaloupe.service.Service;
 import org.cantaloupe.service.services.ParticleService.ParticleData;
 import org.cantaloupe.service.services.ParticleService.ParticleProperty;
 import org.cantaloupe.service.services.ParticleService.ParticleType;
-import org.cantaloupe.player.Player;
-import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.location.Location;
 import org.joml.Vector3f;
@@ -21,14 +20,6 @@ public class PacketService implements Service {
     private Class<?>   particlePacketClass = null;
     private Class<?>   enumParticleClass   = null;
     private Enum<?>[]  enumParticleValues  = null;
-
-    public PacketService() {
-        if (Cantaloupe.getServiceManager().provide(PacketService.class) != null) {
-            CantaloupePlugin provider = Cantaloupe.getServiceManager().getProvider(PacketService.class);
-            
-            throw new RuntimeException("'" + provider.getID() + "' is trying to initialize a Cantaloupe base service.");
-        }
-    }
     
     @Override
     public void load() {

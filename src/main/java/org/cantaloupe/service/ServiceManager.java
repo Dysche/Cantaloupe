@@ -1,7 +1,9 @@
 package org.cantaloupe.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.plugin.CantaloupePlugin;
@@ -23,7 +25,7 @@ public class ServiceManager {
         services.put(PacketService.class, new PacketService());
         services.put(ParticleService.class, new ParticleService());
         services.put(ScheduleService.class, new ScheduleService());
-        
+
         this.providers.put("cantaloupe", services);
 
         services.forEach((serviceClass, service) -> service.load());
@@ -47,7 +49,7 @@ public class ServiceManager {
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -64,7 +66,21 @@ public class ServiceManager {
         return null;
     }
 
+    private void checkService(CantaloupePlugin plugin, Class<? extends Service> serviceClass) {
+        List<Class<? extends Service>> coreServices = new ArrayList<Class<? extends Service>>();
+        coreServices.add(NMSService.class);
+        coreServices.add(PacketService.class);
+        coreServices.add(ParticleService.class);
+        coreServices.add(ScheduleService.class);
+
+        if (coreServices.contains(serviceClass)) {
+            throw new RuntimeException("'" + plugin.getID() + "' is trying to initialize a Cantaloupe base service.");
+        }
+    }
+
     public void setProvider(CantaloupePlugin plugin, Class<? extends Service> serviceClass, Service service) {
+        this.checkService(plugin, serviceClass);
+        
         if (!this.providers.containsKey(plugin.getName())) {
             this.providers.put(plugin.getName(), new LinkedHashMap<Class<? extends Service>, Service>());
         }
@@ -77,7 +93,7 @@ public class ServiceManager {
 
         this.providers.get(plugin.getName()).put(serviceClass, service);
     }
-    
+
     public CantaloupePlugin getProvider(Class<? extends Service> serviceClass) {
         for (String pluginID : this.providers.keySet()) {
             for (Service service : this.providers.get(pluginID).values()) {
@@ -86,7 +102,7 @@ public class ServiceManager {
                 }
             }
         }
-        
+
         return null;
     }
 }

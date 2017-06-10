@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.math.color.ColorRGB;
 import org.cantaloupe.player.Player;
-import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.service.Service;
 import org.cantaloupe.world.location.Location;
 import org.joml.Vector3f;
@@ -16,14 +15,6 @@ import org.joml.Vector3f;
 public class ParticleService implements Service {
     private NMSService    nmsService    = null;
     private PacketService packetService = null;
-
-    public ParticleService() {
-        if (Cantaloupe.getServiceManager().provide(ParticleService.class) != null) {
-            CantaloupePlugin provider = Cantaloupe.getServiceManager().getProvider(ParticleService.class);
-            
-            throw new RuntimeException("'" + provider.getID() + "' is trying to initialize a Cantaloupe base service.");
-        }
-    }
 
     @Override
     public void load() {

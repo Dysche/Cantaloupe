@@ -2,7 +2,7 @@ package org.cantaloupe.text.action;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Objects;
+import org.cantaloupe.util.GuavaUtils;
 
 public abstract class TextAction<R> {
     protected final R result;
@@ -35,6 +35,6 @@ public abstract class TextAction<R> {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(this.result).toString();
+        return GuavaUtils.toStringHelper(this).addValue(this.result).toString();
     }
 }
