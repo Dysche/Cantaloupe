@@ -10,6 +10,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.inventory.menu.Button;
@@ -123,6 +124,15 @@ public class PlayerListener implements Listener {
                     }
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Optional<Player> playerOpt = Cantaloupe.getPlayerManager().getPlayerFromHandle(event.getPlayer());
+        if (playerOpt.isPresent()) {
+            Player player = playerOpt.get();
+            player.getWorld().tickPlayer(player);
         }
     }
 }

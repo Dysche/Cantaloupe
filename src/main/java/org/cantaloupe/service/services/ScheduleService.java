@@ -56,7 +56,7 @@ public class ScheduleService implements Service {
         this.scheduler = null;
     }
 
-    public void delay(CantaloupePlugin plugin, String name, Runnable runnable, int delay) {
+    public void delay(CantaloupePlugin plugin, String name, Runnable runnable, long delay) {
         this.trySetTask(plugin.getID(), name, this.scheduler.scheduleSyncDelayedTask(plugin, runnable, delay));
     }
 
@@ -64,7 +64,7 @@ public class ScheduleService implements Service {
         this.trySetTask(plugin.getID(), name, this.scheduler.scheduleSyncDelayedTask(plugin, runnable));
     }
 
-    public void delay(String name, Runnable runnable, int delay) {
+    public void delay(String name, Runnable runnable, long delay) {
         this.trySetTask("cantaloupe", name, this.scheduler.scheduleSyncDelayedTask(Cantaloupe.getInstance(), runnable, delay));
     }
 
@@ -72,19 +72,19 @@ public class ScheduleService implements Service {
         this.trySetTask("cantaloupe", name, this.scheduler.scheduleSyncDelayedTask(Cantaloupe.getInstance(), runnable));
     }
 
-    public void repeat(CantaloupePlugin plugin, String name, Runnable runnable, int delay, int period) {
+    public void repeat(CantaloupePlugin plugin, String name, Runnable runnable, long delay, long period) {
         this.trySetTask(plugin.getID(), name, this.scheduler.scheduleSyncRepeatingTask(Cantaloupe.getInstance(), runnable, delay, period));
     }
 
-    public void repeat(CantaloupePlugin plugin, String name, Runnable runnable, int period) {
+    public void repeat(CantaloupePlugin plugin, String name, Runnable runnable, long period) {
         this.trySetTask(plugin.getID(), name, this.scheduler.scheduleSyncRepeatingTask(Cantaloupe.getInstance(), runnable, 0L, period));
     }
 
-    public void repeat(String name, Runnable runnable, int delay, int period) {
+    public void repeat(String name, Runnable runnable, long delay, long period) {
         this.trySetTask("cantaloupe", name, this.scheduler.scheduleSyncRepeatingTask(Cantaloupe.getInstance(), runnable, delay, period));
     }
 
-    public void repeat(String name, Runnable runnable, int period) {
+    public void repeat(String name, Runnable runnable, long period) {
         this.trySetTask("cantaloupe", name, this.scheduler.scheduleSyncRepeatingTask(Cantaloupe.getInstance(), runnable, 0L, period));
     }
 

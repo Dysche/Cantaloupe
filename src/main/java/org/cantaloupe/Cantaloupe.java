@@ -31,6 +31,10 @@ public class Cantaloupe {
         // Variables
         instance = plugin;
 
+        // Service Manager
+        serviceManager = new ServiceManager();
+        serviceManager.load();
+        
         // Player Manager
         playerManager = new PlayerManager();
         playerManager.load();
@@ -41,10 +45,6 @@ public class Cantaloupe {
 
         // Command Manager
         commandManager = new CommandManager();
-
-        // Service Manager
-        serviceManager = new ServiceManager();
-        serviceManager.load();
 
         // Plugin Manager
         pluginManager = new CantaloupePluginManager();
@@ -75,21 +75,21 @@ public class Cantaloupe {
         pluginManager.unload();
         pluginManager = null;
 
-        // Service Manager
-        serviceManager.unload();
-        serviceManager = null;
-
+        // World Manager
+        worldManager.unload();
+        worldManager = null;
+        
         // Player Manager
         playerManager.unload();
         playerManager = null;
 
-        // World Manager
-        worldManager.unload();
-        worldManager = null;
-
         // Command Manager
         commandManager.unload();
         commandManager = null;
+        
+        // Service Manager
+        serviceManager.unload();
+        serviceManager = null;
 
         System.out.println("Deinitialized Cantaloupe.");
     }

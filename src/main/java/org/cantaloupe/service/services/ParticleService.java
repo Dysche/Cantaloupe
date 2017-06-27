@@ -1,5 +1,6 @@
 package org.cantaloupe.service.services;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -9,23 +10,31 @@ import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.math.color.ColorRGB;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.Service;
+import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.location.Location;
 import org.joml.Vector3f;
 
 public class ParticleService implements Service {
-    private NMSService    nmsService    = null;
-    private PacketService packetService = null;
+    private NMSService nmsService          = null;
+    private Enum<?>[]  enumParticleValues  = null;
 
     @Override
     public void load() {
         this.nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
-        this.packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+
+        if (this.nmsService.getIntVersion() > 7) {
+            try {
+                this.enumParticleValues = (Enum<?>[]) this.nmsService.NMS_ENUM_PARTICLE_CLASS.getDeclaredMethod("values").invoke(null);
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void unload() {
         this.nmsService = null;
-        this.packetService = null;
+        this.enumParticleValues = null;
     }
 
     // Normal (Offset)
@@ -118,7 +127,7 @@ public class ParticleService implements Service {
             throw new IllegalArgumentException("This particle effect requires water at its location.");
         }
 
-        this.packetService.sendParticlePacket(players, type, null, location, offset, longDistance, speed, amount);
+        this.sendParticlePacket(players, type, null, location, offset, longDistance, speed, amount);
     }
 
     // Data
@@ -211,7 +220,7 @@ public class ParticleService implements Service {
             throw new ParticleDataException("The particle effect's data type is incorrect.");
         }
 
-        this.packetService.sendParticlePacket(players, type, data, location, offset, longDistance, speed, amount);
+        this.sendParticlePacket(players, type, data, location, offset, longDistance, speed, amount);
     }
 
     // Color
@@ -250,7 +259,7 @@ public class ParticleService implements Service {
             throw new IllegalArgumentException("This particle effect isn't colorable.");
         }
 
-        this.packetService.sendParticlePacket(players, type, null, location, color.toVector(), longDistance, speed, amount);
+        this.sendParticlePacket(players, type, null, location, color.toVector(), longDistance, speed, amount);
     }
 
     private boolean isLongDistance(Location location, Player[] players) {
@@ -281,6 +290,64 @@ public class ParticleService implements Service {
 
     private boolean isSupported(ParticleType type) {
         return type.getRequiredVersion() <= this.nmsService.getIntVersion();
+    }
+
+    // Packet
+    protected void sendParticlePacket(Player[] players, ParticleType type, ParticleData data, Location location, Vector3f offset, boolean longDistance, float speed, int amount) {
+        float offsetX = offset.x;
+        float offsetY = offset.y;
+        float offsetZ = offset.z;
+
+        if (type.hasProperty(ParticleProperty.COLORABLE)) {
+            if (offsetX > 0f) {
+                offsetX /= 255f;
+            } else {
+                offsetX = Float.MIN_NORMAL;
+            }
+
+            offsetY /= 255f;
+            offsetZ /= 255f;
+        }
+
+        try {
+            Object packet = this.nmsService.NMS_PACKET_OUT_WORLDPARTICLES_CLASS.newInstance();
+
+            if (this.nmsService.getIntVersion() < 7) {
+                String name = type.getName();
+
+                if (data != null) {
+                    name += data.getPacketDataString();
+                }
+
+                ReflectionHelper.setDeclaredField("a", packet, name);
+            } else {
+                ReflectionHelper.setDeclaredField("a", packet, this.enumParticleValues[type.getID()]);
+                ReflectionHelper.setDeclaredField("j", packet, longDistance);
+
+                if (data != null) {
+                    int[] packetData = data.getPacketData();
+
+                    ReflectionHelper.setDeclaredField("k", packet, type == ParticleType.ITEM_CRACK ? packetData : new int[] {
+                            packetData[0] | (packetData[1] << 12)
+                    });
+                }
+            }
+
+            ReflectionHelper.setDeclaredField("b", packet, (float) location.getPosition().x);
+            ReflectionHelper.setDeclaredField("c", packet, (float) location.getPosition().y);
+            ReflectionHelper.setDeclaredField("d", packet, (float) location.getPosition().z);
+            ReflectionHelper.setDeclaredField("e", packet, offsetX);
+            ReflectionHelper.setDeclaredField("f", packet, offsetY);
+            ReflectionHelper.setDeclaredField("g", packet, offsetZ);
+            ReflectionHelper.setDeclaredField("h", packet, speed);
+            ReflectionHelper.setDeclaredField("i", packet, amount);
+
+            for (Player player : players) {
+                player.sendPacket(packet);
+            }
+        } catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

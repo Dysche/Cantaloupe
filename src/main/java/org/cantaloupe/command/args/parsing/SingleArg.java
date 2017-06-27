@@ -32,6 +32,7 @@ public final class SingleArg {
         if (this == o) {
             return true;
         }
+        
         if (!(o instanceof SingleArg)) {
             return false;
         }

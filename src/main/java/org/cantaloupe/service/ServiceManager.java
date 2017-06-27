@@ -74,7 +74,7 @@ public class ServiceManager {
         coreServices.add(ScheduleService.class);
 
         if (coreServices.contains(serviceClass)) {
-            throw new RuntimeException("'" + plugin.getID() + "' is trying to initialize a Cantaloupe base service.");
+            throw new RuntimeException("'" + plugin.getID() + "' is trying to initialize a Cantaloupe core service.");
         }
     }
 

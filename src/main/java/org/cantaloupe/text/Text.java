@@ -182,12 +182,10 @@ public class Text {
 
         this.actions.add(action);
 
-        if (action instanceof HoverAction.ShowItem) {
-            // this.component.setHoverEvent(
-            // new HoverEvent(HoverEvent.Action.SHOW_ITEM, (BaseComponent[])
-            // action.getResult()));
-        } else if (action instanceof HoverAction.ShowItem) {
+        if (action instanceof HoverAction.ShowText) {
             this.component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, (BaseComponent[]) action.getResult()));
+        } else if (action instanceof HoverAction.ShowItem) {
+            this.component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, (BaseComponent[]) action.getResult()));
         }
 
         return this;
