@@ -1,0 +1,107 @@
+package org.cantaloupe.protocol;
+
+import org.bukkit.Bukkit;
+import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.entity.FakeEntity;
+import org.cantaloupe.entity.FakeEntityContainer;
+import org.cantaloupe.events.PlayerAttackFakeEntityEvent;
+import org.cantaloupe.events.PlayerInteractAtFakeEntityEvent;
+import org.cantaloupe.events.PlayerInteractFakeEntityEvent;
+import org.cantaloupe.player.Player;
+import org.cantaloupe.service.services.NMSService;
+import org.cantaloupe.util.ReflectionHelper;
+import org.joml.Vector3d;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPromise;
+
+public class PacketAccessor {
+    public static void addFor(Player player) {
+        NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
+
+        ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
+            @Override
+            public void channelRead(ChannelHandlerContext context, Object packet) throws Exception {
+                if (packet.getClass() == service.NMS_PACKET_IN_USEENTITY_CLASS) {
+                    handleUseEntityPacket(player, packet);
+                }
+
+                super.channelRead(context, packet);
+            }
+
+            @Override
+            public void write(ChannelHandlerContext context, Object packet, ChannelPromise channelPromise) throws Exception {
+                super.write(context, packet, channelPromise);
+            }
+        };
+
+        ChannelPipeline pipeline = getChannel(player).pipeline();
+        pipeline.addBefore("packet_handler", player.getName(), channelDuplexHandler);
+    }
+
+    public static void removeFor(Player player) {
+        Channel channel = getChannel(player);
+
+        channel.eventLoop().submit(() -> {
+            channel.pipeline().remove(player.getName());
+
+            return null;
+        });
+    }
+
+    private static void handleUseEntityPacket(Player player, Object packet) {
+        try {
+            int entityID = (int) ReflectionHelper.getDeclaredField("a", packet);
+            Enum<?> type = (Enum<?>) ReflectionHelper.getDeclaredField("action", packet);
+
+            FakeEntity entity = FakeEntityContainer.getEntity(entityID);
+            if (entity != null) {
+                if (type.name().equals("INTERACT")) {
+                    PlayerInteractFakeEntityEvent event = new PlayerInteractFakeEntityEvent(player, entity);
+                    Bukkit.getServer().getPluginManager().callEvent(event);
+
+                    if (event.isCancelled()) {
+                        return;
+                    }
+                } else if (type.name().equals("INTERACT_AT")) {
+                    Object clickedPositionObject = ReflectionHelper.getDeclaredField("c", packet);
+                    Vector3d clickedPosition = new Vector3d((double) ReflectionHelper.getField("x", clickedPositionObject), (double) ReflectionHelper.getField("y", clickedPositionObject), (double) ReflectionHelper.getField("z", clickedPositionObject));
+
+                    PlayerInteractAtFakeEntityEvent event = new PlayerInteractAtFakeEntityEvent(player, entity, clickedPosition);
+                    Bukkit.getServer().getPluginManager().callEvent(event);
+
+                    if (event.isCancelled()) {
+                        return;
+                    }
+                } else if (type.name().equals("ATTACK")) {
+                    PlayerAttackFakeEntityEvent event = new PlayerAttackFakeEntityEvent(player, entity);
+                    Bukkit.getServer().getPluginManager().callEvent(event);
+
+                    if (event.isCancelled()) {
+                        return;
+                    }
+                }
+            }
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Channel getChannel(Player player) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
+        try {
+            Object connection = nmsService.getPlayerConnection(player);
+            Object networkManager = ReflectionHelper.getField("networkManager", connection);
+
+            return (Channel) ReflectionHelper.getField("channel", networkManager);
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+}

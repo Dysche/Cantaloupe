@@ -1,44 +1,30 @@
 package org.cantaloupe.hologram;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.entity.EntityType;
+import org.cantaloupe.entity.FakeEntity;
 import org.cantaloupe.player.Player;
-import org.cantaloupe.service.services.NMSService;
-import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.text.Text;
-import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
 import org.joml.Vector3d;
 
 public class Hologram extends WorldObject {
-    private ImmutableLocation  location;
-    private List<Text>         lines;
-    private final List<Object> entities;
-    private final List<Object> spawnPackets;
-    private Object             destroyPacket;
-    private final List<Player> players;
-
-    // Services
-    private NMSService         nmsService    = null;
-    private PacketService      packetService = null;
+    private ImmutableLocation      location;
+    private List<Text>             lines;
+    private final List<FakeEntity> entities;
+    private final List<Player>     players;
 
     private Hologram(ImmutableLocation location, List<Text> lines) {
         this.location = location;
         this.lines = lines;
-        this.entities = new ArrayList<Object>();
-        this.spawnPackets = new ArrayList<Object>();
+        this.entities = new ArrayList<FakeEntity>();
         this.players = new ArrayList<Player>();
-
-        // Services
-        this.nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
-        this.packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
     }
 
     public static Builder builder() {
@@ -53,10 +39,27 @@ public class Hologram extends WorldObject {
         this.location.getWorld().remove(this);
     }
 
+    private void create() {
+        int count = 0;
+
+        for (Text line : this.lines) {
+            this.entities.add(FakeEntity.builder()
+                    .type(EntityType.ARMOR_STAND)
+                    .world(this.location.getWorld())
+                    .position(new Vector3d(this.location.getPosition().x + 0.5, (this.location.getPosition().y - 2.0) - (count * 0.25), this.location.getPosition().z + 0.5))                            
+                    .customName(line)
+                    .customNameVisible(true)
+                    .invisible(true)
+                    .build());
+
+            count++;
+        }
+    }
+
     public void placeFor(Player player) {
         if (!this.isPlacedFor(player)) {
-            for (Object packet : this.spawnPackets) {
-                this.packetService.sendPacket(player, packet);
+            for (FakeEntity entity : this.entities) {
+                entity.spawn(player);
             }
 
             this.players.add(player);
@@ -65,7 +68,10 @@ public class Hologram extends WorldObject {
 
     public void removeFor(Player player) {
         if (this.isPlacedFor(player)) {
-            this.packetService.sendPacket(player, this.destroyPacket);
+            for (FakeEntity entity : this.entities) {
+                entity.despawn(player);
+            }
+
             this.players.remove(player);
         }
     }
@@ -80,64 +86,46 @@ public class Hologram extends WorldObject {
     }
 
     public void setPosition(Vector3d position) {
-        this.location = ImmutableLocation.of(this.location.getWorld(), position);
-
-        Object[] packets = new Object[this.entities.size()];
+        this.setLocation(ImmutableLocation.of(this.location.getWorld(), position));
+    }
+    
+    public void setLocation(ImmutableLocation location) {
         int count = 0;
-        for (Object entity : this.entities) {
-            try {
-                ReflectionHelper.invokeMethod("setPosition", entity, new Class<?>[] {
-                        double.class, double.class, double.class
-                }, position.x + 0.5, (position.y - 2.0) - (count * 0.25), position.z + 0.5);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                packets[count] = this.nmsService.getNMSClass("PacketPlayOutEntityTeleport").getConstructor(this.nmsService.NMS_ENTITY_CLASS).newInstance(entity);
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                e.printStackTrace();
-            }
+        for (FakeEntity entity : this.entities) {
+            entity.setPosition(this.players, new Vector3d(location.getPosition().x + 0.5, (location.getPosition().y - 2.0) - (count * 0.25), location.getPosition().z + 0.5));
 
             count++;
         }
+        
+        this.location = location;
+    }
 
-        for (Player player : this.players) {
-            for (Object packet : packets) {
-                this.packetService.sendPacket(player, packet);
-            }
+    public void setLine(int index, Text line) {
+        Text oldLine = this.lines.get(index);
+
+        if (!line.toLegacy().equalsIgnoreCase(oldLine.toLegacy())) {
+            this.entities.get(index).setCustomName(this.players, line.toLegacy());
         }
+
+        this.lines.set(index, line);
     }
 
     public void setLines(Text... lines) {
-        Object[] packets = new Object[lines.length];
-        for (int i = 0; i < lines.length; i++) {
-            if(!lines[i].toLegacy().equalsIgnoreCase(this.lines.get(i).toLegacy())) {
-                Object entity = this.entities.get(i);
+        this.setLines(Arrays.asList(lines));
+    }
 
-                try {
-                    Object dataWatcher = this.nmsService.NMS_DATAWATCHER_CLASS.getConstructor(this.nmsService.NMS_ENTITY_CLASS).newInstance(new Object[] {
-                            null
-                    });
-                    
-                    ReflectionHelper.invokeMethod("register", dataWatcher, new Class<?>[] {
-                        this.nmsService.NMS_DATAWATCHEROBJECT_CLASS, Object.class
-                    }, this.nmsService.NMS_DATAWATCHEROBJECT_CLASS.getConstructor(int.class, this.nmsService.NMS_DATAWATCHERSERIALIZER_CLASS).newInstance(2, ReflectionHelper.getStaticField("d", this.nmsService.NMS_DATAWATCHERREGISTRY_CLASS)), lines[i].toLegacy());
+    public void setLines(Collection<Text> lines) {
+        this.setLines(new ArrayList<Text>(lines));
+    }
 
-                    packets[i] = this.nmsService.NMS_PACKET_OUT_ENTITYMETA_CLASS.getConstructor(int.class, this.nmsService.NMS_DATAWATCHER_CLASS, boolean.class).newInstance(ReflectionHelper.invokeMethod("getId", entity), dataWatcher, true);
-                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                    e.printStackTrace();
-                }
+    public void setLines(List<Text> lines) {
+        for (int i = 0; i < lines.size(); i++) {
+            if (!lines.get(i).toLegacy().equalsIgnoreCase(this.lines.get(i).toLegacy())) {
+                this.entities.get(i).setCustomName(this.players, lines.get(i).toLegacy());
             }
         }
-        
-        for (Player player : this.players) {
-            for (Object packet : packets) {
-                this.packetService.sendPacket(player, packet);
-            }
-        }
-        
-        this.lines = Arrays.asList(lines);
+
+        this.lines = lines;
     }
 
     @Override
@@ -151,59 +139,12 @@ public class Hologram extends WorldObject {
     @Override
     protected void onRemoved() {
         for (Player player : this.players) {
-            this.packetService.sendPacket(player, this.destroyPacket);
+            for (FakeEntity entity : this.entities) {
+                entity.despawn(player);
+            }
         }
 
         this.players.clear();
-    }
-
-    private void create() {
-        int count = 0;
-        int[] entityIDs = new int[this.lines.size()];
-
-        for (Text line : this.lines) {
-            try {
-                Object craftWorld = this.nmsService.BUKKIT_CRAFTWORLD_CLASS.cast(this.location.getWorld().toHandle());
-                Object handle = craftWorld.getClass().getDeclaredMethod("getHandle").invoke(craftWorld);
-                Object entity = this.nmsService.NMS_ENTITY_ARMORSTAND_CLASS.getConstructor(this.nmsService.NMS_WORLD_CLASS, double.class, double.class, double.class).newInstance(handle, this.location.getPosition().x + 0.5,
-                        (this.location.getPosition().y - 2.0) - (count * 0.25), this.location.getPosition().z + 0.5);
-
-                ReflectionHelper.invokeMethod("setCustomName", entity, line.toLegacy());
-                ReflectionHelper.invokeMethod("setCustomNameVisible", entity, new Class<?>[] {
-                        boolean.class
-                }, true);
-
-                ReflectionHelper.invokeMethod("setInvisible", entity, new Class<?>[] {
-                        boolean.class
-                }, true);
-
-                ReflectionHelper.invokeMethod(this.nmsService.getIntVersion() < 11 ? "setGravity" : "setNoGravity", entity, new Class<?>[] {
-                        boolean.class
-                }, this.nmsService.getIntVersion() < 11 ? false : true);
-
-                this.entities.add(entity);
-            } catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-
-            count++;
-        }
-
-        for (int i = 0; i < this.entities.size(); i++) {
-            try {
-                this.spawnPackets.add(this.nmsService.NMS_PACKET_OUT_SPAWNENTITYLIVING_CLASS.getConstructor(this.nmsService.NMS_ENTITY_LIVING_CLASS).newInstance(this.entities.get(i)));
-
-                entityIDs[i] = (int) ReflectionHelper.invokeMethod("getId", this.entities.get(i));
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            this.destroyPacket = this.nmsService.NMS_PACKET_OUT_DESTROYENTITY_CLASS.getConstructor(int[].class).newInstance(entityIDs);
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
-        }
     }
 
     public boolean isPlacedFor(Player player) {

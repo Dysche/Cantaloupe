@@ -7,7 +7,7 @@ import org.cantaloupe.player.Player;
 import org.cantaloupe.service.Service;
 
 public class PacketService implements Service {
-    private NMSService nmsService  = null;
+    private NMSService nmsService = null;
 
     @Override
     public void load() {
@@ -20,14 +20,11 @@ public class PacketService implements Service {
     }
 
     public void sendPacket(Player player, Object packet) {
-        Object craftPlayer = this.nmsService.BUKKIT_CRAFTPLAYER_CLASS.cast(player.toHandle());
+        Object playerConnection = this.nmsService.getPlayerConnection(player);
 
         try {
-            Object handle = craftPlayer.getClass().getDeclaredMethod("getHandle").invoke(craftPlayer);
-            Object playerConnection = handle.getClass().getDeclaredField("playerConnection").get(handle);
-
             playerConnection.getClass().getDeclaredMethod("sendPacket", this.nmsService.NMS_PACKET_CLASS).invoke(playerConnection, packet);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
     }

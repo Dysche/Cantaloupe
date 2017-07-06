@@ -15,7 +15,7 @@ public class ImmutableLocation implements Location {
         this.handle = other.toHandle().clone();
         this.world = other.getWorld();
     }
-    
+
     private ImmutableLocation(org.bukkit.Location handle) {
         this.handle = handle.clone();
         this.world = Cantaloupe.getWorldManager().getWorldFromHandle(handle.getWorld());
@@ -50,11 +50,11 @@ public class ImmutableLocation implements Location {
         this.handle = new org.bukkit.Location(world.toHandle(), position.x, position.y, position.z, rotation.x, rotation.y);
         this.world = world;
     }
-    
+
     public static ImmutableLocation of(Location other) {
         return new ImmutableLocation(other);
     }
-    
+
     public static ImmutableLocation of(org.bukkit.Location handle) {
         return new ImmutableLocation(handle);
     }
@@ -267,11 +267,11 @@ public class ImmutableLocation implements Location {
     public Location clone() {
         return ImmutableLocation.of(this);
     }
-    
+
     public MutableLocation toMutable() {
         return MutableLocation.of(this);
     }
-    
+
     @Override
     public org.bukkit.Location toHandle() {
         return this.handle;
@@ -280,5 +280,10 @@ public class ImmutableLocation implements Location {
     @Override
     public World getWorld() {
         return this.world;
+    }
+
+    @Override
+    public String toString() {
+        return "[X: " + this.getPosition().x + ", Y: " + this.getPosition().y + ", Z: " + this.getPosition().z + ", Yaw: " + this.getYaw() + ", Pitch: " + this.getPitch() + "]";
     }
 }

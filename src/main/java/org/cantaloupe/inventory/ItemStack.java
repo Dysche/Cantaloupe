@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.service.services.NMSService;
 
 public class ItemStack {
     private final org.bukkit.inventory.ItemStack handle;
@@ -38,8 +40,22 @@ public class ItemStack {
         this.handle.setItemMeta(meta);
     }
 
+    public void setItemMeta(ItemMeta meta) {
+        this.handle.setItemMeta(meta);
+    }
+
+    public ItemMeta getItemMeta() {
+        return this.handle.getItemMeta();
+    }
+
     public org.bukkit.inventory.ItemStack toHandle() {
         return this.handle;
+    }
+
+    public Object toNMS() {
+        NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
+
+        return service.getItemStack(this);
     }
 
     @Override

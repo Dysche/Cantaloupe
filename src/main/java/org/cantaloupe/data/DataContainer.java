@@ -126,7 +126,7 @@ public class DataContainer<K, V> implements Flushable {
         return clazz.cast(this.get(key));
     }
 
-    public HashMap<K, V> get() {
+    public HashMap<K, V> toHandle() {
         return this.handle;
     }
 

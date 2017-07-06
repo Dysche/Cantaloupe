@@ -80,10 +80,14 @@ public interface Location {
 
     public Location divide(double n);
 
+    public default double distance(Location other) {
+        return this.getPosition().distance(other.getPosition());
+    }
+
     public Location clone();
 
     public org.bukkit.Location toHandle();
-    
+
     public World getWorld();
 
     public default Vector3d getPosition() {

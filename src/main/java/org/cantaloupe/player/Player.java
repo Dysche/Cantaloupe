@@ -18,6 +18,7 @@ import org.cantaloupe.permission.IPermittable;
 import org.cantaloupe.permission.group.Group;
 import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.player.PlayerManager.Scopes;
+import org.cantaloupe.protocol.PacketAccessor;
 import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.world.World;
@@ -72,6 +73,9 @@ public class Player implements IPermittable, IPermissionHolder {
 
         // Services
         this.packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+        
+        // Packet
+        PacketAccessor.addFor(this);
     }
 
     public void onLeave() {
@@ -98,6 +102,9 @@ public class Player implements IPermittable, IPermissionHolder {
 
         // Services
         this.packetService = null;
+        
+        // Packet
+        PacketAccessor.removeFor(this);
     }
 
     public void onWorldSwitch(World old) {

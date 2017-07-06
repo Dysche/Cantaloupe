@@ -389,4 +389,9 @@ public class MutableLocation implements Location {
     public World getWorld() {
         return this.world;
     }
+    
+    @Override
+    public String toString() {
+        return "[X: " + this.getPosition().x + ", Y: " + this.getPosition().y + ", Z: " + this.getPosition().z + ", Yaw: " + this.getRotation().x + ", Pitch: " + this.getRotation().y + "]";
+    }
 }

@@ -28,7 +28,7 @@ public class PlayerListener implements Listener {
 
         event.setJoinMessage(null);
     }
-
+    
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Optional<Player> playerOpt = Cantaloupe.getPlayerManager().getPlayerFromHandle(event.getPlayer());
