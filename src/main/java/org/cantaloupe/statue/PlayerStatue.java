@@ -12,19 +12,22 @@ import org.cantaloupe.text.Text;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
+import org.joml.Vector2f;
 import org.joml.Vector3d;
 
 public class PlayerStatue extends WorldObject {
-    private ImmutableLocation  location   = null;
-    private FakePlayer         entity     = null;
-    private UUID               uuid       = null;
-    private Text               name       = null;
-    private boolean            keepInTab  = false;
+    private ImmutableLocation  location     = null;
+    private float              headRotation = 0f;
+    private FakePlayer         entity       = null;
+    private UUID               uuid         = null;
+    private Text               name         = null;
+    private boolean            keepInTab    = false;
 
     private final List<Player> players;
 
-    private PlayerStatue(ImmutableLocation location, UUID uuid, Text name, boolean keepInTab) {
+    private PlayerStatue(ImmutableLocation location, float headRotation, UUID uuid, Text name, boolean keepInTab) {
         this.location = location;
+        this.headRotation = headRotation;
         this.uuid = uuid;
         this.name = name;
         this.keepInTab = keepInTab;
@@ -84,20 +87,35 @@ public class PlayerStatue extends WorldObject {
 
     @Override
     public void tickFor(Player player) {
-        if (player.getLocation().getPosition().distance(this.getLocation().getPosition()) <= 48) {
-            this.placeFor(player);
-        } else {
+        if (player.isDirty()) {
             this.removeFor(player);
+        } else {
+            if (player.getLocation().getPosition().distance(this.getLocation().getPosition()) <= 48) {
+                this.placeFor(player);
+            } else {
+                this.removeFor(player);
+            }
         }
     }
 
-    public void setPosition(Vector3d position) {
-        this.setLocation(ImmutableLocation.of(this.location.getWorld(), position));
+    public void setLocation(ImmutableLocation location) {
+        this.entity.setLocation(this.players, ImmutableLocation.of(location.getWorld(), new Vector3d(location.getPosition().x + 0.5, location.getPosition().y, location.getPosition().z + 0.5), location.getRotation()));
+        this.location = location;
     }
 
-    public void setLocation(ImmutableLocation location) {
-        this.entity.setPosition(this.players, new Vector3d(location.getPosition().x + 0.5, location.getPosition().y, location.getPosition().z + 0.5));
-        this.location = location;
+    public void setPosition(Vector3d position) {
+        this.entity.setPosition(this.players, new Vector3d(position.x + 0.5, position.y, position.z + 0.5));
+        this.location = ImmutableLocation.of(this.location.getWorld(), position);
+    }
+
+    public void setRotation(Vector2f rotation) {
+        this.entity.setRotation(this.players, rotation);
+        this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
+    }
+
+    public void setHeadRotation(float headRotation) {
+        this.entity.setHeadRotation(this.players, headRotation);
+        this.headRotation = headRotation;
     }
 
     public void addToTab() {
@@ -111,7 +129,6 @@ public class PlayerStatue extends WorldObject {
     protected void onPlaced() {
         for (Player player : this.location.getWorld().getPlayers()) {
             this.tickFor(player);
-            this.players.add(player);
         }
     }
 
@@ -135,6 +152,18 @@ public class PlayerStatue extends WorldObject {
         return this.location;
     }
 
+    public Vector3d getPosition() {
+        return this.location.getPosition();
+    }
+
+    public Vector2f getRotation() {
+        return this.location.getRotation();
+    }
+
+    public float getHeadRotation() {
+        return this.headRotation;
+    }
+
     public UUID getPlayerUUID() {
         return this.uuid;
     }
@@ -143,13 +172,19 @@ public class PlayerStatue extends WorldObject {
         return this.name;
     }
 
+    public List<Player> getPlayers() {
+        return this.players;
+    }
+
     public static final class Builder {
-        private Vector3d          position   = null;
-        private World             world      = null;
-        private ImmutableLocation location   = null;
-        private UUID              uuid       = null;
-        private Text              name       = null;
-        private boolean           keepInTab  = false;
+        private ImmutableLocation location     = null;
+        private World             world        = null;
+        private Vector3d          position     = null;
+        private Vector2f          rotation     = null;
+        private float             headRotation = -1f;
+        private UUID              uuid         = null;
+        private Text              name         = null;
+        private boolean           keepInTab    = false;
 
         private Builder() {
 
@@ -161,14 +196,26 @@ public class PlayerStatue extends WorldObject {
             return this;
         }
 
+        public Builder world(World world) {
+            this.world = world;
+
+            return this;
+        }
+
         public Builder position(Vector3d position) {
             this.position = position;
 
             return this;
         }
 
-        public Builder world(World world) {
-            this.world = world;
+        public Builder rotation(Vector2f rotation) {
+            this.rotation = rotation;
+
+            return this;
+        }
+
+        public Builder headRotation(float headRotation) {
+            this.headRotation = headRotation;
 
             return this;
         }
@@ -199,10 +246,14 @@ public class PlayerStatue extends WorldObject {
 
         public PlayerStatue build() {
             if (this.location == null) {
-                this.location = ImmutableLocation.of(this.world, this.position);
+                if (this.rotation != null) {
+                    this.location = ImmutableLocation.of(this.world, this.position, this.rotation);
+                } else {
+                    this.location = ImmutableLocation.of(this.world, this.position);
+                }
             }
 
-            PlayerStatue statue = new PlayerStatue(this.location, this.uuid, this.name, this.keepInTab);
+            PlayerStatue statue = new PlayerStatue(this.location, this.headRotation, this.uuid, this.name, this.keepInTab);
             statue.create();
 
             return statue;

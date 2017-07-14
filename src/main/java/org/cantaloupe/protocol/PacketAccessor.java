@@ -57,8 +57,12 @@ public class PacketAccessor {
             int entityID = (int) ReflectionHelper.getDeclaredField("a", packet);
             Enum<?> type = (Enum<?>) ReflectionHelper.getDeclaredField("action", packet);
 
-            FakeEntity entity = FakeEntityContainer.getEntity(entityID);
+            FakeEntity entity = FakeEntityContainer.getEntity(entityID);                     
             if (entity != null) {
+                if(!PacketVerifier.verifyEntityUsePacket(player, entity)) {
+                    return;
+                }
+                
                 if (type.name().equals("INTERACT")) {
                     PlayerInteractFakeEntityEvent event = new PlayerInteractFakeEntityEvent(player, entity);
                     Bukkit.getServer().getPluginManager().callEvent(event);

@@ -78,10 +78,14 @@ public class Hologram extends WorldObject {
 
     @Override
     public void tickFor(Player player) {
-        if (player.getLocation().getPosition().distance(this.getLocation().getPosition()) <= 48) {
-            this.placeFor(player);
-        } else {
+        if(player.isDirty()) {
             this.removeFor(player);
+        } else {
+            if (player.getLocation().getPosition().distance(this.getLocation().getPosition()) <= 48) {
+                this.placeFor(player);
+            } else {
+                this.removeFor(player);
+            }
         }
     }
 
@@ -132,7 +136,6 @@ public class Hologram extends WorldObject {
     protected void onPlaced() {
         for (Player player : this.location.getWorld().getPlayers()) {
             this.tickFor(player);
-            this.players.add(player);
         }
     }
 

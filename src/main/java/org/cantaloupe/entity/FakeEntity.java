@@ -27,12 +27,12 @@ public class FakeEntity {
     protected ImmutableLocation location = null;
     protected byte              flags    = 0;
 
-    protected FakeEntity(EntityType type, ImmutableLocation location, String customName, boolean customNameVisible, boolean invisible, boolean create) {
+    protected FakeEntity(EntityType type, ImmutableLocation location, float headRotation, String customName, boolean customNameVisible, boolean invisible, boolean create) {
         this.type = type;
         this.location = location;
 
         if (create) {
-            this.create(customName, customNameVisible, invisible);
+            this.create(headRotation, customName, customNameVisible, invisible);
         }
     }
 
@@ -40,7 +40,7 @@ public class FakeEntity {
         return new Builder();
     }
 
-    private void create(String customName, boolean customNameVisible, boolean invisible) {
+    private void create(float headRotation, String customName, boolean customNameVisible, boolean invisible) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
         try {
@@ -61,6 +61,12 @@ public class FakeEntity {
             ReflectionHelper.invokeMethod("setInvisible", entity, new Class<?>[] {
                     boolean.class
             }, invisible);
+
+            if (headRotation != -1f) {
+                ReflectionHelper.invokeMethod("h", entity, new Class<?>[] {
+                        float.class
+                }, headRotation);
+            }
 
             this.handle = entity;
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -136,6 +142,48 @@ public class FakeEntity {
         }
     }
 
+    public void setLocation(Collection<Player> players, ImmutableLocation location) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+        PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+
+        try {
+            ReflectionHelper.invokeMethod("setPositionRotation", this.handle, new Class<?>[] {
+                    double.class, double.class, double.class, float.class, float.class
+            }, location.getPosition().x, location.getPosition().y, location.getPosition().z, location.getYaw(), location.getPitch());
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Object teleportPacket = null;
+            Object lookPacket = null;
+
+            if (nmsService.getIntVersion() < 7) {
+                teleportPacket = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.newInstance();
+                lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(location.getYaw()), this.getFixRotation(location.getPitch()), false);
+
+                ReflectionHelper.setDeclaredField("a", teleportPacket, this.getEntityID());
+                ReflectionHelper.setDeclaredField("b", teleportPacket, this.getFixPosition(location.getPosition().x));
+                ReflectionHelper.setDeclaredField("c", teleportPacket, this.getFixPosition(location.getPosition().y));
+                ReflectionHelper.setDeclaredField("d", teleportPacket, this.getFixPosition(location.getPosition().z));
+                ReflectionHelper.setDeclaredField("e", teleportPacket, this.getFixRotation(location.getYaw()));
+                ReflectionHelper.setDeclaredField("f", teleportPacket, this.getFixRotation(location.getPitch()));
+            } else {
+                teleportPacket = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
+                lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(location.getYaw()), this.getFixRotation(location.getPitch()), false);
+            }
+
+            for (Player player : players) {
+                packetService.sendPacket(player, teleportPacket);
+                packetService.sendPacket(player, lookPacket);
+            }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+
+        this.location = location;
+    }
+
     public void setPosition(Collection<Player> players, Vector3d position) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -174,42 +222,58 @@ public class FakeEntity {
         this.location = ImmutableLocation.of(this.location.getWorld(), position);
     }
 
-    public void setLocation(Collection<Player> players, ImmutableLocation location) {
+    public void setRotation(Collection<Player> players, Vector2f rotation) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
             ReflectionHelper.invokeMethod("setPositionRotation", this.handle, new Class<?>[] {
                     double.class, double.class, double.class, float.class, float.class
-            }, location.getPosition().x, location.getPosition().y, location.getPosition().z, location.getYaw(), location.getPitch());
+            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, rotation.x, rotation.y);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
 
         try {
-            Object packet = null;
-
-            if (nmsService.getIntVersion() < 7) {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.newInstance();
-
-                ReflectionHelper.setDeclaredField("a", packet, this.getEntityID());
-                ReflectionHelper.setDeclaredField("b", packet, this.getFixPosition(location.getPosition().x));
-                ReflectionHelper.setDeclaredField("c", packet, this.getFixPosition(location.getPosition().y));
-                ReflectionHelper.setDeclaredField("d", packet, this.getFixPosition(location.getPosition().z));
-                ReflectionHelper.setDeclaredField("e", packet, this.getFixRotation(location.getYaw()));
-                ReflectionHelper.setDeclaredField("f", packet, this.getFixRotation(location.getPitch()));
-            } else {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
-            }
+            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(location.getYaw()), this.getFixRotation(location.getPitch()), false);
 
             for (Player player : players) {
-                packetService.sendPacket(player, packet);
+                packetService.sendPacket(player, lookPacket);
             }
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | NoSuchFieldException e) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
 
-        this.location = location;
+        this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
+    }
+
+    public void setHeadRotation(Collection<Player> players, float headRotation) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+        PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+
+        try {
+            ReflectionHelper.invokeMethod("h", this.handle, new Class<?>[] {
+                    float.class
+            }, headRotation);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Object lookPacket = null;
+
+            if (nmsService.getIntVersion() < 7) {
+                nmsService.NMS_PACKET_OUT_ENTITYHEADROTATION.getConstructor(int.class, byte.class).newInstance(this.getEntityID(), this.getFixRotation(headRotation));
+            } else {
+                nmsService.NMS_PACKET_OUT_ENTITYHEADROTATION.getConstructor(nmsService.NMS_ENTITY_CLASS, byte.class).newInstance(this.handle, this.getFixRotation(headRotation));
+            }
+
+            for (Player player : players) {
+                packetService.sendPacket(player, lookPacket);
+            }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setCustomName(Collection<Player> players, String customName) {
@@ -446,6 +510,24 @@ public class FakeEntity {
         return this.location;
     }
 
+    public Vector3d getPosition() {
+        return this.location.getPosition();
+    }
+
+    public Vector2f getRotation() {
+        return this.location.getRotation();
+    }
+
+    public float getHeadRotation() {
+        try {
+            return (float) ReflectionHelper.invokeMethod("getHeadRotation", this.handle);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return 0f;
+    }
+
     public String getName() {
         try {
             return (String) ReflectionHelper.invokeMethod("getName", this.handle);
@@ -513,38 +595,45 @@ public class FakeEntity {
         protected World             world             = null;
         protected Vector3d          position          = null;
         protected Vector2f          rotation          = null;
+        protected float             headRotation      = -1f;
         protected EntityType        type              = null;
         protected Text              customName        = null;
         protected boolean           customNameVisible = false, invisible = false;
 
         protected Builder() {
-            
+
         }
-        
+
         public Builder location(ImmutableLocation location) {
             this.location = location;
 
             return this;
         }
-        
+
         public Builder world(World world) {
             this.world = world;
 
             return this;
         }
-        
+
         public Builder position(Vector3d position) {
             this.position = position;
 
             return this;
         }
-        
+
         public Builder rotation(Vector2f rotation) {
             this.rotation = rotation;
 
             return this;
         }
-        
+
+        public Builder headRotation(float headRotation) {
+            this.headRotation = headRotation;
+
+            return this;
+        }
+
         public Builder type(EntityType type) {
             this.type = type;
 
@@ -577,8 +666,8 @@ public class FakeEntity {
                     this.location = ImmutableLocation.of(this.world, this.position);
                 }
             }
-            
-            return new FakeEntity(this.type, this.location, this.customName != null ? this.customName.toLegacy() : null, this.customNameVisible, this.invisible, true);
+
+            return new FakeEntity(this.type, this.location, this.headRotation, this.customName != null ? this.customName.toLegacy() : null, this.customNameVisible, this.invisible, true);
         }
     }
 }

@@ -15,6 +15,7 @@ import org.joml.Vector3d;
 
 public class Statue extends WorldObject {
     private ImmutableLocation  location    = null;
+    private float              headRotation = 0f;
     private EntityType         entityType  = null;
     private FakeEntity         entity      = null;
     private Text               displayName = null;
@@ -22,8 +23,9 @@ public class Statue extends WorldObject {
 
     private final List<Player> players;
 
-    private Statue(ImmutableLocation location, EntityType entityType, Text displayName, boolean invisible) {
+    private Statue(ImmutableLocation location, float headRotation, EntityType entityType, Text displayName, boolean invisible) {
         this.location = location;
+        this.headRotation = headRotation;
         this.entityType = entityType;
         this.displayName = displayName;
         this.invisible = invisible;
@@ -49,6 +51,7 @@ public class Statue extends WorldObject {
                 .world(this.location.getWorld())
                 .position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5))
                 .rotation(this.location.getRotation())
+                .headRotation(this.headRotation)
                 .customName(this.displayName)
                 .customNameVisible(this.displayName != null ? true : false)
                 .invisible(this.invisible)
@@ -71,20 +74,35 @@ public class Statue extends WorldObject {
 
     @Override
     public void tickFor(Player player) {
-        if (player.getLocation().getPosition().distance(this.getLocation().getPosition()) <= 48) {
-            this.placeFor(player);
-        } else {
+        if (player.isDirty()) {
             this.removeFor(player);
+        } else {
+            if (player.getLocation().getPosition().distance(this.getLocation().getPosition()) <= 48) {
+                this.placeFor(player);
+            } else {
+                this.removeFor(player);
+            }
         }
     }
 
-    public void setPosition(Vector3d position) {
-        this.setLocation(ImmutableLocation.of(this.location.getWorld(), position));
+    public void setLocation(ImmutableLocation location) {
+        this.entity.setLocation(this.players, ImmutableLocation.of(location.getWorld(), new Vector3d(location.getPosition().x + 0.5, location.getPosition().y, location.getPosition().z + 0.5), location.getRotation()));
+        this.location = location;
     }
 
-    public void setLocation(ImmutableLocation location) {
-        this.entity.setPosition(this.players, new Vector3d(location.getPosition().x + 0.5, location.getPosition().y, location.getPosition().z + 0.5));
-        this.location = location;
+    public void setPosition(Vector3d position) {
+        this.entity.setPosition(this.players, new Vector3d(position.x + 0.5, position.y, position.z + 0.5));
+        this.location = ImmutableLocation.of(this.location.getWorld(), position);
+    }
+
+    public void setRotation(Vector2f rotation) {
+        this.entity.setRotation(this.players, rotation);
+        this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
+    }
+    
+    public void setHeadRotation(float headRotation) {
+        this.entity.setHeadRotation(this.players, headRotation);
+        this.headRotation = headRotation;
     }
 
     public void setDisplayName(Text displayName) {
@@ -100,7 +118,6 @@ public class Statue extends WorldObject {
     protected void onPlaced() {
         for (Player player : this.location.getWorld().getPlayers()) {
             this.tickFor(player);
-            this.players.add(player);
         }
     }
 
@@ -125,6 +142,18 @@ public class Statue extends WorldObject {
     public ImmutableLocation getLocation() {
         return this.location;
     }
+    
+    public Vector3d getPosition() {
+        return this.location.getPosition();
+    }
+    
+    public Vector2f getRotation() {
+        return this.location.getRotation();
+    }
+    
+    public float getHeadRotation() {
+        return this.headRotation;
+    }
 
     public EntityType getEntityType() {
         return this.entityType;
@@ -134,14 +163,19 @@ public class Statue extends WorldObject {
         return this.displayName;
     }
 
+    public List<Player> getPlayers() {
+        return this.players;
+    }
+
     public static final class Builder {
-        private ImmutableLocation location    = null;
-        private World             world       = null;
-        private Vector3d          position    = null;
-        private Vector2f          rotation    = null;
-        private EntityType        entityType  = null;
-        private Text              displayName = null;
-        private boolean           invisible   = false;
+        private ImmutableLocation location     = null;
+        private World             world        = null;
+        private Vector3d          position     = null;
+        private Vector2f          rotation     = null;
+        private float             headRotation = -1f;
+        private EntityType        entityType   = null;
+        private Text              displayName  = null;
+        private boolean           invisible    = false;
 
         private Builder() {
 
@@ -171,6 +205,12 @@ public class Statue extends WorldObject {
             return this;
         }
 
+        public Builder headRotation(float headRotation) {
+            this.headRotation = headRotation;
+
+            return this;
+        }
+        
         public Builder entityType(EntityType entityType) {
             this.entityType = entityType;
 
@@ -198,7 +238,7 @@ public class Statue extends WorldObject {
                 }
             }
 
-            Statue statue = new Statue(this.location, this.entityType, this.displayName, this.invisible);
+            Statue statue = new Statue(this.location, this.headRotation, this.entityType, this.displayName, this.invisible);
             statue.create();
 
             return statue;

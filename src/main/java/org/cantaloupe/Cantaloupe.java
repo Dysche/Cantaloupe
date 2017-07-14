@@ -50,10 +50,10 @@ public class Cantaloupe {
         pluginManager = new CantaloupePluginManager();
         pluginManager.load();
 
+        System.out.println("Initialized Cantaloupe.");
+        
         // Post Initialization
         postInitialize();
-
-        System.out.println("Initialized Cantaloupe.");
     }
 
     private static void postInitialize() {

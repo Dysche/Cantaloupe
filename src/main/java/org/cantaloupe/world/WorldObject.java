@@ -7,7 +7,7 @@ import org.cantaloupe.world.location.ImmutableLocation;
 
 public abstract class WorldObject {
     private UUID    uuid   = null;
-    private boolean placed = false;
+    private boolean placed = false, dirty = false;
     
     protected void placeInternal() {
         this.placed = true;
@@ -29,12 +29,20 @@ public abstract class WorldObject {
         
     }
     
+    protected void markDirty() {
+        this.dirty = true;
+    }
+    
     protected abstract void onPlaced();
 
     protected abstract void onRemoved();
-
+    
     public boolean isPlaced() {
         return this.placed;
+    }
+    
+    protected boolean isDirty() {
+        return this.dirty;
     }
 
     protected void setUUID(UUID uuid) {

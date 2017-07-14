@@ -9,6 +9,7 @@ import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.inventory.EnumItemSlot;
 import org.cantaloupe.inventory.ItemStack;
+import org.cantaloupe.inventory.Skull;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.service.services.PacketService;
@@ -18,18 +19,21 @@ import org.cantaloupe.world.World;
 import org.cantaloupe.world.location.ImmutableLocation;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 public class FakeArmorStand extends FakeEntity {
     private DataContainer<EnumItemSlot, ItemStack> equipment = null;
 
-    private FakeArmorStand(ImmutableLocation location, DataContainer<EnumItemSlot, ItemStack> equipment, String customName, boolean customNameVisible, boolean invisible, boolean small, boolean basePlate, boolean arms) {
-        super(EntityType.ARMOR_STAND, location, customName, customNameVisible, invisible, true);
+    private FakeArmorStand(ImmutableLocation location, float headRotation, Vector3f headPose, DataContainer<EnumItemSlot, ItemStack> equipment, String customName, boolean customNameVisible, boolean invisible, boolean small, boolean basePlate, boolean arms) {
+        super(EntityType.ARMOR_STAND, location, headRotation, customName, customNameVisible, invisible, true);
 
         this.equipment = equipment;
-        this.create(small, basePlate, arms);
+        this.create(headPose, small, basePlate, arms);
     }
 
-    private void create(boolean small, boolean basePlate, boolean arms) {
+    private void create(Vector3f headPose, boolean small, boolean basePlate, boolean arms) {
+        NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
+
         try {
             ReflectionHelper.invokeMethod("setSmall", this.handle, new Class<?>[] {
                     boolean.class
@@ -42,6 +46,12 @@ public class FakeArmorStand extends FakeEntity {
             ReflectionHelper.invokeMethod("setArms", this.handle, new Class<?>[] {
                     boolean.class
             }, arms);
+
+            if (headPose != null) {
+                ReflectionHelper.invokeMethod("setHeadPose", this.handle, new Class<?>[] {
+                        service.NMS_VECTOR3F_CLASS
+                }, service.getVector3f(headPose));
+            }
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
@@ -60,8 +70,7 @@ public class FakeArmorStand extends FakeEntity {
                 if (nmsService.getIntVersion() < 8) {
                     equipPackets.add(nmsService.NMS_PACKET_OUT_ENTITYEQUIPMENT_CLASS.getConstructor(int.class, int.class, nmsService.NMS_ITEMSTACK_CLASS).newInstance(this.getEntityID(), slot.getSlot(), this.equipment.get(slot).toNMS()));
                 } else {
-                    equipPackets
-                            .add(nmsService.NMS_PACKET_OUT_ENTITYEQUIPMENT_CLASS.getConstructor(int.class, nmsService.NMS_ENUM_ITEMSLOT_CLASS, nmsService.NMS_ITEMSTACK_CLASS).newInstance(this.getEntityID(), slot.toNMS(), this.equipment.get(slot).toNMS()));
+                    equipPackets.add(nmsService.NMS_PACKET_OUT_ENTITYEQUIPMENT_CLASS.getConstructor(int.class, nmsService.NMS_ENUM_ITEMSLOT_CLASS, nmsService.NMS_ITEMSTACK_CLASS).newInstance(this.getEntityID(), slot.toNMS(), this.equipment.get(slot).toNMS()));
                 }
             }
 
@@ -83,12 +92,40 @@ public class FakeArmorStand extends FakeEntity {
         return new Builder();
     }
 
+    public void setHeadPose(Collection<Player> players, Vector3f headPose) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+        PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+
+        try {
+            ReflectionHelper.invokeMethod("setHeadPose", this.handle, new Class<?>[] {
+                    nmsService.NMS_VECTOR3F_CLASS
+            }, nmsService.getVector3f(headPose));
+
+            // Object dataWatcher =
+            // ReflectionHelper.getDeclaredField("datawatcher", this.handle);
+
+            Object packet = nmsService.NMS_PACKET_OUT_ENTITYMETA_CLASS.getConstructor(int.class, nmsService.NMS_DATAWATCHER_CLASS, boolean.class).newInstance(this.getEntityID(), ReflectionHelper.getDeclaredField("datawatcher", this.handle), true);
+            for (Player player : players) {
+                packetService.sendPacket(player, packet);
+            }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static final class Builder extends FakeEntity.Builder {
+        private Vector3f                               headPose  = null;
         private DataContainer<EnumItemSlot, ItemStack> equipment = null;
         private boolean                                small     = false, basePlate = true, arms = false;
 
         private Builder() {
             this.equipment = DataContainer.of();
+        }
+
+        public Builder location(ImmutableLocation location) {
+            this.location = location;
+
+            return this;
         }
 
         public Builder world(World world) {
@@ -109,8 +146,14 @@ public class FakeArmorStand extends FakeEntity {
             return this;
         }
 
-        public Builder location(ImmutableLocation location) {
-            this.location = location;
+        public Builder headRotation(float headRotation) {
+            this.headRotation = headRotation;
+
+            return this;
+        }
+
+        public Builder headPose(Vector3f headPose) {
+            this.headPose = headPose;
 
             return this;
         }
@@ -170,6 +213,10 @@ public class FakeArmorStand extends FakeEntity {
             return this;
         }
 
+        public Builder helmet(Skull skull) {
+            return this.helmet(skull.toHandle());
+        }
+
         public Builder helmet(ItemStack stack) {
             this.equipment.put(EnumItemSlot.HEAD, stack);
 
@@ -203,7 +250,7 @@ public class FakeArmorStand extends FakeEntity {
                 }
             }
 
-            return new FakeArmorStand(this.location, this.equipment, this.customName != null ? this.customName.toLegacy() : "", this.customNameVisible, this.invisible, this.small, this.basePlate, this.arms);
+            return new FakeArmorStand(this.location, this.headRotation, this.headPose, this.equipment, this.customName != null ? this.customName.toLegacy() : "", this.customNameVisible, this.invisible, this.small, this.basePlate, this.arms);
         }
     }
 }

@@ -33,9 +33,7 @@ public class PlayerManager {
     }
 
     public void finish() {
-        for (Player player : this.players.values()) {
-            player.onLoad();
-        }
+        this.players.values().forEach(player -> player.onLoad());
     }
 
     public void unload() {

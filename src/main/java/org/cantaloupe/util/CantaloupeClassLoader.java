@@ -31,7 +31,7 @@ public class CantaloupeClassLoader {
             });
         } catch (Throwable t) {
             t.printStackTrace();
-            throw new IOException("Error, could not add URL to system classloader");
+            throw new IOException("Could not add URL to system ClassLoader.");
         }
     }
 }

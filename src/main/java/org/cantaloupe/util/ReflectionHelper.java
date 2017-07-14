@@ -105,6 +105,13 @@ public class ReflectionHelper {
 
         return method.invoke(object, arguments);
     }
+    
+    public static Object invokeMethod(String methodName, Object object, Class<?> objectClass, Class<?>[] parameterTypes, Object... arguments) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        Method method = objectClass.getMethod(methodName, parameterTypes);
+        method.setAccessible(true);
+
+        return method.invoke(object, arguments);
+    }
 
     public static Object invokeMethod(String methodName, Object object, Object... arguments) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         Class<?>[] parameterTypes = new Class<?>[arguments.length];
@@ -115,9 +122,26 @@ public class ReflectionHelper {
 
         return invokeMethod(methodName, object, parameterTypes, arguments);
     }
+    
+    public static Object invokeMethod(String methodName, Object object, Class<?> objectClass, Object... arguments) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        Class<?>[] parameterTypes = new Class<?>[arguments.length];
+
+        for (int i = 0; i < arguments.length; i++) {
+            parameterTypes[i] = arguments[i].getClass();
+        }
+
+        return invokeMethod(methodName, object, objectClass, parameterTypes, arguments);
+    }
 
     public static Object invokeDeclaredMethod(String methodName, Object object, Class<?>[] parameterTypes, Object... arguments) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         Method method = object.getClass().getDeclaredMethod(methodName, parameterTypes);
+        method.setAccessible(true);
+
+        return method.invoke(object, arguments);
+    }
+    
+    public static Object invokeDeclaredMethod(String methodName, Object object, Class<?> objectClass, Class<?>[] parameterTypes, Object... arguments) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        Method method = objectClass.getDeclaredMethod(methodName, parameterTypes);
         method.setAccessible(true);
 
         return method.invoke(object, arguments);
@@ -131,6 +155,16 @@ public class ReflectionHelper {
         }
 
         return invokeDeclaredMethod(methodName, object, parameterTypes, arguments);
+    }
+    
+    public static Object invokeDeclaredMethod(String methodName, Object object, Class<?> objectClass, Object... arguments) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        Class<?>[] parameterTypes = new Class<?>[arguments.length];
+
+        for (int i = 0; i < arguments.length; i++) {
+            parameterTypes[i] = arguments[i].getClass();
+        }
+
+        return invokeDeclaredMethod(methodName, object, objectClass, parameterTypes, arguments);
     }
     
     public static Object invokeStaticMethod(String methodName, Class<?> clazz, Class<?>[] parameterTypes, Object... arguments) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {

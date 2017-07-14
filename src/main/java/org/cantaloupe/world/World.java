@@ -75,8 +75,26 @@ public class World {
     }
 
     protected void tick() {
+        List<WorldObject> dirtyObjects = null;
+        
         if (this.worldObjects.size() > 0) {
-            this.worldObjects.forEach((uuid, object) -> object.tick());
+            for(WorldObject object : this.worldObjects.valueSet()) {
+                if(!object.isDirty()) {
+                    object.tick();
+                } else {
+                    if(dirtyObjects == null) {
+                        dirtyObjects = new ArrayList<WorldObject>();
+                    }
+                    
+                    dirtyObjects.add(object);
+                }
+            }
+        }
+        
+        if(dirtyObjects != null) {
+            for(WorldObject object : dirtyObjects) {
+                this.remove(object);
+            }
         }
     }
 

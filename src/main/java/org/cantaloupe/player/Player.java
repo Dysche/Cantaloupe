@@ -19,6 +19,7 @@ import org.cantaloupe.permission.group.Group;
 import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.player.PlayerManager.Scopes;
 import org.cantaloupe.protocol.PacketAccessor;
+import org.cantaloupe.scoreboard.Scoreboard;
 import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.world.World;
@@ -35,9 +36,11 @@ public class Player implements IPermittable, IPermissionHolder {
     private final PermissionAttachment      permissionAttachment;
     private final ArrayList<Group>          groups;
     private final Map<String, List<String>> permissions;
-    private Menu                            currentMenu   = null;
+    private Menu                            currentMenu       = null;
+    private boolean                         dirty             = false;
+    private Scoreboard                      currentScoreboard = null;
 
-    private PacketService                   packetService = null;
+    private PacketService                   packetService     = null;
 
     private Player(org.bukkit.entity.Player handle) {
         this.handle = handle;
@@ -59,7 +62,7 @@ public class Player implements IPermittable, IPermissionHolder {
                 consumer.accept(this);
             }
         }
-        
+
         this.getWorld().tickPlayer(this);
     }
 
@@ -73,7 +76,7 @@ public class Player implements IPermittable, IPermissionHolder {
 
         // Services
         this.packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
-        
+
         // Packet
         PacketAccessor.addFor(this);
     }
@@ -85,7 +88,8 @@ public class Player implements IPermittable, IPermissionHolder {
                 consumer.accept(this);
             }
         }
-        
+
+        this.dirty = true;
         this.getWorld().tickPlayer(this);
     }
 
@@ -102,7 +106,7 @@ public class Player implements IPermittable, IPermissionHolder {
 
         // Services
         this.packetService = null;
-        
+
         // Packet
         PacketAccessor.removeFor(this);
     }
@@ -350,8 +354,17 @@ public class Player implements IPermittable, IPermissionHolder {
         this.packetService.sendPacket(this, packet);
     }
 
+    public boolean isDirty() {
+        return this.dirty;
+    }
+
     public org.bukkit.entity.Player toHandle() {
         return this.handle;
+    }
+
+    public void setScoreboard(Scoreboard scoreboard) {
+        this.handle.setScoreboard(scoreboard.toHandle());
+        this.currentScoreboard = scoreboard;
     }
 
     public UUID getUUID() {
@@ -378,6 +391,22 @@ public class Player implements IPermittable, IPermissionHolder {
         return ImmutableLocation.of(this.handle.getBedSpawnLocation());
     }
 
+    public Vector3d getPosition() {
+        return this.getLocation().getPosition();
+    }
+
+    public Vector3d getEyePosition() {
+        return this.getEyeLocation().getPosition();
+    }
+
+    public Vector3d getBedSpawnPosition() {
+        return this.getBedSpawnLocation().getPosition();
+    }
+
+    public Vector2f getRotation() {
+        return this.getLocation().getRotation();
+    }
+
     public Collection<Group> getGroups() {
         return this.groups;
     }
@@ -388,6 +417,10 @@ public class Player implements IPermittable, IPermissionHolder {
 
     public List<String> getPermissions(World world) {
         return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
+    }
+
+    public Scoreboard getCurrentScoreboard() {
+        return this.currentScoreboard;
     }
 
     public Menu getCurrentMenu() {
