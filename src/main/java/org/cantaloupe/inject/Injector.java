@@ -52,6 +52,16 @@ public class Injector<T> {
         this.consumers.clear();
     }
 
+    public void accept(Scope scope, T object) {
+        Optional<List<Consumer<T>>> consumers = this.getConsumers(scope);
+
+        if (consumers.isPresent()) {
+            for (Consumer<T> consumer : consumers.get()) {
+                consumer.accept(object);
+            }
+        }
+    }
+
     public Optional<List<Consumer<T>>> getConsumers(Scope scope) {
         return Optional.ofNullable(this.consumers.get(scope));
     }

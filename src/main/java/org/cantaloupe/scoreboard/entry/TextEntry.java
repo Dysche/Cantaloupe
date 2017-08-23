@@ -27,7 +27,7 @@ public class TextEntry extends Entry {
             }
             
             if(index != -1) {
-                this.objective.removeEntry(index);          
+                this.objective.clearEntry(index);          
                 this.text = text;         
                 this.objective.addEntry(index, this);
             }

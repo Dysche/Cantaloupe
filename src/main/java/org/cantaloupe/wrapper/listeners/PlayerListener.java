@@ -2,41 +2,52 @@ package org.cantaloupe.wrapper.listeners;
 
 import java.util.Optional;
 
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.inventory.menu.Button;
 import org.cantaloupe.inventory.menu.Page;
+import org.cantaloupe.permission.Allowable;
 import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.service.services.ScheduleService;
 
 public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = Player.of(event.getPlayer());
         Cantaloupe.getPlayerManager().addPlayer(player);
-        player.onJoin();
         player.onLoad();
+        player.onJoin();
+
+        if (!event.getPlayer().hasPlayedBefore()) {
+            player.onFirstJoin();
+        }
 
         event.setJoinMessage(null);
     }
-    
+
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Optional<Player> playerOpt = Cantaloupe.getPlayerManager().getPlayerFromHandle(event.getPlayer());
 
         if (playerOpt.isPresent()) {
             Player player = playerOpt.get();
-            player.onUnload();
             player.onLeave();
+            player.onUnload();
 
             Cantaloupe.getPlayerManager().removePlayer(player);
         }
@@ -51,7 +62,8 @@ public class PlayerListener implements Listener {
             Player player = playerOpt.get();
 
             // Format
-            event.setFormat("<" + GroupManager.getPrefixFor(player).toLegacy() + player.getName() + "> " + event.getMessage());
+            event.setMessage(ChatColor.translateAlternateColorCodes('&', event.getMessage()));
+            event.setFormat("<" + GroupManager.getPrefixFor(player).toLegacy() + player.getName() + "> %2$s");
         }
     }
 
@@ -113,16 +125,97 @@ public class PlayerListener implements Listener {
                         if (button.getIcon().equals(event.getItemDrop().getItemStack())) {
                             event.getItemDrop().remove();
 
-                            /** TODO: Schedule Service */
-                            Bukkit.getScheduler().scheduleSyncDelayedTask(Cantaloupe.getInstance(), new Runnable() {
+                            Cantaloupe.getServiceManager().provide(ScheduleService.class).delay(player.getUUID() + ":" + ":menuItemDrop", new Runnable() {
                                 @Override
                                 public void run() {
                                     page.refreshButton(button);
                                 }
                             });
+
+                            return;
                         }
                     }
                 }
+            }
+
+            if (!player.isAllowed(Allowable.ITEM_DROP)) {
+                event.setCancelled(true);
+
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerPlaceBlock(BlockPlaceEvent event) {
+        Optional<Player> playerOpt = Cantaloupe.getPlayerManager().getPlayerFromHandle(event.getPlayer());
+        if (playerOpt.isPresent()) {
+            Player player = playerOpt.get();
+
+            if (!player.isAllowed(Allowable.BLOCK_PLACE)) {
+                event.setCancelled(true);
+
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerBreakBlock(BlockBreakEvent event) {
+        Optional<Player> playerOpt = Cantaloupe.getPlayerManager().getPlayerFromHandle(event.getPlayer());
+        if (playerOpt.isPresent()) {
+            Player player = playerOpt.get();
+
+            if (!player.isAllowed(Allowable.BLOCK_BREAK)) {
+                event.setCancelled(true);
+
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Optional<Player> playerOpt = Cantaloupe.getPlayerManager().getPlayerFromHandle(event.getPlayer());
+        if (playerOpt.isPresent()) {
+            Player player = playerOpt.get();
+
+            if (player.isAllowed(Allowable.INTERACT_ALL)) {
+                return;
+            }
+            
+            if (player.isAllowed(Allowable.INTERACT_BLOCK)) {
+                if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                    return;
+                }
+            }
+            
+            if (player.isAllowed(Allowable.INTERACT_AIR)) {
+                if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_AIR) {
+                    return;
+                }
+            }
+            
+            if (player.isAllowed(Allowable.INTERACT_PHYSICAL)) {
+                if (event.getAction() == Action.PHYSICAL) {
+                    return;
+                }
+            }
+
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+        Optional<Player> playerOpt = Cantaloupe.getPlayerManager().getPlayerFromHandle(event.getPlayer());
+        if (playerOpt.isPresent()) {
+            Player player = playerOpt.get();
+
+            if (!player.isAllowed(Allowable.ITEM_CONSUME)) {
+                event.setCancelled(true);
+
+                return;
             }
         }
     }

@@ -7,7 +7,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>cantaloupe2</name>
+  <name>cantaloupe</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -44,14 +44,7 @@
       <version>1.12-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
-	
-	<dependency>
-	  <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
-      <version>1.12-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-	
+
 	<dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongo-java-driver</artifactId>
@@ -74,6 +67,12 @@
 	  <groupId>org.java-websocket</groupId>
 	  <artifactId>Java-WebSocket</artifactId>
 	  <version>1.3.0</version>
+	</dependency>
+	<dependency>
+		<groupId>org.bukkit</groupId>
+		<artifactId>craftbukkit</artifactId>
+		<version>1.12-R0.1-SNAPSHOT</version>
+		<scope>provided</scope>
 	</dependency>
   </dependencies>
 </project>

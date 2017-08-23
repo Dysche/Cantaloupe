@@ -20,10 +20,6 @@ public class NMSService implements Service {
     private int     intVersion                             = -1;
 
     // NMS Classes
-    public Class<?> NMS_MINECRAFTSERVER_CLASS              = null;
-    public Class<?> NMS_WORLD_CLASS                        = null;
-    public Class<?> NMS_WORLDSERVER_CLASS                  = null;
-    public Class<?> NMS_CHUNK_CLASS                        = null;
     public Class<?> NMS_PACKET_CLASS                       = null;
     public Class<?> NMS_PACKET_OUT_ENTITY                  = null;
     public Class<?> NMS_PACKET_OUT_ENTITYLOOK              = null;
@@ -39,24 +35,37 @@ public class NMSService implements Service {
     public Class<?> NMS_PACKET_OUT_ENTITYTELEPORT          = null;
     public Class<?> NMS_PACKET_OUT_ENTITYHEADROTATION      = null;
     public Class<?> NMS_PACKET_OUT_MAPCHUNK                = null;
+    public Class<?> NMS_PACKET_OUT_TITLE                   = null;
+    public Class<?> NMS_PACKET_OUT_CHAT                    = null;
     public Class<?> NMS_PACKET_IN_USEENTITY_CLASS          = null;
+
     public Class<?> NMS_ENTITY_CLASS                       = null;
     public Class<?> NMS_ENTITY_LIVING_CLASS                = null;
     public Class<?> NMS_ENTITY_ARMORSTAND_CLASS            = null;
     public Class<?> NMS_ENTITY_HUMAN_CLASS                 = null;
     public Class<?> NMS_ENTITY_PLAYER_CLASS                = null;
-    public Class<?> NMS_PLAYERINTERACTMANAGER_CLASS        = null;
+
     public Class<?> NMS_ENUM_PARTICLE_CLASS                = null;
     public Class<?> NMS_ENUM_PLAYERINFOACTION_CLASS        = null;
     public Class<?> NMS_ENUM_ITEMSLOT_CLASS                = null;
     public Class<?> NMS_ENUM_SKYBLOCK_CLASS                = null;
+    public Class<?> NMS_ENUM_TITLEACTION_CLASS             = null;
+
     public Class<?> NMS_DATAWATCHER_CLASS                  = null;
     public Class<?> NMS_DATAWATCHEROBJECT_CLASS            = null;
     public Class<?> NMS_DATAWATCHERREGISTRY_CLASS          = null;
     public Class<?> NMS_DATAWATCHERSERIALIZER_CLASS        = null;
+
+    public Class<?> NMS_MINECRAFTSERVER_CLASS              = null;
+    public Class<?> NMS_WORLD_CLASS                        = null;
+    public Class<?> NMS_WORLDSERVER_CLASS                  = null;
+    public Class<?> NMS_CHUNK_CLASS                        = null;
+    public Class<?> NMS_PLAYERINTERACTMANAGER_CLASS        = null;
     public Class<?> NMS_ITEMSTACK_CLASS                    = null;
     public Class<?> NMS_VECTOR3F_CLASS                     = null;
     public Class<?> NMS_BLOCKPOSITION_CLASS                = null;
+    public Class<?> NMS_ICHATBASECOMPONENT_CLASS           = null;
+    public Class<?> NMS_CHATSERIALIZER_CLASS               = null;
 
     public Class<?> NMS_NBT_BASE_CLASS                     = null;
     public Class<?> NMS_NBT_NUMBER_CLASS                   = null;
@@ -93,10 +102,6 @@ public class NMSService implements Service {
 
     private void loadClasses() {
         // NMS
-        this.NMS_MINECRAFTSERVER_CLASS = this.getNMSClass("MinecraftServer");
-        this.NMS_WORLD_CLASS = this.getNMSClass("World");
-        this.NMS_WORLDSERVER_CLASS = this.getNMSClass("WorldServer");
-        this.NMS_CHUNK_CLASS = this.getNMSClass("Chunk");
         this.NMS_PACKET_CLASS = this.getNMSClass("Packet");
         this.NMS_PACKET_OUT_ENTITY = this.getNMSClass(this.getIntVersion() < 7 ? "Packet30Entity" : "PacketPlayOutEntity");
         this.NMS_PACKET_OUT_ENTITYLOOK = this.NMS_PACKET_OUT_ENTITY.getClasses()[0];
@@ -112,27 +117,40 @@ public class NMSService implements Service {
         this.NMS_PACKET_OUT_ENTITYTELEPORT = this.getNMSClass(this.getIntVersion() < 7 ? "Packet34EntityTeleport" : "PacketPlayOutEntityTeleport");
         this.NMS_PACKET_OUT_ENTITYHEADROTATION = this.getNMSClass(this.getIntVersion() < 7 ? "Packet35EntityHeadRotation" : "PacketPlayOutEntityHeadRotation");
         this.NMS_PACKET_OUT_MAPCHUNK = this.getNMSClass(this.getIntVersion() < 7 ? "Packet51MapChunk" : "PacketPlayOutMapChunk");
+        this.NMS_PACKET_OUT_TITLE = this.getNMSClass("PacketPlayOutTitle");
+        this.NMS_PACKET_OUT_CHAT = this.getNMSClass(this.getIntVersion() < 7 ? "Packet3Chat" : "PacketPlayOutChat");
         this.NMS_PACKET_IN_USEENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet7UseEntity" : "PacketPlayInUseEntity");
+
         this.NMS_ENTITY_CLASS = this.getNMSClass("Entity");
         this.NMS_ENTITY_LIVING_CLASS = this.getNMSClass("EntityLiving");
         this.NMS_ENTITY_ARMORSTAND_CLASS = this.getNMSClass("EntityArmorStand");
         this.NMS_ENTITY_HUMAN_CLASS = this.getNMSClass("EntityHuman");
         this.NMS_ENTITY_PLAYER_CLASS = this.getNMSClass("EntityPlayer");
-        this.NMS_PLAYERINTERACTMANAGER_CLASS = this.getNMSClass("PlayerInteractManager");
+
         this.NMS_ENUM_PARTICLE_CLASS = this.getNMSClass("EnumParticle");
         this.NMS_ENUM_PLAYERINFOACTION_CLASS = this.NMS_PACKET_OUT_PLAYERINFO_CLASS.getClasses()[1];
         this.NMS_ENUM_ITEMSLOT_CLASS = this.getNMSClass("EnumItemSlot");
         this.NMS_ENUM_SKYBLOCK_CLASS = this.getNMSClass("EnumSkyBlock");
+        this.NMS_ENUM_TITLEACTION_CLASS = this.NMS_PACKET_OUT_TITLE.getClasses()[0];
+
         this.NMS_DATAWATCHER_CLASS = this.getNMSClass("DataWatcher");
         this.NMS_DATAWATCHEROBJECT_CLASS = this.getNMSClass("DataWatcherObject");
         this.NMS_DATAWATCHERREGISTRY_CLASS = this.getNMSClass("DataWatcherRegistry");
         this.NMS_DATAWATCHERSERIALIZER_CLASS = this.getNMSClass("DataWatcherSerializer");
+
+        this.NMS_MINECRAFTSERVER_CLASS = this.getNMSClass("MinecraftServer");
+        this.NMS_WORLD_CLASS = this.getNMSClass("World");
+        this.NMS_WORLDSERVER_CLASS = this.getNMSClass("WorldServer");
+        this.NMS_CHUNK_CLASS = this.getNMSClass("Chunk");
+        this.NMS_PLAYERINTERACTMANAGER_CLASS = this.getNMSClass("PlayerInteractManager");
         this.NMS_ITEMSTACK_CLASS = this.getNMSClass("ItemStack");
         this.NMS_VECTOR3F_CLASS = this.getNMSClass("Vector3f");
         this.NMS_BLOCKPOSITION_CLASS = this.getNMSClass("BlockPosition");
+        this.NMS_ICHATBASECOMPONENT_CLASS = this.getNMSClass("IChatBaseComponent");
+        this.NMS_CHATSERIALIZER_CLASS = this.NMS_ICHATBASECOMPONENT_CLASS.getClasses()[0];
 
         this.NMS_NBT_BASE_CLASS = this.getNMSClass("NBTBase");
-        this.NMS_NBT_NUMBER_CLASS = this.NMS_NBT_BASE_CLASS.getClasses()[0];
+        this.NMS_NBT_NUMBER_CLASS = this.getIntVersion() < 12 ? this.NMS_NBT_BASE_CLASS.getClasses()[0] : this.getNMSClass("NBTNumber");
         this.NMS_NBT_TAGCOMPOUND_CLASS = this.getNMSClass("NBTTagCompound");
         this.NMS_NBT_TAGLIST_CLASS = this.getNMSClass("NBTTagList");
         this.NMS_NBT_TAGBYTE_CLASS = this.getNMSClass("NBTTagByte");
@@ -238,7 +256,9 @@ public class NMSService implements Service {
 
     public Object getItemStack(org.bukkit.inventory.ItemStack stack) {
         try {
-            return ReflectionHelper.invokeStaticMethod("asNMSCopy", this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS, stack);
+            return ReflectionHelper.invokeStaticMethod("asNMSCopy", this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS, new Class<?>[] {
+                    org.bukkit.inventory.ItemStack.class
+            }, stack);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
@@ -248,7 +268,9 @@ public class NMSService implements Service {
 
     public Object getItemStack(ItemStack stack) {
         try {
-            return ReflectionHelper.invokeStaticMethod("asNMSCopy", this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS, stack.toHandle());
+            return ReflectionHelper.invokeStaticMethod("asNMSCopy", this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS, new Class<?>[] {
+                    org.bukkit.inventory.ItemStack.class
+            }, stack.toHandle());
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }

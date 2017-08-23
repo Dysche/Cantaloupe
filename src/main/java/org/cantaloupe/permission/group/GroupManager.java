@@ -30,7 +30,9 @@ public class GroupManager {
         Text prefix = Text.of();
 
         for (Group group : player.getGroups()) {
-            prefix.addChild(Text.of("[").addChild(group.getPrefix()).addChild(Text.of("]")));
+            if(group.showPrefix()) {
+                prefix.addChild(Text.of("[").addChild(group.getPrefix()).addChild(Text.of("]")));
+            }
         }
 
         return prefix;

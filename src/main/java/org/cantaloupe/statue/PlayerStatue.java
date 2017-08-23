@@ -90,7 +90,7 @@ public class PlayerStatue extends WorldObject {
         if (player.isDirty()) {
             this.removeFor(player);
         } else {
-            if (player.getLocation().getPosition().distance(this.getLocation().getPosition()) <= 48) {
+            if (player.getLocation().getPosition().distance(this.getLocation().getPosition()) <= 48 && player.getWorld() == this.getLocation().getWorld()) {
                 this.placeFor(player);
             } else {
                 this.removeFor(player);

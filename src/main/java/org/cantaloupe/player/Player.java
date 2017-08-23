@@ -1,18 +1,18 @@
 package org.cantaloupe.player;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 
+import org.bukkit.Sound;
 import org.bukkit.permissions.PermissionAttachment;
 import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.inject.Injector;
 import org.cantaloupe.inventory.menu.Menu;
+import org.cantaloupe.permission.Allowable;
 import org.cantaloupe.permission.IPermissionHolder;
 import org.cantaloupe.permission.IPermittable;
 import org.cantaloupe.permission.group.Group;
@@ -31,24 +31,30 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 public class Player implements IPermittable, IPermissionHolder {
-    private final org.bukkit.entity.Player  handle;
-    private final Injector<Player>          injector;
-    private final PermissionAttachment      permissionAttachment;
-    private final ArrayList<Group>          groups;
-    private final Map<String, List<String>> permissions;
-    private Menu                            currentMenu       = null;
-    private boolean                         dirty             = false;
-    private Scoreboard                      currentScoreboard = null;
+    private final org.bukkit.entity.Player                                     handle;
+    private final Injector<Player>                                             injector;
+    private final DataContainer<Class<? extends PlayerWrapper>, PlayerWrapper> wrappers;
+    private final DataContainer<String, Object>                                data;
+    private final DataContainer<String, List<String>>                          permissions;
+    private final PermissionAttachment                                         permissionAttachment;
+    private final List<Group>                                                  groups;
+    private final List<Allowable>                                              allowables;
+    private Menu                                                               currentMenu       = null;
+    private Scoreboard                                                         currentScoreboard = null;
+    private boolean                                                            dirty             = false;
 
-    private PacketService                   packetService     = null;
+    private PacketService                                                      packetService     = null;
 
     private Player(org.bukkit.entity.Player handle) {
         this.handle = handle;
         this.injector = new Injector<Player>();
+        this.wrappers = DataContainer.of();
+        this.data = DataContainer.of();
 
-        this.permissions = new HashMap<String, List<String>>();
+        this.permissions = DataContainer.of();
         this.permissionAttachment = this.handle.addAttachment(Cantaloupe.getInstance());
         this.groups = new ArrayList<Group>();
+        this.allowables = new ArrayList<Allowable>();
     }
 
     public static Player of(org.bukkit.entity.Player handle) {
@@ -56,53 +62,52 @@ public class Player implements IPermittable, IPermissionHolder {
     }
 
     public void onJoin() {
-        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.JOIN);
-        if (consumers.isPresent()) {
-            for (Consumer<Player> consumer : consumers.get()) {
-                consumer.accept(this);
-            }
-        }
-
+        // Tick Player
         this.getWorld().tickPlayer(this);
+
+        // Join
+        this.getInjector().accept(Scopes.JOIN, this);
     }
 
     public void onLoad() {
-        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.LOAD);
-        if (consumers.isPresent()) {
-            for (Consumer<Player> consumer : consumers.get()) {
-                consumer.accept(this);
-            }
-        }
-
         // Services
         this.packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         // Packet
         PacketAccessor.addFor(this);
+
+        // Wrappers
+        this.wrappers.forEach((wrapperClass, wrapper) -> wrapper.onLoad());
+        
+        // Injector
+        this.getInjector().accept(Scopes.LOAD, this);
     }
 
     public void onLeave() {
-        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.LEAVE);
-        if (consumers.isPresent()) {
-            for (Consumer<Player> consumer : consumers.get()) {
-                consumer.accept(this);
-            }
-        }
+        // Injector
+        this.getInjector().accept(Scopes.LEAVE, this);
 
+        // Mark Dirty
         this.dirty = true;
+
+        // Tick Player
         this.getWorld().tickPlayer(this);
     }
 
     public void onUnload() {
-        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.UNLOAD);
-        if (consumers.isPresent()) {
-            for (Consumer<Player> consumer : consumers.get()) {
-                consumer.accept(this);
-            }
-        }
+        // Wrappers
+        this.wrappers.forEach((wrapperClass, wrapper) -> wrapper.onUnload());
 
-        this.permissionAttachment.remove();
+        // Injector
+        this.getInjector().accept(Scopes.UNLOAD, this);
+
+        // Clear
         this.getInjector().clear();
+        this.wrappers.clear();
+        this.permissions.clear();
+        this.permissionAttachment.remove();
+        this.data.clear();
+        this.allowables.clear();
 
         // Services
         this.packetService = null;
@@ -112,14 +117,42 @@ public class Player implements IPermittable, IPermissionHolder {
     }
 
     public void onWorldSwitch(World old) {
+        // Update Permissions
         this.updatePermissionsWorld();
 
-        Optional<List<Consumer<Player>>> consumers = this.getInjector().getConsumers(Scopes.WORLD_SWITCH);
-        if (consumers.isPresent()) {
-            for (Consumer<Player> consumer : consumers.get()) {
-                consumer.accept(this);
-            }
+        // Tick Player
+        old.tickPlayer(this);
+
+        // Injector
+        this.getInjector().accept(Scopes.WORLD_SWITCH, this);
+    }
+
+    public void onFirstJoin() {
+        this.getInjector().accept(Scopes.FIRST_JOIN, this);
+    }
+
+    public void allow(Allowable allowable) {
+        this.allowables.add(allowable);
+    }
+
+    public void disallow(Allowable allowable) {
+        this.allowables.remove(allowable);
+    }
+
+    public boolean isAllowed(Allowable allowable) {
+        return this.allowables.contains(allowable);
+    }
+
+    protected void addWrapper(Class<? extends PlayerWrapper> wrapperClass) {
+        try {
+            this.wrappers.put(wrapperClass, wrapperClass.getConstructor(Player.class).newInstance(this));
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InstantiationException e) {
+            e.printStackTrace();
         }
+    }
+
+    public boolean hasWrapper(Class<? extends PlayerWrapper> wrapperClass) {
+        return this.wrappers.containsKey(wrapperClass);
     }
 
     public void teleport(org.bukkit.Location handle) {
@@ -350,8 +383,37 @@ public class Player implements IPermittable, IPermissionHolder {
         this.handle.closeInventory();
     }
 
+    public void playSound(Location location, Sound sound, float volume, float pitch) {
+        this.handle.playSound(location.toHandle(), sound, volume, pitch);
+    }
+
+    public void playSound(Location location, Sound sound, float volume) {
+        this.handle.playSound(location.toHandle(), sound, volume, 1f);
+    }
+
+    public void playSound(Location location, Sound sound) {
+        this.handle.playSound(location.toHandle(), sound, 1f, 1f);
+    }
+
+    public void playSound(Sound sound, float volume, float pitch) {
+        this.handle.playSound(this.getLocation().toHandle(), sound, volume, pitch);
+    }
+
+    public void playSound(Sound sound, float volume) {
+        this.handle.playSound(this.getLocation().toHandle(), sound, volume, 1f);
+    }
+
+    public void playSound(Sound sound) {
+        this.handle.playSound(this.getLocation().toHandle(), sound, 1f, 1f);
+    }
+
     public void sendPacket(Object packet) {
         this.packetService.sendPacket(this, packet);
+    }
+
+    public void setScoreboard(Scoreboard scoreboard) {
+        this.handle.setScoreboard(scoreboard.toHandle());
+        this.currentScoreboard = scoreboard;
     }
 
     public boolean isDirty() {
@@ -362,13 +424,21 @@ public class Player implements IPermittable, IPermissionHolder {
         return this.handle;
     }
 
-    public void setScoreboard(Scoreboard scoreboard) {
-        this.handle.setScoreboard(scoreboard.toHandle());
-        this.currentScoreboard = scoreboard;
-    }
-
     public UUID getUUID() {
         return this.handle.getUniqueId();
+    }
+
+    public Injector<Player> getInjector() {
+        return this.injector;
+    }
+
+    public DataContainer<Class<? extends PlayerWrapper>, PlayerWrapper> getWrappers() {
+        return this.wrappers.clone();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends PlayerWrapper> T getWrapper(Class<? extends PlayerWrapper> wrapperClass) {
+        return (T) this.wrappers.get(wrapperClass);
     }
 
     public String getName() {
@@ -411,8 +481,8 @@ public class Player implements IPermittable, IPermissionHolder {
         return this.groups;
     }
 
-    public Map<String, List<String>> getPermissions() {
-        return this.permissions;
+    public DataContainer<String, List<String>> getPermissions() {
+        return this.permissions.clone();
     }
 
     public List<String> getPermissions(World world) {
@@ -427,7 +497,7 @@ public class Player implements IPermittable, IPermissionHolder {
         return this.currentMenu;
     }
 
-    public Injector<Player> getInjector() {
-        return this.injector;
+    public DataContainer<String, Object> getData() {
+        return this.data;
     }
 }

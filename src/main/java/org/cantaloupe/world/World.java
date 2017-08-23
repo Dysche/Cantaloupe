@@ -6,10 +6,15 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.events.WorldObjectPlaceEvent;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.world.location.Location;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 public class World {
     private final org.bukkit.World                 handle;
@@ -74,25 +79,41 @@ public class World {
         return false;
     }
 
+    public Block getBlock(Location location) {
+        return location.getBlock();
+    }
+
+    public Block getBlock(Vector3i position) {
+        return this.handle.getBlockAt(position.x, position.y, position.z);
+    }
+
+    public Block getBlock(Vector3d position) {
+        return this.handle.getBlockAt((int) position.x, (int) position.y, (int) position.z);
+    }
+
+    public Block getBlock(Vector3f position) {
+        return this.handle.getBlockAt((int) position.x, (int) position.y, (int) position.z);
+    }
+
     protected void tick() {
         List<WorldObject> dirtyObjects = null;
-        
+
         if (this.worldObjects.size() > 0) {
-            for(WorldObject object : this.worldObjects.valueSet()) {
-                if(!object.isDirty()) {
+            for (WorldObject object : this.worldObjects.valueSet()) {
+                if (!object.isDirty()) {
                     object.tick();
                 } else {
-                    if(dirtyObjects == null) {
+                    if (dirtyObjects == null) {
                         dirtyObjects = new ArrayList<WorldObject>();
                     }
-                    
+
                     dirtyObjects.add(object);
                 }
             }
         }
-        
-        if(dirtyObjects != null) {
-            for(WorldObject object : dirtyObjects) {
+
+        if (dirtyObjects != null) {
+            for (WorldObject object : dirtyObjects) {
                 this.remove(object);
             }
         }

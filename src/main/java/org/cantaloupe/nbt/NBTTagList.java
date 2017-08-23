@@ -29,7 +29,7 @@ public class NBTTagList {
         return null;
     }
 
-    public void add(Object object) {
+    public NBTTagList add(Object object) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
         try {
@@ -81,6 +81,8 @@ public class NBTTagList {
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InstantiationException e) {
             e.printStackTrace();
         }
+        
+        return this;
     }
 
     public NBTTagCompound get(int index) {

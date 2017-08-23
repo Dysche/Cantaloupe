@@ -30,7 +30,7 @@ public class Database {
         }
     }
 
-    public boolean isCollection(String collectionName) {
+    public boolean hasCollection(String collectionName) {
         return this.handle.getCollection(collectionName) != null;
     }
 

@@ -21,6 +21,7 @@ public class LightService implements Service {
 
     }
 
+    @Deprecated
     public void addLight(ImmutableLocation location, int level, Collection<Player> players) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
 
@@ -38,6 +39,7 @@ public class LightService implements Service {
         this.updateChunk(location, players);
     }
 
+    @Deprecated
     public void removeLight(ImmutableLocation location, Collection<Player> players) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 

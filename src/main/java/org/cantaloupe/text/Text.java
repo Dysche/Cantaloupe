@@ -191,7 +191,7 @@ public class Text {
         return this;
     }
 
-    public Text onShiftHover(ShiftClickAction<?> action) {
+    public Text onShiftClick(ShiftClickAction<?> action) {
         if (this.actions == null) {
             this.actions = new ArrayList<TextAction<?>>();
         }

@@ -2,9 +2,9 @@ package org.cantaloupe.inventory.menu;
 
 import java.util.function.BiConsumer;
 
-import org.bukkit.Bukkit;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.inventory.ItemStack;
+import org.cantaloupe.service.services.ScheduleService;
 
 public class Button {
     private int                       slot          = -1;
@@ -54,23 +54,23 @@ public class Button {
     }
 
     public void onClick() {
-        if(this.clickConsumer != null) {
+        if (this.clickConsumer != null) {
             this.clickConsumer.accept(this, this.page);
         }
     }
 
     public void onMove() {
-        if(this.moveConsumer != null) {
+        if (this.moveConsumer != null) {
             this.moveConsumer.accept(this.slot, this.page);
         }
     }
 
     public void changeIcon(ItemStack icon) {
         this.icon = icon;
-        
+
         /** TODO: Schedule Service */
         final Button button = this;
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Cantaloupe.getInstance(), new Runnable() {
+        Cantaloupe.getServiceManager().provide(ScheduleService.class).delay(this + ":changeIcon", new Runnable() {
             @Override
             public void run() {
                 page.refreshButton(button);

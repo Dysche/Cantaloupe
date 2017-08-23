@@ -29,7 +29,7 @@ public class NBTTagCompound {
         return null;
     }
 
-    public void set(String s, Object object) {
+    public NBTTagCompound set(String s, Object object) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
         try {
@@ -81,82 +81,126 @@ public class NBTTagCompound {
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InstantiationException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setByte(String s, byte b0) {
+    public NBTTagCompound setByte(String s, byte b0) {
         try {
-            ReflectionHelper.invokeMethod("setByte", this.handle, s, b0);
+            ReflectionHelper.invokeMethod("setByte", this.handle, new Class<?>[] {
+                    String.class, byte.class
+            }, s, b0);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setShort(String s, short short1) {
+    public NBTTagCompound setShort(String s, short short1) {
         try {
-            ReflectionHelper.invokeMethod("setShort", this.handle, s, short1);
+            ReflectionHelper.invokeMethod("setShort", this.handle, new Class<?>[] {
+                    String.class, short.class
+            }, s, short1);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setInt(String s, int i) {
+    public NBTTagCompound setInt(String s, int i) {
         try {
-            ReflectionHelper.invokeMethod("setInt", this.handle, s, i);
+            ReflectionHelper.invokeMethod("setInt", this.handle, new Class<?>[] {
+                    String.class, int.class
+            }, s, i);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setLong(String s, long i) {
+    public NBTTagCompound setLong(String s, long i) {
         try {
-            ReflectionHelper.invokeMethod("setLong", this.handle, s, i);
+            ReflectionHelper.invokeMethod("setLong", this.handle, new Class<?>[] {
+                    String.class, long.class
+            }, s, i);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setFloat(String s, float f) {
+    public NBTTagCompound setFloat(String s, float f) {
         try {
-            ReflectionHelper.invokeMethod("setFloat", this.handle, s, f);
+            ReflectionHelper.invokeMethod("setFloat", this.handle, new Class<?>[] {
+                    String.class, float.class
+            }, s, f);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setDouble(String s, double d0) {
+    public NBTTagCompound setDouble(String s, double d0) {
         try {
-            ReflectionHelper.invokeMethod("setDouble", this.handle, s, d0);
+            ReflectionHelper.invokeMethod("setDouble", this.handle, new Class<?>[] {
+                    String.class, double.class
+            }, s, d0);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setString(String s, String s1) {
+    public NBTTagCompound setString(String s, String s1) {
         try {
             ReflectionHelper.invokeMethod("setString", this.handle, s, s1);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setByteArray(String s, byte[] abyte) {
+    public NBTTagCompound setByteArray(String s, byte[] abyte) {
         try {
-            ReflectionHelper.invokeMethod("setByteArray", this.handle, s, abyte);
+            ReflectionHelper.invokeMethod("setByteArray", this.handle, new Class<?>[] {
+                    String.class, byte[].class
+            }, s, abyte);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setIntArray(String s, int[] aint) {
+    public NBTTagCompound setIntArray(String s, int[] aint) {
         try {
-            ReflectionHelper.invokeMethod("setIntArray", this.handle, s, aint);
+            ReflectionHelper.invokeMethod("setIntArray", this.handle, new Class<?>[] {
+                    String.class, int[].class
+            }, s, aint);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
-    public void setBoolean(String s, boolean flag) {
-        this.setByte(s, (byte) (flag ? 1 : 0));
+    public NBTTagCompound setBoolean(String s, boolean flag) {
+        try {
+            ReflectionHelper.invokeMethod("setBoolean", this.handle, new Class<?>[] {
+                    String.class, boolean.class
+            }, s, flag);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return this;
     }
 
     public Object get(String s) {

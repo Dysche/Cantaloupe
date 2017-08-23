@@ -1,8 +1,8 @@
 package org.cantaloupe.player;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -10,22 +10,30 @@ import java.util.function.Consumer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.cantaloupe.command.CommandSource;
+import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.inject.Injector;
 import org.cantaloupe.inject.Scope;
 import org.cantaloupe.text.Text;
 
 public class PlayerManager {
-    private Map<UUID, Player> players        = null;
-    private Injector<Player>  playerInjector = null;
+    private DataContainer<UUID, Player>          players        = null;
+    private List<Class<? extends PlayerWrapper>> wrapperClasses = null;
+    private Injector<Player>                     playerInjector = null;
 
     public PlayerManager() {
-        this.players = new HashMap<UUID, Player>();
+        this.players = DataContainer.of();
+        this.wrapperClasses = new ArrayList<Class<? extends PlayerWrapper>>();
         this.playerInjector = new Injector<Player>();
     }
 
     public void inject(Scope scope, Consumer<Player> consumer) {
-        this.players.values().forEach(player -> player.getInjector().inject(scope, consumer));
+        this.players.valueSet().forEach(player -> player.getInjector().inject(scope, consumer));
         this.playerInjector.inject(scope, consumer);
+    }
+
+    public void injectAll(Scope scope, List<Consumer<Player>> consumers) {
+        this.players.valueSet().forEach(player -> player.getInjector().injectAll(scope, consumers));
+        this.playerInjector.injectAll(scope, consumers);
     }
 
     public void load() {
@@ -33,7 +41,15 @@ public class PlayerManager {
     }
 
     public void finish() {
-        this.players.values().forEach(player -> player.onLoad());
+        this.players.valueSet().forEach(player -> {
+            for (Class<? extends PlayerWrapper> wrapperClass : this.wrapperClasses) {
+                if(!player.hasWrapper(wrapperClass)) {
+                    player.addWrapper(wrapperClass);
+                }
+            }
+            
+            player.onLoad();
+        });
     }
 
     public void unload() {
@@ -42,15 +58,31 @@ public class PlayerManager {
         this.playerInjector.clear();
     }
 
+    public void registerWrapper(Class<? extends PlayerWrapper> wrapperClazz) {
+        if (this.wrapperClasses.contains(wrapperClazz)) {
+            return;
+        }
+
+        this.wrapperClasses.add(wrapperClazz);
+    }
+
     public void addPlayer(org.bukkit.entity.Player handle) {
         Player player = Player.of(handle);
         player.getInjector().injectAll(this.playerInjector);
+
+        for (Class<? extends PlayerWrapper> wrapperClass : this.wrapperClasses) {
+            player.addWrapper(wrapperClass);
+        }
 
         this.players.put(player.getUUID(), player);
     }
 
     public void addPlayer(Player player) {
         player.getInjector().injectAll(this.playerInjector);
+
+        for (Class<? extends PlayerWrapper> wrapperClass : this.wrapperClasses) {
+            player.addWrapper(wrapperClass);
+        }
 
         this.players.put(player.getUUID(), player);
     }
@@ -78,18 +110,11 @@ public class PlayerManager {
     }
 
     public void removePlayer(String name) {
-        Map<UUID, Player> clone = new HashMap<UUID, Player>();
-        clone.putAll(this.players);
-
-        for (Player player : clone.values()) {
+        for (Player player : this.players.clone().valueSet()) {
             if (player.getName().equals(name)) {
                 this.players.remove(player.getUUID());
             }
         }
-    }
-
-    public int playerCount() {
-        return this.players.size();
     }
 
     public void broadcast(Text text) {
@@ -127,7 +152,7 @@ public class PlayerManager {
     }
 
     public Optional<Player> tryGetPlayer(String string) {
-        for (Player player : this.players.values()) {
+        for (Player player : this.players.valueSet()) {
             if (player.getName().toLowerCase().startsWith(string.toLowerCase())) {
                 return Optional.of(player);
             } else if (player.getName().toLowerCase().contains(string.toLowerCase())) {
@@ -138,8 +163,20 @@ public class PlayerManager {
         return Optional.empty();
     }
 
+    public <T extends PlayerWrapper> T getWrapper(Player player, Class<? extends PlayerWrapper> wrapperClass) {
+        return player.getWrapper(wrapperClass);
+    }
+
+    public DataContainer<Class<? extends PlayerWrapper>, PlayerWrapper> getWrappers(Player player) {
+        return player.getWrappers();
+    }
+
+    public int getPlayerCount() {
+        return this.players.size();
+    }
+
     public Collection<Player> getPlayers() {
-        return this.players.values();
+        return this.players.valueSet();
     }
 
     public static class Scopes {
@@ -147,6 +184,7 @@ public class PlayerManager {
         public static final Scope LEAVE        = Scope.of("player", "leave");
         public static final Scope LOAD         = Scope.of("player", "load");
         public static final Scope UNLOAD       = Scope.of("player", "unload");
+        public static final Scope FIRST_JOIN   = Scope.of("player", "first_join");
 
         public static final Scope WORLD_SWITCH = Scope.of("player", "world_switch");
     }

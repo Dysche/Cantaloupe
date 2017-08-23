@@ -15,8 +15,8 @@ import org.cantaloupe.world.location.Location;
 import org.joml.Vector3f;
 
 public class ParticleService implements Service {
-    private NMSService nmsService          = null;
-    private Enum<?>[]  enumParticleValues  = null;
+    private NMSService nmsService         = null;
+    private Enum<?>[]  enumParticleValues = null;
 
     @Override
     public void load() {

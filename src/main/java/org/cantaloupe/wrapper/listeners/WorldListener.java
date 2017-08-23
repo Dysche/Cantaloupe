@@ -6,7 +6,7 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.cantaloupe.Cantaloupe;
 
-public class WorldListeners implements Listener {
+public class WorldListener implements Listener {
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
         Cantaloupe.getWorldManager().registerWorld(event.getWorld());

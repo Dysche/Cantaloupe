@@ -8,10 +8,12 @@ import java.util.List;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.service.services.LightService;
+import org.cantaloupe.service.services.MongoService;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.service.services.ParticleService;
 import org.cantaloupe.service.services.ScheduleService;
+import org.cantaloupe.service.services.ScreenService;
 
 public class ServiceManager {
     private HashMap<String, HashMap<Class<? extends Service>, Service>> providers = null;
@@ -27,6 +29,8 @@ public class ServiceManager {
         services.put(ParticleService.class, new ParticleService());
         services.put(ScheduleService.class, new ScheduleService());
         services.put(LightService.class, new LightService());
+        services.put(ScreenService.class, new ScreenService());
+        services.put(MongoService.class, new MongoService());
 
         this.providers.put("cantaloupe", services);
 
@@ -75,6 +79,8 @@ public class ServiceManager {
         coreServices.add(ParticleService.class);
         coreServices.add(ScheduleService.class);
         coreServices.add(LightService.class);
+        coreServices.add(ScreenService.class);
+        coreServices.add(MongoService.class);
 
         if (coreServices.contains(serviceClass)) {
             throw new RuntimeException("'" + plugin.getID() + "' is trying to initialize a Cantaloupe core service.");

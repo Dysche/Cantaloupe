@@ -28,6 +28,12 @@ public class Objective {
             this.entries.remove(index);
         }
     }
+    
+    public void clearEntry(int index) {
+        if (this.entries.containsKey(index)) {
+            this.handle.getScoreboard().resetScores(this.entries.get(index).getText());
+        }
+    }
 
     public org.bukkit.scoreboard.Objective toHandle() {
         return this.handle;

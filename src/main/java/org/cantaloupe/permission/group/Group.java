@@ -70,6 +70,8 @@ public abstract class Group implements IPermittable, IPermissionHolder {
         return false;
     }
 
+    public abstract boolean showPrefix();
+
     public abstract String getName();
 
     public abstract Text getPrefix();

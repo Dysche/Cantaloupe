@@ -138,12 +138,16 @@ public class DataContainer<K, V> implements Flushable {
         return this.handle.values();
     }
 
-    @Override
-    public DataContainer<K, V> clone() {
-        DataContainer<K, V> clone = DataContainer.of(this.sorted);
+    public DataContainer<K, V> clone(boolean sorted) {
+        DataContainer<K, V> clone = DataContainer.of(sorted);
         clone.put(this);
 
         return clone;
+    }
+    
+    @Override
+    public DataContainer<K, V> clone() {
+        return this.clone(this.sorted);
     }
 
     @Override

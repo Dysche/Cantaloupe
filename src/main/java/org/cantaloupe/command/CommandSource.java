@@ -28,6 +28,10 @@ public class CommandSource implements IPermissionHolder {
         return this.handle.hasPermission(node);
     }
 
+    public boolean isPlayer() {
+        return this.handle instanceof org.bukkit.entity.Player;
+    }
+
     public String getName() {
         return this.handle.getName();
     }

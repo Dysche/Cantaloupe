@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.text.Text;
 
 public class Team {
     private final org.bukkit.scoreboard.Team handle;
@@ -30,16 +31,16 @@ public class Team {
         return this.players.contains(player);
     }
 
-    public void setDisplayName(String displayName) {
-        this.handle.setDisplayName(displayName);
+    public void setDisplayName(Text displayName) {
+        this.handle.setDisplayName(displayName.toLegacy());
     }
 
-    public void setPrefix(String prefix) {
-        this.handle.setPrefix(prefix);
+    public void setPrefix(Text prefix) {
+        this.handle.setPrefix(prefix.toLegacy());
     }
 
-    public void setSuffix(String suffix) {
-        this.handle.setSuffix(suffix);
+    public void setSuffix(Text suffix) {
+        this.handle.setSuffix(suffix.toLegacy());
     }
 
     public void setOption(Option option, OptionStatus status) {
@@ -51,7 +52,7 @@ public class Team {
     }
 
     public void setCanSeeFriendlyInvisibles(boolean enabled) {
-        this.handle.setAllowFriendlyFire(enabled);
+        this.handle.setCanSeeFriendlyInvisibles(enabled);
     }
 
     public void setColor(ChatColor color) {
@@ -62,16 +63,16 @@ public class Team {
         return this.handle.getName();
     }
 
-    public String getDisplayName() {
-        return this.handle.getDisplayName();
+    public Text getDisplayName() {
+        return Text.fromLegacy(this.handle.getDisplayName());
     }
 
-    public String getPrefix() {
-        return this.handle.getPrefix();
+    public Text getPrefix() {
+        return Text.fromLegacy(this.handle.getPrefix());
     }
 
-    public String getSuffix() {
-        return this.handle.getSuffix();
+    public Text getSuffix() {
+        return Text.fromLegacy(this.handle.getSuffix());
     }
 
     public OptionStatus getOption(Option option) {

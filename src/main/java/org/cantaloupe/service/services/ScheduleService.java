@@ -1,22 +1,22 @@
 package org.cantaloupe.service.services;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.service.Service;
 
 public class ScheduleService implements Service {
-    private HashMap<String, HashMap<String, Integer>> services  = null;
-    private BukkitScheduler                           scheduler = null;
-    private int                                       checkTask = -1;
+    private DataContainer<String, DataContainer<String, Integer>> services  = null;
+    private BukkitScheduler                                       scheduler = null;
+    private int                                                   checkTask = -1;
 
     @Override
     public void load() {
-        this.services = new HashMap<String, HashMap<String, Integer>>();
+        this.services = DataContainer.of();
         this.scheduler = Bukkit.getScheduler();
 
         this.checkTask = this.scheduler.scheduleSyncRepeatingTask(Cantaloupe.getInstance(), new Runnable() {
@@ -26,7 +26,7 @@ public class ScheduleService implements Service {
                     ArrayList<String> finishedTasks = new ArrayList<String>();
 
                     tasks.forEach((name, task) -> {
-                        if (scheduler.isQueued(task) && scheduler.isCurrentlyRunning(task)) {
+                        if (!scheduler.isQueued(task) && !scheduler.isCurrentlyRunning(task)) {
                             finishedTasks.add(name);
                         }
                     });
@@ -92,6 +92,8 @@ public class ScheduleService implements Service {
         if (this.services.containsKey(plugin.getID())) {
             if (this.services.get(plugin.getID()).containsKey(name)) {
                 this.scheduler.cancelTask(this.services.get(plugin.getID()).get(name));
+
+                this.services.get(plugin.getID()).remove(name);
             }
         }
     }
@@ -100,6 +102,8 @@ public class ScheduleService implements Service {
         if (this.services.containsKey("cantaloupe")) {
             if (this.services.get("cantaloupe").containsKey(name)) {
                 this.scheduler.cancelTask(this.services.get("cantaloupe").get(name));
+
+                this.services.get("cantaloupe").remove(name);
             }
         }
     }
@@ -107,13 +111,23 @@ public class ScheduleService implements Service {
     private void trySetTask(String pluginName, String name, int task) {
         if (this.services.containsKey(pluginName)) {
             if (this.services.get(pluginName).containsKey(name)) {
-                this.scheduler.cancelTask(task);
+                this.scheduler.cancelTask(this.services.get(pluginName).get(name));
+
+                this.services.get(pluginName).remove(name);
             }
         } else {
-            this.services.put(pluginName, new HashMap<String, Integer>());
+            this.services.put(pluginName, DataContainer.<String, Integer>of());
         }
 
         this.services.get(pluginName).put(name, task);
+    }
+
+    public boolean isTaskRunning(CantaloupePlugin plugin, String name) {
+        return this.services.containsKey(plugin.getID()) && this.services.get(plugin.getID()).containsKey(name);
+    }
+
+    public boolean isTaskRunning(String name) {
+        return this.services.containsKey("cantaloupe") && this.services.get("cantaloupe").containsKey(name);
     }
 
     @Override

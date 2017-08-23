@@ -91,7 +91,7 @@ public class CommandEntry {
         }
 
         try {
-            spec.getArguments().parse(source, new CommandArgs(this.spec, String.join(" ", args), arguments), context);
+            this.spec.getArguments().parse(source, new CommandArgs(this.spec, String.join(" ", args), arguments), context);
 
             return context;
         } catch (ArgumentParseException e) {
