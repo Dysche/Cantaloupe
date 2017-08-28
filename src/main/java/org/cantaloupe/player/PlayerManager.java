@@ -16,14 +16,14 @@ import org.cantaloupe.inject.Scope;
 import org.cantaloupe.text.Text;
 
 public class PlayerManager {
-    private DataContainer<UUID, Player>          players        = null;
-    private List<Class<? extends PlayerWrapper>> wrapperClasses = null;
-    private Injector<Player>                     playerInjector = null;
-
+    private final DataContainer<UUID, Player>          players;
+    private final Injector<Player>                     playerInjector;
+    private final List<Class<? extends PlayerWrapper>> wrapperClasses;
+    
     public PlayerManager() {
         this.players = DataContainer.of();
-        this.wrapperClasses = new ArrayList<Class<? extends PlayerWrapper>>();
         this.playerInjector = new Injector<Player>();
+        this.wrapperClasses = new ArrayList<Class<? extends PlayerWrapper>>();
     }
 
     public void inject(Scope scope, Consumer<Player> consumer) {
@@ -43,11 +43,11 @@ public class PlayerManager {
     public void finish() {
         this.players.valueSet().forEach(player -> {
             for (Class<? extends PlayerWrapper> wrapperClass : this.wrapperClasses) {
-                if(!player.hasWrapper(wrapperClass)) {
+                if (!player.hasWrapper(wrapperClass)) {
                     player.addWrapper(wrapperClass);
                 }
             }
-            
+
             player.onLoad();
         });
     }
