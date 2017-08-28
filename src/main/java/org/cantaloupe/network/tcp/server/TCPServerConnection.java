@@ -16,6 +16,7 @@ public class TCPServerConnection implements IConnection {
     private final Socket    socket;
 
     private Session         session      = null;
+    private boolean         connected    = false;
     private InputStream     inputStream  = null;
     private OutputStream    outputStream = null;
 
@@ -54,7 +55,7 @@ public class TCPServerConnection implements IConnection {
                         server.closeConnection(session);
                     }
                 }
-            };
+            }.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,6 +84,14 @@ public class TCPServerConnection implements IConnection {
 
     protected void setSession(Session session) {
         this.session = session;
+    }
+
+    protected void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
+    public boolean isConnected() {
+        return this.connected;
     }
 
     public TCPServer getServer() {

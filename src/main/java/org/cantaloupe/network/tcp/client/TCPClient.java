@@ -55,7 +55,7 @@ public class TCPClient implements IClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         this.connection.getInjector().accept(Scopes.DISCONNECTED, this.connection);
     }
 
@@ -76,9 +76,9 @@ public class TCPClient implements IClient {
     public Injector<TCPClientConnection> getInjector() {
         return this.connection.getInjector();
     }
-    
+
     public static class Scopes {
-        public static final Scope CONNECTED    = Scope.of("tcp_client", "connected");
-        public static final Scope DISCONNECTED = Scope.of("tcp_client", "disconnected");
+        public static final Scope CONNECTED          = Scope.of("tcp_client", "connected");
+        public static final Scope DISCONNECTED       = Scope.of("tcp_client", "disconnected");
     }
 }

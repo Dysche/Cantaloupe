@@ -1,22 +1,18 @@
-package org.cantaloupe.network.tcp.server.packets;
+package org.cantaloupe.network.tcp;
 
 import java.util.UUID;
 
 import org.cantaloupe.network.session.Session;
-import org.cantaloupe.network.tcp.TCPServerPacket;
+import org.cantaloupe.network.tcp.TCPPacket;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 
-public class S000PacketSession extends TCPServerPacket {
-    private Session session = null;
+public abstract class TCPClientPacket extends TCPPacket {
+    private Session session;
 
-    private S000PacketSession(Session session) {
+    protected TCPClientPacket(Session session) {
         this.session = session;
-    }
-
-    public static S000PacketSession of(Session session) {
-        return new S000PacketSession(session);
     }
 
     @Override
@@ -25,7 +21,7 @@ public class S000PacketSession extends TCPServerPacket {
 
         this.session = Session.of(input.readUTF(), UUID.fromString(input.readUTF()));
     }
-    
+
     @Override
     public ByteArrayDataOutput write() {
         ByteArrayDataOutput data = super.write();
@@ -37,7 +33,7 @@ public class S000PacketSession extends TCPServerPacket {
 
     @Override
     public byte getID() {
-        return -128;
+        return 0;
     }
 
     public Session getSession() {

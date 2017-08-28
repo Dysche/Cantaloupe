@@ -1,9 +1,9 @@
-package org.cantaloupe.network.tcp.client.packets;
+package org.cantaloupe.network.web.client.packets;
 
 import org.cantaloupe.network.session.Session;
-import org.cantaloupe.network.tcp.TCPClientPacket;
+import org.cantaloupe.network.web.WebClientPacket;
 
-public class C000PacketConnect extends TCPClientPacket {
+public class C000PacketConnect extends WebClientPacket {
     private C000PacketConnect(Session session) {
         super(session);
     }

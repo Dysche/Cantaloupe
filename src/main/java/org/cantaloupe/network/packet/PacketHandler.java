@@ -41,7 +41,7 @@ public class PacketHandler {
     public void handlePacket(IConnection connection, byte[] bytes) {
         ByteArrayDataInput data = ByteStreams.newDataInput(bytes);
         byte packetID = data.readByte();
-        
+
         if (this.packetClasses.containsKey(packetID)) {
             TCPPacket packet = null;
 
