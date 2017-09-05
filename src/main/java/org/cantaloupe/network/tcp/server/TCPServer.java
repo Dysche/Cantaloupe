@@ -17,7 +17,6 @@ import org.cantaloupe.network.session.Session;
 import org.cantaloupe.network.tcp.client.packets.C000PacketConnect;
 import org.cantaloupe.network.tcp.client.packets.C001PacketDisconnect;
 import org.cantaloupe.network.tcp.server.packets.S000PacketSession;
-import org.cantaloupe.network.tcp.server.packets.S002PacketDisconnect;
 
 public class TCPServer implements IServer {
     private final int                                         port;
@@ -34,10 +33,10 @@ public class TCPServer implements IServer {
 
         this.packetHandler = new PacketHandler();
         this.packetHandler.registerListener(new TCPServerPacketListener(this));
-        this.packetHandler.registerPacketClass((byte) 0, C000PacketConnect.class);
-        this.packetHandler.registerPacketClass((byte) 1, C001PacketDisconnect.class);
+        this.packetHandler.registerClientPacketClass((byte) 0, C000PacketConnect.class);
+        this.packetHandler.registerClientPacketClass((byte) 1, C001PacketDisconnect.class);
 
-        this.injector = new Injector<TCPServerConnection>();
+        this.injector = Injector.of();
     }
 
     public static TCPServer of(int port) {
@@ -133,8 +132,6 @@ public class TCPServer implements IServer {
         if (this.isConnected(session)) {
             this.connections.get(session).close();
             this.connections.remove(session);
-            
-            this.broadcast(S002PacketDisconnect.of(session));
         }
     }
 
@@ -154,7 +151,7 @@ public class TCPServer implements IServer {
         return this.connections.valueSet();
     }
 
-    protected PacketHandler getPacketHandler() {
+    public PacketHandler getPacketHandler() {
         return this.packetHandler;
     }
     

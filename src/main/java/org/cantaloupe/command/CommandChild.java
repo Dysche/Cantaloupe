@@ -26,14 +26,16 @@ public class CommandChild {
     }
 
     protected boolean execute(CommandSource source, String[] arguments) {
-        if (!source.hasPermission(this.spec.getPermission())) {
-            if(this.spec.getErrors().containsKey(ErrorType.NO_PERMS)) {
-                source.sendMessage(this.spec.getErrors().get(ErrorType.NO_PERMS));
-            } else {
-                source.sendMessage("You do not have the required permissions to execute that command.");
-            }
+        if (this.spec.getPermission() != null) {
+            if (!source.hasPermission(this.spec.getPermission())) {
+                if (this.spec.getErrors().containsKey(ErrorType.NO_PERMS)) {
+                    source.sendMessage(this.spec.getErrors().get(ErrorType.NO_PERMS));
+                } else {
+                    source.sendMessage("You do not have the required permissions to execute that command.");
+                }
 
-            return true;
+                return true;
+            }
         }
 
         if (arguments.length == 0) {

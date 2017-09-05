@@ -15,15 +15,21 @@ import com.google.common.io.ByteStreams;
 
 public class PacketHandler {
     private final List<IPacketListener>                         listeners;
-    private final DataContainer<Byte, Class<? extends IPacket>> packetClasses;
+    private final DataContainer<Byte, Class<? extends IPacket>> serverPacketClasses;
+    private final DataContainer<Byte, Class<? extends IPacket>> clientPacketClasses;
 
     public PacketHandler() {
         this.listeners = new ArrayList<IPacketListener>();
-        this.packetClasses = DataContainer.of();
+        this.serverPacketClasses = DataContainer.of();
+        this.clientPacketClasses = DataContainer.of();
     }
 
-    public void registerPacketClass(byte packetID, Class<? extends IPacket> packetClass) {
-        this.packetClasses.put(packetID, packetClass);
+    public void registerServerPacketClass(byte packetID, Class<? extends IPacket> packetClass) {
+        this.serverPacketClasses.put(packetID, packetClass);
+    }
+
+    public void registerClientPacketClass(byte packetID, Class<? extends IPacket> packetClass) {
+        this.clientPacketClasses.put(packetID, packetClass);
     }
 
     public void registerListener(IPacketListener listener) {
@@ -38,15 +44,16 @@ public class PacketHandler {
         connection.sendPacket(packet);
     }
 
-    public void handlePacket(IConnection connection, byte[] bytes) {
+    public void handlePacket(IConnection connection, byte[] bytes, boolean fromServer) {
+        DataContainer<Byte, Class<? extends IPacket>> packetClasses = fromServer ? this.serverPacketClasses : this.clientPacketClasses;
         ByteArrayDataInput data = ByteStreams.newDataInput(bytes);
         byte packetID = data.readByte();
 
-        if (this.packetClasses.containsKey(packetID)) {
+        if (packetClasses.containsKey(packetID)) {
             TCPPacket packet = null;
 
             try {
-                Constructor<?> constructor = this.packetClasses.get(packetID).getDeclaredConstructor(Session.class);
+                Constructor<?> constructor = packetClasses.get(packetID).getDeclaredConstructor(Session.class);
                 constructor.setAccessible(true);
 
                 packet = (TCPPacket) constructor.newInstance(new Object[] {

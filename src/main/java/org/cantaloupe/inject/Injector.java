@@ -10,8 +10,12 @@ import java.util.function.Consumer;
 public class Injector<T> {
     private Map<Scope, List<Consumer<T>>> consumers = null;
 
-    public Injector() {
+    protected Injector() {
         this.consumers = new HashMap<Scope, List<Consumer<T>>>();
+    }
+
+    public static <T> Injector<T> of() {
+        return new Injector<T>();
     }
 
     public void inject(Scope scope, Consumer<T> consumer) {

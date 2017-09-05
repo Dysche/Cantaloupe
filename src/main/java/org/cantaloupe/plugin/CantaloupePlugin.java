@@ -35,7 +35,7 @@ public abstract class CantaloupePlugin extends JavaPlugin {
         return Cantaloupe.getCommandManager().getCommands(this);
     }
 
-    public void onPreInit() {}
+    public abstract void onPreInit();
 
     public abstract void onInit();
 

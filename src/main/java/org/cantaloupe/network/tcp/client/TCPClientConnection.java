@@ -23,8 +23,8 @@ public class TCPClientConnection implements IConnection {
     private final TCPClient                     client;
     private final PacketHandler                 packetHandler;
     private final Injector<TCPClientConnection> injector;
+    
     private Session                             session;
-
     private InputStream                         inputStream  = null;
     private OutputStream                        outputStream = null;
 
@@ -33,11 +33,11 @@ public class TCPClientConnection implements IConnection {
 
         this.packetHandler = new PacketHandler();
         this.packetHandler.registerListener(new TCPClientPacketListener());
-        this.packetHandler.registerPacketClass((byte) -128, S000PacketSession.class);
-        this.packetHandler.registerPacketClass((byte) -127, S001PacketConnect.class);
-        this.packetHandler.registerPacketClass((byte) -126, S002PacketDisconnect.class);
+        this.packetHandler.registerServerPacketClass((byte) 0, S000PacketSession.class);
+        this.packetHandler.registerServerPacketClass((byte) 1, S001PacketConnect.class);
+        this.packetHandler.registerServerPacketClass((byte) 2, S002PacketDisconnect.class);
 
-        this.injector = new Injector<TCPClientConnection>();
+        this.injector = Injector.of();
     }
 
     public void inject(Scope scope, Consumer<TCPClientConnection> consumer) {
@@ -65,7 +65,7 @@ public class TCPClientConnection implements IConnection {
                         try {
                             if (inputStream.available() > 0) {
                                 inputStream.read(bytes);
-                                packetHandler.handlePacket(connection, bytes);
+                                packetHandler.handlePacket(connection, bytes, true);
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -93,6 +93,11 @@ public class TCPClientConnection implements IConnection {
     }
 
     @Override
+    public void closeExt() {
+        this.client.disconnect();
+    }
+    
+    @Override
     public void sendPacket(IPacket packet) {
         try {
             this.outputStream.write(((ByteArrayDataOutput) packet.write()).toByteArray());
@@ -113,12 +118,16 @@ public class TCPClientConnection implements IConnection {
     public TCPClient getClient() {
         return this.client;
     }
-
-    public Injector<TCPClientConnection> getInjector() {
-        return this.injector;
+    
+    public PacketHandler getPacketHandler() {
+        return this.packetHandler;
     }
 
     public Session getSession() {
         return this.session;
+    }
+    
+    public Injector<TCPClientConnection> getInjector() {
+        return this.injector;
     }
 }

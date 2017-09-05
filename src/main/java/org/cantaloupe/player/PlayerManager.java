@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.cantaloupe.audio.AudioWrapper;
 import org.cantaloupe.command.CommandSource;
 import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.inject.Injector;
@@ -22,8 +23,10 @@ public class PlayerManager {
     
     public PlayerManager() {
         this.players = DataContainer.of();
-        this.playerInjector = new Injector<Player>();
+        this.playerInjector = Injector.of();
         this.wrapperClasses = new ArrayList<Class<? extends PlayerWrapper>>();
+        
+        this.registerWrapper(AudioWrapper.class);
     }
 
     public void inject(Scope scope, Consumer<Player> consumer) {

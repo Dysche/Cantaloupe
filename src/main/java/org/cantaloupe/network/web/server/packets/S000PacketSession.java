@@ -36,7 +36,7 @@ public class S000PacketSession extends WebServerPacket {
 
     @Override
     public byte getID() {
-        return -128;
+        return 0;
     }
 
     public Session getSession() {

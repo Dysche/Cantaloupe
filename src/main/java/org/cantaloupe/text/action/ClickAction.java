@@ -1,6 +1,5 @@
 package org.cantaloupe.text.action;
 
-import java.net.URL;
 import java.util.function.Consumer;
 
 public abstract class ClickAction<R> extends TextAction<R> {
@@ -8,8 +7,8 @@ public abstract class ClickAction<R> extends TextAction<R> {
         super(result);
     }
 
-    public static final class OpenUrl extends ClickAction<URL> {
-        OpenUrl(URL url) {
+    public static final class OpenUrl extends ClickAction<String> {
+        OpenUrl(String url) {
             super(url);
         }
     }

@@ -1,9 +1,9 @@
 package org.cantaloupe.main;
 
-import org.bukkit.plugin.java.JavaPlugin;
 import org.cantaloupe.Cantaloupe;
+import org.cantaloupe.plugin.CantaloupePlugin;
 
-public class CantaloupeMain extends JavaPlugin {
+public class CantaloupeMain extends CantaloupePlugin {
     @Override
     public void onEnable() {
         Cantaloupe.initialize(this);
@@ -12,5 +12,20 @@ public class CantaloupeMain extends JavaPlugin {
     @Override
     public void onDisable() {
         Cantaloupe.deinitialize();
+    }
+
+    @Override
+    public void onPreInit() {
+        
+    }
+
+    @Override
+    public void onInit() {
+        
+    }
+
+    @Override
+    public void onDeinit() {
+        
     }
 }

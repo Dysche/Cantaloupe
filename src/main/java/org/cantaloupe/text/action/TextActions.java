@@ -1,6 +1,5 @@
 package org.cantaloupe.text.action;
 
-import java.net.URL;
 import java.util.function.Consumer;
 
 import org.bukkit.inventory.ItemStack;
@@ -9,7 +8,7 @@ import org.cantaloupe.text.Text;
 public final class TextActions {
     private TextActions() {}
 
-    public static ClickAction.OpenUrl openUrl(URL url) {
+    public static ClickAction.OpenUrl openUrl(String url) {
         return new ClickAction.OpenUrl(url);
     }
 

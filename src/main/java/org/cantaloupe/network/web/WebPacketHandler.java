@@ -16,15 +16,21 @@ import org.json.simple.parser.ParseException;
 
 public class WebPacketHandler {
     private final List<IPacketListener>                         listeners;
-    private final DataContainer<Byte, Class<? extends IPacket>> packetClasses;
+    private final DataContainer<Byte, Class<? extends IPacket>> serverPacketClasses;
+    private final DataContainer<Byte, Class<? extends IPacket>> clientPacketClasses;
 
     public WebPacketHandler() {
         this.listeners = new ArrayList<IPacketListener>();
-        this.packetClasses = DataContainer.of();
+        this.serverPacketClasses = DataContainer.of();
+        this.clientPacketClasses = DataContainer.of();
     }
 
-    public void registerPacketClass(byte packetID, Class<? extends IPacket> packetClass) {
-        this.packetClasses.put(packetID, packetClass);
+    public void registerServerPacketClass(byte packetID, Class<? extends IPacket> packetClass) {
+        this.serverPacketClasses.put(packetID, packetClass);
+    }
+
+    public void registerClientPacketClass(byte packetID, Class<? extends IPacket> packetClass) {
+        this.clientPacketClasses.put(packetID, packetClass);
     }
 
     public void registerListener(IPacketListener listener) {
@@ -39,16 +45,17 @@ public class WebPacketHandler {
         connection.sendPacket(packet);
     }
 
-    public void handlePacket(IConnection connection, String message) {
+    public void handlePacket(IConnection connection, String message, boolean fromServer) {
         try {
+            DataContainer<Byte, Class<? extends IPacket>> packetClasses = fromServer ? this.serverPacketClasses : this.clientPacketClasses;
             JSONObject object = (JSONObject) new JSONParser().parse(message);
-            byte packetID = Byte.parseByte(object.get("ID").toString());
+            byte packetID = Byte.parseByte(object.get("pID").toString());
 
-            if (this.packetClasses.containsKey(packetID)) {
+            if (packetClasses.containsKey(packetID)) {
                 WebPacket packet = null;
 
                 try {
-                    Constructor<?> constructor = this.packetClasses.get(packetID).getDeclaredConstructor(Session.class);
+                    Constructor<?> constructor = packetClasses.get(packetID).getDeclaredConstructor(Session.class);
                     constructor.setAccessible(true);
 
                     packet = (WebPacket) constructor.newInstance(new Object[] {

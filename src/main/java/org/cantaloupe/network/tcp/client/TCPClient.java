@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import org.cantaloupe.inject.Injector;
 import org.cantaloupe.inject.Scope;
 import org.cantaloupe.network.IClient;
+import org.cantaloupe.network.packet.PacketHandler;
 
 public class TCPClient implements IClient {
     private final String        host;
@@ -57,6 +58,7 @@ public class TCPClient implements IClient {
         }
 
         this.connection.getInjector().accept(Scopes.DISCONNECTED, this.connection);
+        this.connection = null;
     }
 
     public boolean isConnected() {
@@ -70,6 +72,10 @@ public class TCPClient implements IClient {
     @Override
     public TCPClientConnection getConnection() {
         return this.connection;
+    }
+    
+    public PacketHandler getPacketHandler() {
+        return this.connection.getPacketHandler();
     }
 
     @Override

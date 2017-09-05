@@ -32,19 +32,24 @@ public class CommandEntry {
     }
 
     private void createHandle() {
-        this.handle = new Command(this.name, this.getDescription().get().toLegacy(), this.getUsage().get().toLegacy(), this.aliases) {
+        String description = this.getDescription().isPresent() ? this.getDescription().get().toLegacy() : "";
+        String usage = this.getUsage().isPresent() ? this.getUsage().get().toLegacy() : "";
+
+        this.handle = new Command(this.name, description, usage, this.aliases) {
             @Override
             public boolean execute(CommandSender sender, String command, String[] arguments) {
                 CommandSource source = new CommandSource(sender);
 
-                if (!source.hasPermission(spec.getPermission())) {
-                    if(spec.getErrors().containsKey(ErrorType.NO_PERMS)) {
-                        source.sendMessage(spec.getErrors().get(ErrorType.NO_PERMS));
-                    } else {
-                        source.sendMessage("You do not have the required permissions to execute that command.");
-                    }
+                if (spec.getPermission() != null) {
+                    if (!source.hasPermission(spec.getPermission())) {
+                        if (spec.getErrors().containsKey(ErrorType.NO_PERMS)) {
+                            source.sendMessage(spec.getErrors().get(ErrorType.NO_PERMS));
+                        } else {
+                            source.sendMessage("You do not have the required permissions to execute that command.");
+                        }
 
-                    return true;
+                        return true;
+                    }
                 }
 
                 if (arguments.length == 0) {

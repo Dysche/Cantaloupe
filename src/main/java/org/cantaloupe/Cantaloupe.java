@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.cantaloupe.command.CommandManager;
+import org.cantaloupe.commands.CMDAudioServer;
 import org.cantaloupe.main.CantaloupeMain;
 import org.cantaloupe.player.PlayerManager;
 import org.cantaloupe.plugin.CantaloupePluginManager;
@@ -48,6 +49,7 @@ public class Cantaloupe {
 
         // Command Manager
         commandManager = new CommandManager();
+        registerCommands();
 
         // Plugin Manager
         pluginManager = new CantaloupePluginManager();
@@ -112,13 +114,18 @@ public class Cantaloupe {
 
     private static void registerLibraries() {
         try {
-            CantaloupeClassLoader.addFile("libs/joml-1.9.3.jar");
+            CantaloupeClassLoader.addFile("lib/joml-1.9.3.jar");
             CantaloupeClassLoader.addFile("lib/bson-3.3.0.jar");
             CantaloupeClassLoader.addFile("lib/mongodb-driver-3.3.0.jar");
             CantaloupeClassLoader.addFile("lib/mongodb-driver-core-3.3.0.jar");
+            CantaloupeClassLoader.addFile("lib/java-websocket-1.3.0.jar");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private static void registerCommands() {
+        commandManager.registerCommand(instance, CMDAudioServer.create(), "audio");
     }
 
     public static void registerListener(Listener listener) {

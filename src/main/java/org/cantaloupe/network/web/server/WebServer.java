@@ -14,11 +14,11 @@ import org.cantaloupe.inject.Scope;
 import org.cantaloupe.network.IServer;
 import org.cantaloupe.network.packet.IPacket;
 import org.cantaloupe.network.session.Session;
-import org.cantaloupe.network.tcp.server.packets.S002PacketDisconnect;
 import org.cantaloupe.network.web.WebPacketHandler;
 import org.cantaloupe.network.web.client.packets.C000PacketConnect;
 import org.cantaloupe.network.web.client.packets.C001PacketDisconnect;
 import org.cantaloupe.network.web.server.packets.S000PacketSession;
+import org.cantaloupe.network.web.server.packets.S002PacketDisconnect;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
@@ -36,10 +36,10 @@ public class WebServer extends WebSocketServer implements IServer {
 
         this.packetHandler = new WebPacketHandler();
         this.packetHandler.registerListener(new WebServerPacketListener(this));
-        this.packetHandler.registerPacketClass((byte) 0, C000PacketConnect.class);
-        this.packetHandler.registerPacketClass((byte) 1, C001PacketDisconnect.class);
+        this.packetHandler.registerClientPacketClass((byte) 0, C000PacketConnect.class);
+        this.packetHandler.registerClientPacketClass((byte) 1, C001PacketDisconnect.class);
 
-        this.injector = new Injector<WebServerConnection>();
+        this.injector = Injector.of();
     }
 
     private WebServer(int port) {
@@ -84,7 +84,7 @@ public class WebServer extends WebSocketServer implements IServer {
         }
 
         try {
-            super.stop();
+            super.stop(0);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -106,6 +106,18 @@ public class WebServer extends WebSocketServer implements IServer {
         });
     }
 
+    public void closeConnection(Session session) {
+        if (this.isConnected(session)) {
+            WebServerConnection connection = this.connections.get(session);
+            connection.close();
+
+            this.connections.remove(session);
+
+            this.injector.accept(Scopes.DISCONNECTED, connection);
+            connection.getInjector().accept(Scopes.DISCONNECTED, connection);
+        }
+    }
+
     public boolean isConnected(Session session) {
         return this.connections.containsKey(session);
     }
@@ -117,19 +129,27 @@ public class WebServer extends WebSocketServer implements IServer {
         connection.sendPacket(S000PacketSession.of(connection.getSession()));
 
         this.connections.put(connection.getSession(), connection);
+
+        this.injector.accept(Scopes.CONNECTED, connection);
+        connection.getInjector().accept(Scopes.CONNECTED, connection);
     }
 
     @Override
     public void onClose(WebSocket socket, int code, String reason, boolean remote) {
         WebServerConnection connection = this.getConnectionBySocket(socket);
 
-        this.broadcast(S002PacketDisconnect.of(connection.getSession()));
-        this.connections.remove(connection.getSession());
+        if (connection != null) {
+            this.connections.remove(connection.getSession());
+            this.broadcast(S002PacketDisconnect.of(connection.getSession()));
+
+            this.injector.accept(Scopes.DISCONNECTED, connection);
+            connection.getInjector().accept(Scopes.DISCONNECTED, connection);
+        }
     }
 
     @Override
     public void onMessage(WebSocket socket, String message) {
-        this.packetHandler.handlePacket(this.getConnectionBySocket(socket), message);
+        this.packetHandler.handlePacket(this.getConnectionBySocket(socket), message, false);
     }
 
     @Override
@@ -137,8 +157,8 @@ public class WebServer extends WebSocketServer implements IServer {
         WebServerConnection connection = this.getConnectionBySocket(socket);
 
         if (connection != null) {
-            this.broadcast(S002PacketDisconnect.of(connection.getSession()));
             this.connections.remove(connection.getSession());
+            this.broadcast(S002PacketDisconnect.of(connection.getSession()));
         }
 
         exception.printStackTrace();
@@ -162,7 +182,7 @@ public class WebServer extends WebSocketServer implements IServer {
         return this.connections.valueSet();
     }
 
-    protected WebPacketHandler getPacketHandler() {
+    public WebPacketHandler getPacketHandler() {
         return this.packetHandler;
     }
 

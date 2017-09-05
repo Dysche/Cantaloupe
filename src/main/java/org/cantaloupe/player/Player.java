@@ -47,7 +47,7 @@ public class Player implements IPermittable, IPermissionHolder {
 
     private Player(org.bukkit.entity.Player handle) {
         this.handle = handle;
-        this.injector = new Injector<Player>();
+        this.injector = Injector.of();
         this.wrappers = DataContainer.of();
         this.data = DataContainer.of();
 

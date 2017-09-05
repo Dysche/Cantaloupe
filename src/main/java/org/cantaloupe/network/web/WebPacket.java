@@ -5,13 +5,15 @@ import org.json.simple.JSONObject;
 
 public abstract class WebPacket implements IPacket {
     @Override
-    public abstract void read(Object data);
+    public void read(Object data) {
+        
+    }
 
     @SuppressWarnings("unchecked")
     @Override
     public JSONObject write() {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("ID", this.getID());
+        jsonObject.put("pID", this.getID());
         
         return jsonObject;
     }
