@@ -5,13 +5,13 @@ import java.util.Collection;
 
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
-import org.cantaloupe.service.Service;
+import org.cantaloupe.service.IService;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.util.ReflectionHelper;
 
 import net.md_5.bungee.chat.ComponentSerializer;
 
-public class ScreenService implements Service {
+public class ScreenService implements IService {
     @Override
     public void load() {
 

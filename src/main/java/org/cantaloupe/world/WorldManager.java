@@ -12,8 +12,12 @@ import org.cantaloupe.service.services.ScheduleService;
 public class WorldManager {
     private final Map<String, World> worlds;
 
-    public WorldManager() {
+    private WorldManager() {
         this.worlds = new HashMap<String, World>();
+    }
+    
+    public static WorldManager of() {
+        return new WorldManager();
     }
 
     public void load() {

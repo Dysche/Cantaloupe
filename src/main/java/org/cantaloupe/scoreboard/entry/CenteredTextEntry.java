@@ -3,6 +3,12 @@ package org.cantaloupe.scoreboard.entry;
 import org.cantaloupe.scoreboard.Entry;
 import org.cantaloupe.text.Text;
 
+/**
+ * A class used to create centered text on a scoreboard.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class CenteredTextEntry extends Entry {
     private Text text    = null;
     private int  maxSize = 0;
@@ -14,10 +20,26 @@ public class CenteredTextEntry extends Entry {
         this.maxSize = maxSize;
     }
 
+    /**
+     * Creates and returns a new entry.
+     * 
+     * @param text
+     *            The text
+     * @param maxSize
+     *            The maximum amount of characters
+     * 
+     * @return The entry
+     */
     public static CenteredTextEntry of(Text text, int maxSize) {
         return new CenteredTextEntry(text, maxSize);
     }
 
+    /**
+     * Sets the text of the entry.
+     * 
+     * @param text
+     *            The text
+     */
     public void setText(Text text) {
         if (this.objective != null) {
             int index = -1;
@@ -40,11 +62,11 @@ public class CenteredTextEntry extends Entry {
 
     private String getSpacesForCentering(int maxLength, String string) {
         int length = string.length();
-        
-        if(length % 2 == 0) {
+
+        if (length % 2 == 0) {
             length += 1;
         }
-        
+
         int diff = maxLength - length;
         int amount = diff / 2;
         String toReturn = "";

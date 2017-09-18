@@ -4,6 +4,12 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+/**
+ * A RGB color class.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public interface ColorRGB {
     public ColorRGB add(Vector3i vector);
 
@@ -76,20 +82,63 @@ public interface ColorRGB {
     public ColorRGB divide(float n);
 
     public ColorRGB divide(double n);
-    
+
+    /**
+     * Blends two colors together.
+     * 
+     * @param other
+     *            The other color
+     * @param mode
+     *            The blend mode
+     * @return The blended color
+     */
     public ColorRGB blend(ColorRGB other, BlendMode mode);
-    
+
+    /**
+     * Linear-interpolates two colors.
+     * 
+     * @param other
+     *            The other color
+     * @param n
+     *            The alpha
+     * @return The lerped color
+     */
     public ColorRGB lerp(ColorRGB other, float n);
-    
+
+    /**
+     * Clones the color.
+     * 
+     * @return The cloned color
+     */
     public ColorRGB clone();
-    
+
+    /**
+     * Returns a vector containing the color values.
+     * 
+     * @return The vector
+     */
     public default Vector3f toVector() {
         return new Vector3f(this.getR(), this.getG(), this.getB());
     }
-    
+
+    /**
+     * Gets the red value of the color.
+     * 
+     * @return The red value
+     */
     public float getR();
 
+    /**
+     * Gets the green value of the color.
+     * 
+     * @return The green value
+     */
     public float getG();
 
+    /**
+     * Gets the blue value of the color.
+     * 
+     * @return The blue value
+     */
     public float getB();
 }

@@ -9,13 +9,19 @@ import org.cantaloupe.nbt.NBTTagCompound;
 import org.cantaloupe.nbt.NBTTagList;
 import org.cantaloupe.player.Player;
 
+/**
+ * A class used to create a skull.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class Skull {
     private ItemStack handle = null;
 
     private Skull(SkullType type) {
         this.handle = ItemStack.of(Material.SKULL_ITEM, (byte) type.ordinal());
     }
-    
+
     private Skull(Object texture) {
         this.handle = ItemStack.of(Material.SKULL_ITEM, (byte) 3);
         this.injectNBT((String) texture);
@@ -39,18 +45,46 @@ public class Skull {
         this.handle.setItemMeta(meta);
     }
 
+    /**
+     * Creates and returns a new skull from a player.
+     * 
+     * @param player
+     *            The player
+     * @return The skull
+     */
     public static Skull of(Player player) {
         return new Skull(player.getUUID());
     }
 
+    /**
+     * Creates and returns a new skull from a player UUID.
+     * 
+     * @param uuid
+     *            The uuid
+     * @return The skull
+     */
     public static Skull of(UUID uuid) {
         return new Skull(uuid);
     }
 
+    /**
+     * Creates and returns a new skull from a player name.
+     * 
+     * @param name
+     *            The name
+     * @return The skull
+     */
     public static Skull of(String name) {
         return new Skull(name);
     }
 
+    /**
+     * Creates and returns a new skull from a texture.
+     * 
+     * @param texture
+     *            The texture
+     * @return The skull
+     */
     public static Skull fromTexture(String texture) {
         return new Skull((Object) texture);
     }
@@ -75,6 +109,11 @@ public class Skull {
         this.handle.setTag(tag);
     }
 
+    /**
+     * Returns the handle of the skull.
+     * 
+     * @return The handle
+     */
     public ItemStack toHandle() {
         return this.handle;
     }

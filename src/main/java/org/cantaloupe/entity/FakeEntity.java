@@ -21,6 +21,12 @@ import org.cantaloupe.world.location.ImmutableLocation;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
 
+/**
+ * A class used to create a "fake" entity.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class FakeEntity {
     protected Object            handle   = null;
     protected final EntityType  type;
@@ -36,6 +42,11 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Creates and returns a new builder.
+     * 
+     * @return The builder.
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -76,24 +87,51 @@ public class FakeEntity {
         FakeEntityContainer.addEntity(this);
     }
 
+    /**
+     * Removes the entity.
+     */
     public void remove() {
         FakeEntityContainer.removeEntity(this);
     }
 
+    /**
+     * Spawns the entity for the player.
+     * 
+     * @param player
+     *            The player
+     */
     public void spawn(Player player) {
         this.spawn(new Player[] {
                 player
         });
     }
 
+    /**
+     * Spawns the entity for an array of players.
+     * 
+     * @param players
+     *            The array of players
+     */
     public void spawn(Player... players) {
         this.spawn(Arrays.asList(players));
     }
 
+    /**
+     * Spawns the entity for a list of players.
+     * 
+     * @param players
+     *            The list of players
+     */
     public void spawn(List<Player> players) {
         this.spawn((Collection<Player>) players);
     }
 
+    /**
+     * Spawns the entity for a collection of players.
+     * 
+     * @param players
+     *            The collection of players
+     */
     public void spawn(Collection<Player> players) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -111,20 +149,44 @@ public class FakeEntity {
         this.updatePassenger(players, this.getPassenger());
     }
 
+    /**
+     * Despawns the entity for the player.
+     * 
+     * @param player
+     *            The player
+     */
     public void despawn(Player player) {
         this.despawn(new Player[] {
                 player
         });
     }
 
+    /**
+     * Despawns the entity for an array of players.
+     * 
+     * @param players
+     *            The array of players
+     */
     public void despawn(Player... players) {
         this.despawn(Arrays.asList(players));
     }
 
+    /**
+     * Despawns the entity for a list of players.
+     * 
+     * @param players
+     *            The list of players
+     */
     public void despawn(List<Player> players) {
         this.despawn((Collection<Player>) players);
     }
 
+    /**
+     * Despawns the entity for a collection of players.
+     * 
+     * @param players
+     *            The collection of players
+     */
     public void despawn(Collection<Player> players) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -142,6 +204,14 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Sets the location of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param location
+     *            The location
+     */
     public void setLocation(Collection<Player> players, ImmutableLocation location) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -184,6 +254,14 @@ public class FakeEntity {
         this.location = location;
     }
 
+    /**
+     * Sets the position of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param position
+     *            The position
+     */
     public void setPosition(Collection<Player> players, Vector3d position) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -222,6 +300,14 @@ public class FakeEntity {
         this.location = ImmutableLocation.of(this.location.getWorld(), position);
     }
 
+    /**
+     * Sets the rotation of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param rotation
+     *            The rotation
+     */
     public void setRotation(Collection<Player> players, Vector2f rotation) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -247,6 +333,14 @@ public class FakeEntity {
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
     }
 
+    /**
+     * Sets the head rotation of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param headRotation
+     *            The head rotation
+     */
     public void setHeadRotation(Collection<Player> players, float headRotation) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -276,6 +370,14 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Sets the custom name of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param customName
+     *            The custom name
+     */
     public void setCustomName(Collection<Player> players, String customName) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -295,6 +397,15 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Sets whether or not the entity's custom name is visible for the
+     * collection of players.
+     * 
+     * @param players
+     *            The collection of players
+     * @param visible
+     *            Whether or not the custom name is visible
+     */
     public void setCustomNameVisible(Collection<Player> players, boolean visible) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -314,6 +425,14 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Sets whether or not the entity is silent for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param silent
+     *            Whether or not the entity is silent
+     */
     public void setSilent(Collection<Player> players, boolean silent) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -333,17 +452,25 @@ public class FakeEntity {
         }
     }
 
-    public void setNoGravity(Collection<Player> players, boolean noGravity) {
+    /**
+     * Sets whether or not the entity has gravity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param gravity
+     *            Whether or not the entity has gravity
+     */
+    public void setGravity(Collection<Player> players, boolean gravity) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
             ReflectionHelper.invokeMethod(nmsService.getIntVersion() < 11 ? "setGravity" : "setNoGravity", this.handle, new Class<?>[] {
                     boolean.class
-            }, nmsService.getIntVersion() < 11 ? !noGravity : noGravity);
+            }, nmsService.getIntVersion() < 11 ? gravity : !gravity);
 
             DataWatcher dataWatcher = DataWatcher.of(null);
-            dataWatcher.register(DataWatcherObject.<Boolean>of(5, DataWatcherRegistry.BOOLEAN), noGravity);
+            dataWatcher.register(DataWatcherObject.<Boolean>of(5, DataWatcherRegistry.BOOLEAN), !gravity);
 
             Object packet = nmsService.NMS_PACKET_OUT_ENTITYMETA_CLASS.getConstructor(int.class, nmsService.NMS_DATAWATCHER_CLASS, boolean.class).newInstance(this.getEntityID(), dataWatcher.toNMS(), true);
             for (Player player : players) {
@@ -354,6 +481,14 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Sets whether or not the entity is on fire for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param onFire
+     *            Whether or not the entity is on fire
+     */
     public void setOnFire(Collection<Player> players, boolean onFire) {
         try {
             ReflectionHelper.invokeMethod("setOnFire", this.handle, new Class<?>[] {
@@ -372,6 +507,15 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Sets whether or not the entity is invisible for the collection of
+     * players.
+     * 
+     * @param players
+     *            The collection of players
+     * @param invisible
+     *            Whether or not the entity is invisible
+     */
     public void setInvisible(Collection<Player> players, boolean invisible) {
         try {
             ReflectionHelper.invokeMethod("setInvisible", this.handle, new Class<?>[] {
@@ -390,6 +534,14 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Sets whether or not the entity is glowing for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param glowing
+     *            Whether or not the entity is glowing
+     */
     public void setGlowing(Collection<Player> players, boolean glowing) {
         try {
             ReflectionHelper.setField("glowing", this.handle, glowing);
@@ -406,22 +558,54 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Sets the passenger of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param other
+     *            The passenger
+     */
     public void setPassenger(Collection<Player> players, FakeEntity other) {
         this.setPassenger(players, other.handle);
     }
 
+    /**
+     * Sets the passenger of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param player
+     *            The passenger
+     */
     public void setPassenger(Collection<Player> players, Player player) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
 
         this.setPassenger(players, nmsService.getEntityHandle(player.toHandle()));
     }
 
+    /**
+     * Sets the passenger of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param entity
+     *            The passenger
+     */
     public void setPassenger(Collection<Player> players, Entity entity) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
 
         this.setPassenger(players, nmsService.getEntityHandle(entity));
     }
 
+    /**
+     * Sets the passenger of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param entity
+     *            The passenger
+     */
     public void setPassenger(Collection<Player> players, Object entity) {
         if (entity == null || this.hasPassenger()) {
             this.removePassenger(players);
@@ -438,6 +622,12 @@ public class FakeEntity {
         this.updatePassenger(players, entity);
     }
 
+    /**
+     * Removes the passenger from the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     */
     public void removePassenger(Collection<Player> players) {
         try {
             ReflectionHelper.invokeMethod("clear", ReflectionHelper.getField("passengers", this.handle));
@@ -448,6 +638,11 @@ public class FakeEntity {
         this.updatePassenger(players, null);
     }
 
+    /**
+     * Checks if the entity has a passenger.
+     * 
+     * @return True if it does, false if not.
+     */
     public boolean hasPassenger() {
         try {
             return (int) ReflectionHelper.invokeMethod("size", ReflectionHelper.getField("passengers", this.handle)) > 0;
@@ -496,6 +691,11 @@ public class FakeEntity {
         }
     }
 
+    /**
+     * Gets the ID of the entity.
+     * 
+     * @return The ID
+     */
     public int getEntityID() {
         try {
             return (int) ReflectionHelper.invokeMethod("getId", this.handle);
@@ -506,18 +706,38 @@ public class FakeEntity {
         return -1;
     }
 
+    /**
+     * Gets the location of the entity.
+     * 
+     * @return The location
+     */
     public ImmutableLocation getLocation() {
         return this.location;
     }
 
+    /**
+     * Gets the position of the entity.
+     * 
+     * @return The position
+     */
     public Vector3d getPosition() {
         return this.location.getPosition();
     }
 
+    /**
+     * Gets the rotation of the entity.
+     * 
+     * @return The rotation
+     */
     public Vector2f getRotation() {
         return this.location.getRotation();
     }
 
+    /**
+     * Gets the head rotation of the entity.
+     * 
+     * @return The head rotation
+     */
     public float getHeadRotation() {
         try {
             return (float) ReflectionHelper.invokeMethod("getHeadRotation", this.handle);
@@ -528,6 +748,11 @@ public class FakeEntity {
         return 0f;
     }
 
+    /**
+     * Gets the name of the entity.
+     * 
+     * @return The name
+     */
     public String getName() {
         try {
             return (String) ReflectionHelper.invokeMethod("getName", this.handle);
@@ -538,6 +763,11 @@ public class FakeEntity {
         return null;
     }
 
+    /**
+     * Gets the custom name of the entity.
+     * 
+     * @return The custom name
+     */
     public Text getCustomName() {
         try {
             return Text.fromLegacy((String) ReflectionHelper.invokeMethod("getCustomName", this.handle));
@@ -548,7 +778,12 @@ public class FakeEntity {
         return null;
     }
 
-    public boolean getCustomNameVisible() {
+    /**
+     * Checks if the custom name is visible.
+     * 
+     * @return True if it is, false if not
+     */
+    public boolean isCustomNameVisible() {
         try {
             return (boolean) ReflectionHelper.invokeMethod("getCustomNameVisible", this.handle);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -558,6 +793,11 @@ public class FakeEntity {
         return false;
     }
 
+    /**
+     * Checks if the entity has a custom name.
+     * 
+     * @return True if it is, false if not
+     */
     public boolean hasCustomName() {
         try {
             return (boolean) ReflectionHelper.invokeMethod("hasCustomName", this.handle);
@@ -568,6 +808,11 @@ public class FakeEntity {
         return false;
     }
 
+    /**
+     * Gets the passenger of the entity.
+     * 
+     * @return The passenger
+     */
     public Object getPassenger() {
         try {
             List<?> passengers = (List<?>) ReflectionHelper.getField("passengers", this.handle);
@@ -604,60 +849,128 @@ public class FakeEntity {
 
         }
 
+        /**
+         * Sets the location of the builder.
+         * 
+         * @param location
+         *            The location
+         * @return The builder
+         */
         public Builder location(ImmutableLocation location) {
             this.location = location;
 
             return this;
         }
 
+        /**
+         * Sets the world of the builder.
+         * 
+         * @param world
+         *            The world
+         * @return The builder
+         */
         public Builder world(World world) {
             this.world = world;
 
             return this;
         }
 
+        /**
+         * Sets the position of the builder.
+         * 
+         * @param position
+         *            The position
+         * @return The builder
+         */
         public Builder position(Vector3d position) {
             this.position = position;
 
             return this;
         }
 
+        /**
+         * Sets the rotation of the builder.
+         * 
+         * @param rotation
+         *            The rotation
+         * @return The builder
+         */
         public Builder rotation(Vector2f rotation) {
             this.rotation = rotation;
 
             return this;
         }
 
+        /**
+         * Sets the head rotation of the builder.
+         * 
+         * @param headRotation
+         *            The head rotation
+         * @return The builder
+         */
         public Builder headRotation(float headRotation) {
             this.headRotation = headRotation;
 
             return this;
         }
 
+        /**
+         * Sets the entity type of the builder.
+         * 
+         * @param type
+         *            The entity type
+         * @return The builder
+         */
         public Builder type(EntityType type) {
             this.type = type;
 
             return this;
         }
 
+        /**
+         * Sets the custom name of the builder.
+         * 
+         * @param customName
+         *            The custom name
+         * @return The builder
+         */
         public Builder customName(Text customName) {
             this.customName = customName;
 
             return this;
         }
 
+        /**
+         * Sets whether or not the builder's custom name is visible.
+         * 
+         * @param customNameVisible
+         *            Whether or not the custom name is visible
+         * @return The builder
+         */
         public Builder customNameVisible(boolean customNameVisible) {
             this.customNameVisible = customNameVisible;
 
             return this;
         }
 
+        /**
+         * Sets whether or not the custom name is visible.
+         * 
+         * @param invisible
+         *            Whether or not the builder is invisible
+         * @return The builder
+         */
         public Builder invisible(boolean invisible) {
             this.invisible = invisible;
 
             return this;
         }
 
+        /**
+         * Creates and returns a new entity from the builder.
+         * 
+         * @return The entity
+         */
         public FakeEntity build() {
             if (this.location == null) {
                 if (this.rotation != null) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -28,6 +29,7 @@ public class WebServer extends WebSocketServer implements IServer {
     private final DataContainer<Session, WebServerConnection> connections;
     private final WebPacketHandler                            packetHandler;
     private final Injector<WebServerConnection>               injector;
+    private boolean                                           running = false;
 
     private WebServer(InetSocketAddress address) {
         super(address);
@@ -65,12 +67,14 @@ public class WebServer extends WebSocketServer implements IServer {
     @Override
     public void start() {
         super.start();
+
+        this.running = true;
     }
 
     @Override
     public void stop() {
-        for (WebSocket socket : this.connections()) {
-            socket.close(CloseFrame.NORMAL);
+        for (WebSocket socket : new ArrayList<WebSocket>(this.connections())) {
+            socket.closeConnection(CloseFrame.NORMAL, "server_stopped");
         }
 
         try {
@@ -90,6 +94,8 @@ public class WebServer extends WebSocketServer implements IServer {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        this.running = false;
     }
 
     @Override
@@ -116,6 +122,10 @@ public class WebServer extends WebSocketServer implements IServer {
             this.injector.accept(Scopes.DISCONNECTED, connection);
             connection.getInjector().accept(Scopes.DISCONNECTED, connection);
         }
+    }
+
+    public boolean isRunning() {
+        return this.running;
     }
 
     public boolean isConnected(Session session) {

@@ -5,6 +5,12 @@ import java.util.HashMap;
 
 import org.cantaloupe.player.Player;
 
+/**
+ * A class used to create a menu.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class Menu {
     private HashMap<String, Page> pages  = null;
     private Player                holder = null;
@@ -14,19 +20,59 @@ public class Menu {
         this.holder = holder;
     }
 
+    /**
+     * Creates and returns a new menu.
+     * 
+     * @param holder
+     *            The holder
+     * @return The menu
+     */
     public static Menu of(Player holder) {
         return new Menu(holder);
     }
 
-    public void landingPage(Page page) {
-        page.setMenu(this);
-        page.setHolder(this.holder);
-        page.build();
-
-        this.pages.put("landing", page);
+    /**
+     * Opens the menu.
+     */
+    public void open() {
+        if (this.getPage("landing") != null) {
+            this.showLandingPage();
+        }
     }
 
-    public void page(Page page) {
+    /**
+     * Closes the menu.
+     */
+    public void close() {
+        this.holder.closeMenu();
+    }
+
+    /**
+     * Shows the landing page of the menu.
+     */
+    public void showLandingPage() {
+        this.holder.toHandle().openInventory(this.pages.get("landing").getInventory());
+    }
+
+    /**
+     * Shows a page from the menu.
+     * 
+     * @param ID
+     *            The ID of a page
+     */
+    public void showPage(String ID) {
+        if (this.pages.get(ID) != null) {
+            this.holder.toHandle().openInventory(this.pages.get(ID).getInventory());
+        }
+    }
+
+    /**
+     * Adds a page to the menu.
+     * 
+     * @param page
+     *            The page
+     */
+    public void addPage(Page page) {
         page.setMenu(this);
         page.setHolder(this.holder);
         page.build();
@@ -34,26 +80,12 @@ public class Menu {
         this.pages.put(page.getID(), page);
     }
 
-    public void open() {
-        if (this.getPage("landing") != null) {
-            this.showLandingPage();
-        }
-    }
-    
-    public void close() {
-        this.holder.closeMenu();
-    }
-
-    public void showLandingPage() {
-        this.holder.toHandle().openInventory(this.pages.get("landing").getInventory());
-    }
-
-    public void showPage(String ID) {
-        if (this.pages.get(ID) != null) {
-            this.holder.toHandle().openInventory(this.pages.get(ID).getInventory());
-        }
-    }
-
+    /**
+     * Removes a page from the menu.
+     * 
+     * @param ID
+     *            The ID of a page
+     */
     public void removePage(String ID) {
         if (this.pages.containsKey(ID)) {
             this.pages.get(ID).clear();
@@ -61,10 +93,36 @@ public class Menu {
         }
     }
 
+    /**
+     * Sets the landing page of the menu.
+     * 
+     * @param page
+     *            The landing page
+     */
+    public void setLandingPage(Page page) {
+        page.setMenu(this);
+        page.setHolder(this.holder);
+        page.build();
+
+        this.pages.put("landing", page);
+    }
+
+    /**
+     * Gets a page from the menu.
+     * 
+     * @param ID
+     *            The Id of a page
+     * @return The page
+     */
     public Page getPage(String ID) {
         return this.pages.get(ID);
     }
 
+    /**
+     * Gets a collection of pages from the menu.
+     * 
+     * @return The collection of pages.
+     */
     public Collection<Page> getPages() {
         return this.pages.values();
     }

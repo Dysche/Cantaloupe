@@ -8,7 +8,15 @@ import org.cantaloupe.world.location.ImmutableLocation;
 public abstract class WorldObject {
     private UUID    uuid   = null;
     private boolean placed = false, dirty = false;
-    
+
+    public void place() {
+        this.getWorld().place(this);
+    }
+
+    public void remove() {
+        this.getWorld().remove(this);
+    }
+
     protected void placeInternal() {
         this.placed = true;
 
@@ -20,27 +28,27 @@ public abstract class WorldObject {
 
         this.placed = false;
     }
-    
+
     protected void tick() {
-        
+
     }
-    
+
     protected void tickFor(Player player) {
-        
+
     }
-    
+
     protected void markDirty() {
         this.dirty = true;
     }
-    
+
     protected abstract void onPlaced();
 
     protected abstract void onRemoved();
-    
+
     public boolean isPlaced() {
         return this.placed;
     }
-    
+
     protected boolean isDirty() {
         return this.dirty;
     }
@@ -54,4 +62,8 @@ public abstract class WorldObject {
     }
 
     public abstract ImmutableLocation getLocation();
+
+    public World getWorld() {
+        return this.getLocation().getWorld();
+    }
 }

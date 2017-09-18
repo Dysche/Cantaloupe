@@ -21,6 +21,12 @@ import org.joml.Vector2f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
+/**
+ * A class used to create a "fake" armorstand entity.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class FakeArmorStand extends FakeEntity {
     private DataContainer<EnumItemSlot, ItemStack> equipment = null;
 
@@ -68,7 +74,7 @@ public class FakeArmorStand extends FakeEntity {
 
             for (EnumItemSlot slot : this.equipment.keySet()) {
                 if (nmsService.getIntVersion() < 8) {
-                    equipPackets.add(nmsService.NMS_PACKET_OUT_ENTITYEQUIPMENT_CLASS.getConstructor(int.class, int.class, nmsService.NMS_ITEMSTACK_CLASS).newInstance(this.getEntityID(), slot.getSlot(), this.equipment.get(slot).toNMS()));
+                    equipPackets.add(nmsService.NMS_PACKET_OUT_ENTITYEQUIPMENT_CLASS.getConstructor(int.class, int.class, nmsService.NMS_ITEMSTACK_CLASS).newInstance(this.getEntityID(), slot.getSlotID(), this.equipment.get(slot).toNMS()));
                 } else {
                     equipPackets.add(nmsService.NMS_PACKET_OUT_ENTITYEQUIPMENT_CLASS.getConstructor(int.class, nmsService.NMS_ENUM_ITEMSLOT_CLASS, nmsService.NMS_ITEMSTACK_CLASS).newInstance(this.getEntityID(), slot.toNMS(), this.equipment.get(slot).toNMS()));
                 }
@@ -88,10 +94,23 @@ public class FakeArmorStand extends FakeEntity {
         this.updatePassenger(players, this.getPassenger());
     }
 
+    /**
+     * Creates and returns a new builder.
+     * 
+     * @return The builder.
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * Sets the head pose of the entity for a collection of players.
+     * 
+     * @param players
+     *            The collection of players
+     * @param headPose
+     *            The head post
+     */
     public void setHeadPose(Collection<Player> players, Vector3f headPose) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -122,36 +141,83 @@ public class FakeArmorStand extends FakeEntity {
             this.equipment = DataContainer.of();
         }
 
+        /**
+         * Sets the location of the builder.
+         * 
+         * @param location
+         *            The location
+         * @return The builder
+         */
+        @Override
         public Builder location(ImmutableLocation location) {
             this.location = location;
 
             return this;
         }
 
+        /**
+         * Sets the world of the builder.
+         * 
+         * @param world
+         *            The world
+         * @return The builder
+         */
+        @Override
         public Builder world(World world) {
             this.world = world;
 
             return this;
         }
 
+        /**
+         * Sets the position of the builder.
+         * 
+         * @param position
+         *            The position
+         * @return The builder
+         */
+        @Override
         public Builder position(Vector3d position) {
             this.position = position;
 
             return this;
         }
 
+        /**
+         * Sets the rotation of the builder.
+         * 
+         * @param rotation
+         *            The rotation
+         * @return The builder
+         */
+        @Override
         public Builder rotation(Vector2f rotation) {
             this.rotation = rotation;
 
             return this;
         }
 
+        /**
+         * Sets the head rotation of the builder.
+         * 
+         * @param headRotation
+         *            The head rotation
+         * @return The builder
+         */
+        @Override
         public Builder headRotation(float headRotation) {
             this.headRotation = headRotation;
 
             return this;
         }
 
+        /**
+         * Sets the head pose of the builder.
+         * 
+         * @param headPose
+         *            The head pose
+         * @return The builder
+         */
         public Builder headPose(Vector3f headPose) {
             this.headPose = headPose;
 
@@ -165,82 +231,183 @@ public class FakeArmorStand extends FakeEntity {
             return this;
         }
 
+        /**
+         * Sets the custom name of the builder.
+         * 
+         * @param customName
+         *            The custom name
+         * @return The builder
+         */
+        @Override
         public Builder customName(Text customName) {
             this.customName = customName;
 
             return this;
         }
 
+        /**
+         * Sets whether or not the builder's custom name is visible.
+         * 
+         * @param customNameVisible
+         *            Whether or not the custom name is visible
+         * @return The builder
+         */
+        @Override
         public Builder customNameVisible(boolean customNameVisible) {
             this.customNameVisible = customNameVisible;
 
             return this;
         }
 
+        /**
+         * Sets whether or not the builder is invisible.
+         * 
+         * @param invisible
+         *            Whether or not the builder is invisible
+         * @return The builder
+         */
+        @Override
         public Builder invisible(boolean invisible) {
             this.invisible = invisible;
 
             return this;
         }
 
+        /**
+         * Sets whether or not the builder is small.
+         * 
+         * @param small
+         *            Whether or not the builder is small
+         * @return The builder
+         */
         public Builder small(boolean small) {
             this.small = small;
 
             return this;
         }
 
+        /**
+         * Sets whether or not the builder has a base plate.
+         * 
+         * @param basePlate
+         *            Whether or not the builder has a base plate
+         * @return The builder
+         */
         public Builder basePlate(boolean basePlate) {
             this.basePlate = basePlate;
 
             return this;
         }
 
+        /**
+         * Sets whether or not the builder has arms.
+         * 
+         * @param arms
+         *            Whether or not the builder has arms
+         * @return The builder
+         */
         public Builder arms(boolean arms) {
             this.arms = arms;
 
             return this;
         }
 
+        /**
+         * Sets the equipment of this builder.
+         * 
+         * @param equipment
+         *            The equipment
+         * @return The builder
+         */
         public Builder equipment(DataContainer<EnumItemSlot, ItemStack> equipment) {
             this.equipment = equipment.clone();
 
             return this;
         }
 
+        /**
+         * Sets the item in the builder's hand.
+         * 
+         * @param stack
+         *            The item stack
+         * @param mainHand
+         *            Whether or not to put the item in the main hand
+         * @return The builder
+         */
         public Builder hand(ItemStack stack, boolean mainHand) {
             this.equipment.put(mainHand ? EnumItemSlot.MAINHAND : EnumItemSlot.OFFHAND, stack);
 
             return this;
         }
 
+        /**
+         * Sets the helmet of the builder.
+         * 
+         * @param skull
+         *            The skull
+         * @return The builder
+         */
         public Builder helmet(Skull skull) {
             return this.helmet(skull.toHandle());
         }
 
+        /**
+         * Sets the helmet of the builder.
+         * 
+         * @param stack
+         *            The item stack
+         * @return The builder
+         */
         public Builder helmet(ItemStack stack) {
             this.equipment.put(EnumItemSlot.HEAD, stack);
 
             return this;
         }
 
+        /**
+         * Sets the chest plate of the builder.
+         * 
+         * @param stack
+         *            The item stack
+         * @return The builder
+         */
         public Builder chestplate(ItemStack stack) {
             this.equipment.put(EnumItemSlot.CHEST, stack);
 
             return this;
         }
 
+        /**
+         * Sets the leggings of the builder.
+         * 
+         * @param stack
+         *            The item stack
+         * @return The builder
+         */
         public Builder leggings(ItemStack stack) {
             this.equipment.put(EnumItemSlot.LEGS, stack);
 
             return this;
         }
 
+        /**
+         * Sets the boots of the builder.
+         * 
+         * @param stack
+         *            The item stack
+         * @return The builder
+         */
         public Builder boots(ItemStack stack) {
             this.equipment.put(EnumItemSlot.FEET, stack);
 
             return this;
         }
 
+        /**
+         * Creates and returns a new entity from the builder.
+         * 
+         * @return The entity
+         */
         public FakeArmorStand build() {
             if (this.location == null) {
                 if (this.rotation != null) {

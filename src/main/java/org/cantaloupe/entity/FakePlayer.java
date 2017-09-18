@@ -22,6 +22,12 @@ import org.joml.Vector3d;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
+/**
+ * A class used to create a "fake" player entity.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class FakePlayer extends FakeEntity {
     private final UUID   uuid;
     private final String name;
@@ -42,6 +48,11 @@ public class FakePlayer extends FakeEntity {
         this.create(uuid, name, headRotation, invisible);
     }
 
+    /**
+     * Creates and returns a new builder.
+     * 
+     * @return The builder
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -100,14 +111,32 @@ public class FakePlayer extends FakeEntity {
         super.despawn(players);
     }
 
+    /**
+     * Adds the entity to tab for an array of players.
+     * 
+     * @param players
+     *            The array of players
+     */
     public void addToTab(Player... players) {
         this.addToTab((Collection<Player>) Arrays.asList(players));
     }
 
+    /**
+     * Adds the entity to tab for a list of players.
+     * 
+     * @param players
+     *            The list of players
+     */
     public void addToTab(List<Player> players) {
         this.addToTab((Collection<Player>) players);
     }
 
+    /**
+     * Adds the entity to tab for a collection of players.
+     * 
+     * @param players
+     *            The collection of players
+     */
     public void addToTab(Collection<Player> players) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -134,14 +163,32 @@ public class FakePlayer extends FakeEntity {
         }
     }
 
+    /**
+     * Removes the entity to tab for an array of players.
+     * 
+     * @param players
+     *            The array of players
+     */
     public void removeFromTab(Player... players) {
         this.removeFromTab((Collection<Player>) Arrays.asList(players));
     }
 
+    /**
+     * Removes the entity to tab for a list of players.
+     * 
+     * @param players
+     *            The list of players
+     */
     public void removeFromTab(List<Player> players) {
         this.removeFromTab((Collection<Player>) players);
     }
 
+    /**
+     * Removes the entity to tab for a collection of players.
+     * 
+     * @param players
+     *            The collection of players
+     */
     public void removeFromTab(Collection<Player> players) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -246,6 +293,11 @@ public class FakePlayer extends FakeEntity {
         this.location = location;
     }
 
+    /**
+     * Gets the UUID of the entity.
+     * 
+     * @return The UUID
+     */
     public UUID getUUID() {
         return this.uuid;
     }
@@ -255,6 +307,11 @@ public class FakePlayer extends FakeEntity {
         return this.name;
     }
 
+    /**
+     * Gets the game profile of the entity.
+     * 
+     * @return The game profile
+     */
     public GameProfile getGameProfile() {
         return this.gameProfile;
     }
@@ -263,30 +320,70 @@ public class FakePlayer extends FakeEntity {
         private UUID   uuid = null;
         private String name = null;
 
+        /**
+         * Sets the location of the builder.
+         * 
+         * @param location
+         *            The location
+         * @return The builder
+         */
+        @Override
         public Builder location(ImmutableLocation location) {
             this.location = location;
 
             return this;
         }
 
+        /**
+         * Sets the world of the builder.
+         * 
+         * @param world
+         *            The world
+         * @return The builder
+         */
+        @Override
         public Builder world(World world) {
             this.world = world;
 
             return this;
         }
 
+        /**
+         * Sets the position of the builder.
+         * 
+         * @param position
+         *            The position
+         * @return The builder
+         */
+        @Override
         public Builder position(Vector3d position) {
             this.position = position;
 
             return this;
         }
 
+        /**
+         * Sets the rotation of the builder.
+         * 
+         * @param rotation
+         *            The rotation
+         * @return The builder
+         */
+        @Override
         public Builder rotation(Vector2f rotation) {
             this.rotation = rotation;
 
             return this;
         }
 
+        /**
+         * Sets the head rotation of the builder.
+         * 
+         * @param headRotation
+         *            The head rotation
+         * @return The builder
+         */
+        @Override
         public Builder headRotation(float headRotation) {
             this.headRotation = headRotation;
 
@@ -300,12 +397,26 @@ public class FakePlayer extends FakeEntity {
             return this;
         }
 
+        /**
+         * Sets the UUID of the builder.
+         * 
+         * @param uuid
+         *            The UUID
+         * @return The builder
+         */
         public Builder uuid(UUID uuid) {
             this.uuid = uuid;
 
             return this;
         }
 
+        /**
+         * Sets the name of the builder.
+         * 
+         * @param name
+         *            The name
+         * @return The builder
+         */
         public Builder name(String name) {
             this.name = name;
 
@@ -326,12 +437,14 @@ public class FakePlayer extends FakeEntity {
             return this;
         }
 
+        @Override
         public Builder invisible(boolean invisible) {
             this.invisible = invisible;
 
             return this;
         }
 
+        @Override
         public FakePlayer build() {
             if (this.location == null) {
                 if (this.rotation != null) {

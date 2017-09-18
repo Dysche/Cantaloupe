@@ -7,9 +7,9 @@ import org.cantaloupe.network.web.WebClientPacket;
 import org.json.simple.JSONObject;
 
 public class C002PacketParams extends WebClientPacket {
-    private UUID cid = null;
+    private UUID cid  = null;
     private UUID uuid = null;
-    
+
     private C002PacketParams(Session session) {
         super(session);
     }
@@ -22,8 +22,13 @@ public class C002PacketParams extends WebClientPacket {
     public void read(Object data) {
         super.read(data);
 
-        this.cid = UUID.fromString((String) ((JSONObject) data).get("cid"));
-        this.uuid = UUID.fromString((String) ((JSONObject) data).get("uuid"));
+        String cid = (String) ((JSONObject) data).get("cid");
+        String uuid = (String) ((JSONObject) data).get("uuid");
+
+        if (cid != null && uuid != null) {
+            this.cid = UUID.fromString(cid);
+            this.uuid = UUID.fromString(uuid);
+        }
     }
 
     @Override
@@ -34,7 +39,7 @@ public class C002PacketParams extends WebClientPacket {
     public UUID getCID() {
         return this.cid;
     }
-    
+
     public UUID getUUID() {
         return this.uuid;
     }

@@ -14,6 +14,12 @@ import com.mongodb.event.ServerHeartbeatStartedEvent;
 import com.mongodb.event.ServerHeartbeatSucceededEvent;
 import com.mongodb.event.ServerMonitorListener;
 
+/**
+ * A class used to connect to a MongoDB server.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class MongoDB implements ServerMonitorListener {
     private final String host;
     private final int    port;
@@ -24,23 +30,58 @@ public class MongoDB implements ServerMonitorListener {
         this.port = port;
     }
 
-    public static MongoDB create(ServerAddress address) {
+    /**
+     * Creates and returns a new MongoDB client.
+     * 
+     * @param address
+     *            The address of the server
+     * @return The server
+     */
+    public static MongoDB of(ServerAddress address) {
         return new MongoDB(address.getHost(), address.getPort());
     }
 
-    public static MongoDB create(String host, int port) {
+    /**
+     * Creates and returns a new MongoDB client.
+     * 
+     * @param host
+     *            The host of the server
+     * @param port
+     *            The port of the server
+     * @return The server
+     */
+    public static MongoDB of(String host, int port) {
         return new MongoDB(host, port);
     }
 
-    public static MongoDB create(String host) {
+    /**
+     * Creates and returns a new MongoDB client.
+     * 
+     * @param host
+     *            The host of the server
+     * @return The server
+     */
+    public static MongoDB of(String host) {
         return new MongoDB(host, -1);
     }
 
-    public static MongoDB create(int port) {
+    /**
+     * Creates and returns a new MongoDB client.
+     * 
+     * @param port
+     *            The port of the server
+     * @return The server
+     */
+    public static MongoDB of(int port) {
         return new MongoDB(null, port);
     }
 
-    public static MongoDB create() {
+    /**
+     * Creates and returns a new MongoDB client.
+     * 
+     * @return The server
+     */
+    public static MongoDB of() {
         return new MongoDB(null, -1);
     }
 
@@ -59,6 +100,9 @@ public class MongoDB implements ServerMonitorListener {
 
     }
 
+    /**
+     * Opens a connection to the MongoDB server.
+     */
     public void connect() {
         MongoClientOptions clientOptions = new MongoClientOptions.Builder().addServerMonitorListener(this).build();
 
@@ -73,20 +117,42 @@ public class MongoDB implements ServerMonitorListener {
         Bukkit.getServer().getPluginManager().callEvent(new MongoConnectEvent(this));
     }
 
+    /**
+     * Closes the connection to the MongoDB server.
+     */
     public void disconnect() {
         this.client.close();
 
         Bukkit.getServer().getPluginManager().callEvent(new MongoDisconnectEvent(this));
     }
 
+    /**
+     * Drops a database.
+     * 
+     * @param databaseName
+     *            The name of the database
+     */
     public void dropDatabase(String databaseName) {
         this.client.dropDatabase(databaseName);
     }
 
+    /**
+     * Gets a database from the server.
+     * 
+     * @param databaseName
+     *            The name of the database
+     * @return An optional containing the database if it's present, an empty
+     *         optional if not
+     */
     public Optional<Database> getDatabase(String databaseName) {
         return Optional.of(Database.of(this.client.getDatabase(databaseName)));
     }
 
+    /**
+     * Gets the address of the server.
+     * 
+     * @return The address
+     */
     public ServerAddress getAddress() {
         return this.client.getAddress();
     }

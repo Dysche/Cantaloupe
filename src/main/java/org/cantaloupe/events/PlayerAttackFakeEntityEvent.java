@@ -25,10 +25,20 @@ public class PlayerAttackFakeEntityEvent extends Event implements Cancellable {
         this.cancelled = cancel;
     }
 
+    /**
+     * Gets the player.
+     * 
+     * @return The player
+     */
     public Player getPlayer() {
         return this.player;
     }
 
+    /**
+     * Gets the attacked entity.
+     * 
+     * @return The entity
+     */
     public FakeEntity getAttacked() {
         return this.entity;
     }

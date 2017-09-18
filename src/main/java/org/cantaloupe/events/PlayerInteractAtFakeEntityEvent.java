@@ -28,14 +28,29 @@ public class PlayerInteractAtFakeEntityEvent extends Event implements Cancellabl
         this.cancelled = cancel;
     }
 
+    /**
+     * Gets the player.
+     * 
+     * @return The player
+     */
     public Player getPlayer() {
         return this.player;
     }
 
+    /**
+     * Gets the right clicked entity.
+     * 
+     * @return The entity
+     */
     public FakeEntity getRightClicked() {
         return this.entity;
     }
 
+    /**
+     * Gets position where the player clicked the entity.
+     * 
+     * @return The clicked position
+     */
     public Vector3d getClickedPosition() {
         return this.clickedPosition;
     }

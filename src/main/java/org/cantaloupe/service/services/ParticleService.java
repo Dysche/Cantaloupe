@@ -9,12 +9,12 @@ import org.bukkit.Material;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.math.color.ColorRGB;
 import org.cantaloupe.player.Player;
-import org.cantaloupe.service.Service;
+import org.cantaloupe.service.IService;
 import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.location.Location;
 import org.joml.Vector3f;
 
-public class ParticleService implements Service {
+public class ParticleService implements IService {
     private NMSService nmsService         = null;
     private Enum<?>[]  enumParticleValues = null;
 

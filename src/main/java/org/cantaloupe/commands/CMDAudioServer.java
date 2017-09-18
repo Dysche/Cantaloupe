@@ -4,17 +4,20 @@ import java.util.Optional;
 
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.audio.AudioWrapper;
-import org.cantaloupe.command.CommandExecutor;
+import org.cantaloupe.audio.sources.PositionedSource;
 import org.cantaloupe.command.CommandResult;
 import org.cantaloupe.command.CommandSource;
 import org.cantaloupe.command.CommandSpec;
+import org.cantaloupe.command.ICommandExecutor;
 import org.cantaloupe.command.args.CommandContext;
 import org.cantaloupe.command.args.GeneralArguments;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.text.Text;
+import org.cantaloupe.text.action.TextActions;
 
 public class CMDAudioServer {
     public static CommandSpec create() {
-        return CommandSpec.builder().arguments(GeneralArguments.string("action")).executor(new CommandExecutor() {
+        return CommandSpec.builder().arguments(GeneralArguments.string("action")).executor(new ICommandExecutor() {
             @Override
             public CommandResult execute(CommandSource src, CommandContext args) {
                 if (src.isPlayer()) {
@@ -22,16 +25,20 @@ public class CMDAudioServer {
 
                     if (playerOpt.isPresent()) {
                         Player player = playerOpt.get();
-                        AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
+                        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
 
-                        if (wrapper != null) {
+                        if (wrapperOpt.isPresent()) {
+                            AudioWrapper wrapper = wrapperOpt.get();
                             Optional<String> actionOpt = args.getOne("action");
 
                             if (actionOpt.isPresent()) {
                                 if (actionOpt.get().equalsIgnoreCase("connect")) {
-                                    wrapper.connect("http://localhost/Cantaloupe/AudioClient/index.html");
+                                    player.sendMessage(Text.of("Click here to connect.").onClick(TextActions.openUrl(wrapper.generateConnectURL("http://81.205.230.204/Cantaloupe/AudioClient/index.html"))));
 
                                     return CommandResult.SUCCESS;
+                                } else if (actionOpt.get().equalsIgnoreCase("test")) {
+                                    PositionedSource source = (PositionedSource) Cantaloupe.getAudioServer().get().getSourceManager().getSource("test").get();
+                                    source.start();
                                 }
                             }
                         }

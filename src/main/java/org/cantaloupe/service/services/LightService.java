@@ -5,12 +5,12 @@ import java.util.Collection;
 
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
-import org.cantaloupe.service.Service;
+import org.cantaloupe.service.IService;
 import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.location.ImmutableLocation;
 
-public class LightService implements Service {
+public class LightService implements IService {
     @Override
     public void load() {
 

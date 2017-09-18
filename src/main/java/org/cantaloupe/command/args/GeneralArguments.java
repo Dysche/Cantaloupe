@@ -18,43 +18,111 @@ import org.cantaloupe.text.Text;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * A class containing all possible argument types for a command.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class GeneralArguments {
     private static final CommandElement       NONE            = new SequenceCommandElement(ImmutableList.<CommandElement>of());
-    private static final Map<String, Boolean> BOOLEAN_CHOICES = ImmutableMap.<String, Boolean>builder().put("true", true).put("t", true).put("y", true).put("yes", true).put("verymuchso", true).put("1", true).put("false", false).put("f", false)
-            .put("n", false).put("no", false).put("notatall", false).put("0", false).build();
+    private static final Map<String, Boolean> BOOLEAN_CHOICES = ImmutableMap.<String, Boolean>builder().put("true", true).put("t", true).put("y", true).put("yes", true).put("verymuchso", true).put("1", true).put("false", false).put("f", false).put("n", false).put("no", false).put("notatall", false).put("0", false)
+            .build();
 
+    /**
+     * Returns an empty command element.
+     * 
+     * @return The element
+     */
     public static CommandElement none() {
         return NONE;
     }
 
+    /**
+     * Creates and returns a "long" command element.
+     * 
+     * @param key
+     *            The key of the element
+     * @return The element
+     */
     public static CommandElement longNum(String key) {
         return new NumericElement<>(key, Long::parseLong, Long::parseLong, ErrorType.NOT_LONG);
     }
 
+    /**
+     * Creates and returns a "double" command element.
+     * 
+     * @param key
+     *            The key of the element
+     * @return The element
+     */
     public static CommandElement doubleNum(String key) {
         return new NumericElement<>(key, Double::parseDouble, null, ErrorType.NOT_NUMBER);
     }
 
+    /**
+     * Creates and returns a "integer" command element.
+     * 
+     * @param key
+     *            The key of the element
+     * @return The element
+     */
     public static CommandElement integer(String key) {
         return new NumericElement<>(key, Integer::parseInt, Integer::parseInt, ErrorType.NOT_INTEGER);
     }
 
+    /**
+     * Creates and returns a "string" command element.
+     * 
+     * @param key
+     *            The key of the element
+     * @return The element
+     */
     public static CommandElement string(String key) {
         return new StringElement(key);
     }
 
+    /**
+     * Creates and returns a "boolean" command element.
+     * 
+     * @param key
+     *            The key of the element
+     * @return The element
+     */
     public static CommandElement bool(String key) {
         return new BooleanElement(key);
     }
 
+    /**
+     * Creates and returns a "player" command element.
+     * 
+     * @param key
+     *            The key of the element
+     * @return The element
+     */
     public static CommandElement player(String key) {
         return new PlayerCommandElement(key, false);
     }
 
+    /**
+     * Creates and returns a "player" or "source" command element depending on
+     * the source type.
+     * 
+     * @param key
+     *            The key of the element
+     * @return The element
+     */
     public static CommandElement playerOrSource(String key) {
         return new PlayerCommandElement(key, true);
     }
 
+    /**
+     * Sequences several command elements into one.
+     * 
+     * @param elements
+     *            The elements
+     * @return The element
+     */
     public static CommandElement seq(CommandElement... elements) {
         return new SequenceCommandElement(ImmutableList.copyOf(elements));
     }

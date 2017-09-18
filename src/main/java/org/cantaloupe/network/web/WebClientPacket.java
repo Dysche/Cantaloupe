@@ -29,11 +29,6 @@ public abstract class WebClientPacket extends WebPacket {
         return jsonObject;
     }
 
-    @Override
-    public byte getID() {
-        return 0;
-    }
-
     public Session getSession() {
         return this.session;
     }

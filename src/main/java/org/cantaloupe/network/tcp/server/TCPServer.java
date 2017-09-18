@@ -31,7 +31,7 @@ public class TCPServer implements IServer {
         this.port = port;
         this.connections = DataContainer.of();
 
-        this.packetHandler = new PacketHandler();
+        this.packetHandler = PacketHandler.of();
         this.packetHandler.registerListener(new TCPServerPacketListener(this));
         this.packetHandler.registerClientPacketClass((byte) 0, C000PacketConnect.class);
         this.packetHandler.registerClientPacketClass((byte) 1, C001PacketDisconnect.class);

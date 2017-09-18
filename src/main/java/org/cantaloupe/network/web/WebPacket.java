@@ -17,9 +17,4 @@ public abstract class WebPacket implements IPacket {
         
         return jsonObject;
     }
-
-    @Override
-    public byte getID() {
-        return 0;
-    }
 }

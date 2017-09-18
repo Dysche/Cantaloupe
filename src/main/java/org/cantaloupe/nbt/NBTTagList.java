@@ -6,6 +6,12 @@ import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.util.ReflectionHelper;
 
+/**
+ * A class used to create a NBT list.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class NBTTagList {
     private Object handle = null;
 
@@ -17,6 +23,11 @@ public class NBTTagList {
         return new NBTTagList(handle);
     }
 
+    /**
+     * Creates and returns a new NBT list.
+     * 
+     * @return The NBT list
+     */
     public static NBTTagList of() {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
@@ -29,6 +40,12 @@ public class NBTTagList {
         return null;
     }
 
+    /**
+     * Adds an object to the NBT list.
+     * 
+     * @param object The object
+     * @return The NBT list
+     */
     public NBTTagList add(Object object) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
@@ -85,6 +102,12 @@ public class NBTTagList {
         return this;
     }
 
+    /**
+     * Gets a compound from the NBT list.
+     * 
+     * @param index The index
+     * @return The compound
+     */
     public NBTTagCompound get(int index) {
         try {
             return (NBTTagCompound) ReflectionHelper.invokeMethod("get", this.handle, index);
@@ -95,6 +118,12 @@ public class NBTTagList {
         return NBTTagCompound.of();
     }
 
+    /**
+     * Gets a float from the NBT list.
+     * 
+     * @param index The index
+     * @return The float
+     */
     public float getFloat(int index) {
         try {
             return (float) ReflectionHelper.invokeMethod("e", this.handle, index);
@@ -105,6 +134,12 @@ public class NBTTagList {
         return 0.0F;
     }
 
+    /**
+     * Gets a double from the NBT list.
+     * 
+     * @param index The index
+     * @return The double
+     */
     public double getDouble(int index) {
         try {
             return (double) ReflectionHelper.invokeMethod("d", this.handle, index);
@@ -115,6 +150,12 @@ public class NBTTagList {
         return 0.0D;
     }
 
+    /**
+     * Gets a string from the NBT list.
+     * 
+     * @param index The index
+     * @return The string
+     */
     public String getString(int index) {
         try {
             return (String) ReflectionHelper.invokeMethod("getString", this.handle, index);
@@ -125,6 +166,11 @@ public class NBTTagList {
         return "";
     }
 
+    /**
+     * Gets the size the NBT list.
+     * 
+     * @return The size
+     */
     public int size() {
         try {
             return (int) ReflectionHelper.invokeMethod("size", this.handle);
@@ -134,7 +180,12 @@ public class NBTTagList {
 
         return 0;
     }
-
+    
+    /**
+     * Clones the NBT list.
+     * 
+     * @return The cloned NBT list
+     */
     public NBTTagList clone() {
         try {
             return NBTTagList.of(ReflectionHelper.invokeMethod("clone", this.handle));
@@ -145,6 +196,7 @@ public class NBTTagList {
         return NBTTagList.of();
     }
 
+    @Override
     public boolean equals(Object object) {
         try {
             return (boolean) ReflectionHelper.invokeMethod("equals", this.handle, object);
@@ -155,6 +207,7 @@ public class NBTTagList {
         return false;
     }
 
+    @Override
     public int hashCode() {
         try {
             return (int) ReflectionHelper.invokeMethod("hashCode", this.handle);
@@ -165,6 +218,7 @@ public class NBTTagList {
         return super.hashCode();
     }
 
+    @Override
     public String toString() {
         try {
             return (String) ReflectionHelper.invokeMethod("toString", this.handle);
@@ -175,6 +229,11 @@ public class NBTTagList {
         return super.toString();
     }
 
+    /**
+     * Returns a NMS version of the NBT list.
+     * 
+     * @return The NMS NBT list
+     */
     public Object toNMS() {
         return this.handle;
     }

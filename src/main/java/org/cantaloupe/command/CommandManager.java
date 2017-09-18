@@ -14,13 +14,31 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
 import org.cantaloupe.plugin.CantaloupePlugin;
 
+/**
+ * A class used to manage commands.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class CommandManager {
     private Map<String, Map<String, CommandEntry>> commands = null;
 
-    public CommandManager() {
+    private CommandManager() {
         this.commands = new HashMap<String, Map<String, CommandEntry>>();
     }
 
+    /**
+     * Creates and returns a new command manager.
+     * 
+     * @return The command manager
+     */
+    public static CommandManager of() {
+        return new CommandManager();
+    }
+
+    /**
+     * Unloads the command manager.
+     */
     public void unload() {
         for (Map<String, CommandEntry> entries : this.commands.values()) {
             for (CommandEntry entry : entries.values()) {
@@ -31,9 +49,20 @@ public class CommandManager {
         }
 
         this.commands.clear();
-        this.commands = null;
     }
 
+    /**
+     * Registers a command to the server.
+     * 
+     * @param owner
+     *            The plugin owning the command
+     * @param spec
+     *            The command's spec
+     * @param name
+     *            The command's name
+     * @param aliases
+     *            An array of aliases
+     */
     public void registerCommand(CantaloupePlugin owner, CommandSpec spec, String name, String... aliases) {
         if (!this.commands.containsKey(owner.getName())) {
             this.commands.put(owner.getName(), new HashMap<String, CommandEntry>());
@@ -45,6 +74,18 @@ public class CommandManager {
         this.commands.get(owner.getName()).put(name, entry);
     }
 
+    /**
+     * Registers a command to the server.
+     * 
+     * @param owner
+     *            The plugin owning the command
+     * @param spec
+     *            The command's spec
+     * @param name
+     *            The command's name
+     * @param aliases
+     *            A list of aliases
+     */
     public void registerCommand(CantaloupePlugin owner, CommandSpec spec, String name, ArrayList<String> aliases) {
         if (!this.commands.containsKey(owner.getName())) {
             this.commands.put(owner.getName(), new HashMap<String, CommandEntry>());
@@ -56,6 +97,14 @@ public class CommandManager {
         this.commands.get(owner.getName()).put(name, entry);
     }
 
+    /**
+     * Unregisters a command from the server.
+     * 
+     * @param owner
+     *            The plugin owning the command.
+     * @param name
+     *            The command's name
+     */
     public void unregisterCommand(CantaloupePlugin owner, String name) {
         if (this.commands.containsKey(owner.getName())) {
             if (this.commands.get(owner.getName()).containsKey(name)) {
@@ -90,6 +139,13 @@ public class CommandManager {
         }
     }
 
+    /**
+     * Returns a collection of registered commands by plugin.
+     * 
+     * @param plugin
+     *            The plugin
+     * @return The collection of plugins
+     */
     public Collection<CommandEntry> getCommands(CantaloupePlugin plugin) {
         if (this.commands.containsKey(plugin.getName())) {
             return this.commands.get(plugin).values();

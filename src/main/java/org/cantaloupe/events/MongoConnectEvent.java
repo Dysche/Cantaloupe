@@ -6,14 +6,19 @@ import org.cantaloupe.database.MongoDB;
 
 public class MongoConnectEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private final MongoDB            driver;
+    private final MongoDB            client;
 
-    public MongoConnectEvent(MongoDB driver) {
-        this.driver = driver;
+    public MongoConnectEvent(MongoDB client) {
+        this.client = client;
     }
 
-    public MongoDB getDriver() {
-        return this.driver;
+    /**
+     * Gets the MongoDB client.
+     * 
+     * @return The client
+     */
+    public MongoDB getClient() {
+        return this.client;
     }
 
     public HandlerList getHandlers() {

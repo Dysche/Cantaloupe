@@ -25,10 +25,20 @@ public class WorldObjectRemoveEvent extends Event implements Cancellable {
         this.cancelled = cancel;
     }
 
+    /**
+     * Gets the world.
+     * 
+     * @return The world
+     */
     public World getWorld() {
         return this.world;
     }
 
+    /**
+     * Gets the world object.
+     * 
+     * @return The world object
+     */
     public WorldObject getWorldObject() {
         return this.worldObject;
     }

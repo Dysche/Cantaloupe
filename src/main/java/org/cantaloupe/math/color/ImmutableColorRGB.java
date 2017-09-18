@@ -4,6 +4,12 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+/**
+ * An immutable RGB color class.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
 public class ImmutableColorRGB implements ColorRGB {
     private Vector3f rgb = null;
 

@@ -4,12 +4,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.bukkit.Sound;
 import org.bukkit.permissions.PermissionAttachment;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.data.DataContainer;
+import org.cantaloupe.inject.IInjectable;
 import org.cantaloupe.inject.Injector;
 import org.cantaloupe.inventory.menu.Menu;
 import org.cantaloupe.permission.Allowable;
@@ -30,7 +32,13 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
-public class Player implements IPermittable, IPermissionHolder {
+/**
+ * A class containing the methods for a player.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
+public class Player implements IPermittable, IPermissionHolder, IInjectable<Player> {
     private final org.bukkit.entity.Player                                     handle;
     private final Injector<Player>                                             injector;
     private final DataContainer<Class<? extends PlayerWrapper>, PlayerWrapper> wrappers;
@@ -57,6 +65,13 @@ public class Player implements IPermittable, IPermissionHolder {
         this.allowables = new ArrayList<Allowable>();
     }
 
+    /**
+     * Creates and returns a new player.
+     * 
+     * @param handle
+     *            The handle
+     * @return The player
+     */
     public static Player of(org.bukkit.entity.Player handle) {
         return new Player(handle);
     }
@@ -78,7 +93,7 @@ public class Player implements IPermittable, IPermissionHolder {
 
         // Wrappers
         this.wrappers.forEach((wrapperClass, wrapper) -> wrapper.onLoad());
-        
+
         // Injector
         this.getInjector().accept(Scopes.LOAD, this);
     }
@@ -131,14 +146,33 @@ public class Player implements IPermittable, IPermissionHolder {
         this.getInjector().accept(Scopes.FIRST_JOIN, this);
     }
 
+    /**
+     * Adds an allowable to the player.
+     * 
+     * @param allowable
+     *            The allowable
+     */
     public void allow(Allowable allowable) {
         this.allowables.add(allowable);
     }
 
+    /**
+     * Removes an allowable from the player.
+     * 
+     * @param allowable
+     *            The allowable
+     */
     public void disallow(Allowable allowable) {
         this.allowables.remove(allowable);
     }
 
+    /**
+     * Check if the player has an allowable.
+     * 
+     * @param allowable
+     *            The allowable
+     * @return True if it does, false if not
+     */
     public boolean isAllowed(Allowable allowable) {
         return this.allowables.contains(allowable);
     }
@@ -151,78 +185,218 @@ public class Player implements IPermittable, IPermissionHolder {
         }
     }
 
+    /**
+     * Check if the player has a wrapper.
+     * 
+     * @param wrapperClass
+     *            The wrapper type
+     * @return True if it does, false if not
+     */
     public boolean hasWrapper(Class<? extends PlayerWrapper> wrapperClass) {
         return this.wrappers.containsKey(wrapperClass);
     }
 
-    public void teleport(org.bukkit.Location handle) {
-        this.handle.teleport(handle);
+    /**
+     * Teleports the player to a location.
+     * 
+     * @param location
+     *            The location
+     */
+    public void teleport(org.bukkit.Location location) {
+        this.handle.teleport(location);
     }
 
+    /**
+     * Teleports the player to a location.
+     * 
+     * @param location
+     *            The location
+     */
     public void teleport(Location location) {
         this.handle.teleport(location.toHandle());
     }
 
+    /**
+     * Teleports the player to a position.
+     * 
+     * @param position
+     *            The position
+     */
     public void teleport(Vector3d position) {
         this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).toHandle());
     }
 
+    /**
+     * Teleports the player to a location.
+     * 
+     * @param position
+     *            The position
+     * @param rotation
+     *            The rotation
+     */
     public void teleport(Vector3d position, Vector2f rotation) {
         this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).toHandle());
     }
 
+    /**
+     * Teleports the player to a position in a world.
+     * 
+     * @param world
+     *            The world
+     * @param position
+     *            The position
+     */
     public void teleport(World world, Vector3d position) {
         this.handle.teleport(ImmutableLocation.of(world, position).toHandle());
     }
 
+    /**
+     * Teleports the player to location in a world.
+     * 
+     * @param world
+     *            The world
+     * @param position
+     *            The position
+     * @param rotation
+     *            The rotation
+     */
     public void teleport(World world, Vector3d position, Vector2f rotation) {
         this.handle.teleport(ImmutableLocation.of(world, position, rotation).toHandle());
     }
 
+    /**
+     * Teleports the player to a position.
+     * 
+     * @param position
+     *            The position
+     */
     public void teleport(Vector3f position) {
         this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).toHandle());
     }
 
+    /**
+     * Teleports the player to a location.
+     * 
+     * @param position
+     *            The position
+     * @param rotation
+     *            The rotation
+     */
     public void teleport(Vector3f position, Vector2f rotation) {
         this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).toHandle());
     }
 
+    /**
+     * Teleports the player to a position in a world.
+     * 
+     * @param world
+     *            The world
+     * @param position
+     *            The position
+     */
     public void teleport(World world, Vector3f position) {
         this.handle.teleport(ImmutableLocation.of(world, position).toHandle());
     }
 
+    /**
+     * Teleports the player to location in a world.
+     * 
+     * @param world
+     *            The world
+     * @param position
+     *            The position
+     * @param rotation
+     *            The rotation
+     */
     public void teleport(World world, Vector3f position, Vector2f rotation) {
         this.handle.teleport(ImmutableLocation.of(world, position, rotation).toHandle());
     }
 
+    /**
+     * Teleports the player to a position.
+     * 
+     * @param position
+     *            The position
+     */
     public void teleport(Vector3i position) {
         this.handle.teleport(ImmutableLocation.of(this.getWorld(), position).toHandle());
     }
 
+    /**
+     * Teleports the player to a location.
+     * 
+     * @param position
+     *            The position
+     * @param rotation
+     *            The rotation
+     */
     public void teleport(Vector3i position, Vector2f rotation) {
         this.handle.teleport(ImmutableLocation.of(this.getWorld(), position, rotation).toHandle());
     }
 
+    /**
+     * Teleports the player to a position in a world.
+     * 
+     * @param world
+     *            The world
+     * @param position
+     *            The position
+     */
     public void teleport(World world, Vector3i position) {
         this.handle.teleport(ImmutableLocation.of(world, position).toHandle());
     }
 
+    /**
+     * Teleports the player to location in a world.
+     * 
+     * @param world
+     *            The world
+     * @param position
+     *            The position
+     * @param rotation
+     *            The rotation
+     */
     public void teleport(World world, Vector3i position, Vector2f rotation) {
         this.handle.teleport(ImmutableLocation.of(world, position, rotation).toHandle());
     }
 
-    public void sendMessage(Text text) {
-        this.handle.spigot().sendMessage(text.getComponent());
+    /**
+     * Sends a message to the player.
+     * 
+     * @param message
+     *            The message
+     */
+    public void sendMessage(Text message) {
+        this.handle.spigot().sendMessage(message.getComponent());
     }
 
+    /**
+     * Sends a message to the player.
+     * 
+     * @param message
+     *            The message
+     */
     public void sendMessage(String message) {
         this.handle.sendMessage(message);
     }
 
+    /**
+     * Sends a formatted message to the player.
+     * 
+     * @param message
+     *            The message
+     */
     public void sendLegacyMessage(String message) {
         this.handle.spigot().sendMessage(Text.fromLegacy(message).getComponent());
     }
 
+    /**
+     * Checks if the player is in a group.
+     * 
+     * @param name
+     *            The name of the group
+     * @return True if it is, false if not
+     */
     public boolean isInGroup(String name) {
         for (Group group : this.groups) {
             if (group.getName().equals(name)) {
@@ -233,23 +407,46 @@ public class Player implements IPermittable, IPermissionHolder {
         return false;
     }
 
+    /**
+     * Checks if the player is in a group.
+     * 
+     * @param group
+     *            The group
+     * @return True if it is, false if not
+     */
     public boolean isInGroup(Group group) {
         return this.groups.contains(group);
     }
 
+    /**
+     * Adds the group to the player.
+     * 
+     * @param name
+     *            The name of the group
+     */
     public void joinGroup(String name) {
         if (this.isInGroup(name)) {
             return;
         }
 
-        Group group = GroupManager.getGroup(name);
-        for (String node : group.getPermissions(null)) {
-            this.permissionAttachment.setPermission(node, node.startsWith("-") ? false : true);
-        }
+        Optional<Group> groupOpt = GroupManager.getGroup(name);
+        if (groupOpt.isPresent()) {
+            Group group = groupOpt.get();
 
-        this.groups.add(group);
+            for (String node : group.getPermissions(null)) {
+                this.permissionAttachment.setPermission(node, node.startsWith("-") ? false : true);
+            }
+
+            this.groups.add(group);
+        }
     }
 
+    /**
+     * Adds the group to the player.
+     * 
+     * @param group
+     *            The group
+     */
     public void joinGroup(Group group) {
         for (String node : group.getPermissions(null)) {
             this.permissionAttachment.setPermission(node, node.startsWith("-") ? false : true);
@@ -258,26 +455,42 @@ public class Player implements IPermittable, IPermissionHolder {
         this.groups.add(group);
     }
 
+    /**
+     * Removes the group from the player.
+     * 
+     * @param name
+     *            The name of the group
+     */
     public void leaveGroup(String name) {
-        Group group = GroupManager.getGroup(name);
+        Optional<Group> groupOpt = GroupManager.getGroup(name);
 
-        for (String node : group.getPermissions(null)) {
-            boolean hasPermission = false;
+        if (groupOpt.isPresent()) {
+            Group group = groupOpt.get();
 
-            for (Group g : this.groups) {
-                if (g.hasPermission(node)) {
-                    hasPermission = true;
+            for (String node : group.getPermissions(null)) {
+                boolean hasPermission = false;
+
+                for (Group g : this.groups) {
+                    if (g.hasPermission(node)) {
+                        hasPermission = true;
+                    }
+                }
+
+                if (!hasPermission && !this.hasPermissionGlobal(node) && !this.hasPermissionWorld(node)) {
+                    this.permissionAttachment.unsetPermission(node);
                 }
             }
 
-            if (!hasPermission && !this.hasPermissionGlobal(node) && !this.hasPermissionWorld(node)) {
-                this.permissionAttachment.unsetPermission(node);
-            }
+            this.groups.remove(group);
         }
-
-        this.groups.remove(group);
     }
 
+    /**
+     * Removes the group from the player.
+     * 
+     * @param group
+     *            The group
+     */
     public void leaveGroup(Group group) {
         for (String node : group.getPermissions(null)) {
             boolean hasPermission = false;
@@ -373,130 +586,316 @@ public class Player implements IPermittable, IPermissionHolder {
         }
     }
 
+    /**
+     * Opens a menu for the player.
+     * 
+     * @param menu
+     *            The menu
+     */
     public void openMenu(Menu menu) {
         this.currentMenu = menu;
         this.currentMenu.open();
     }
 
+    /**
+     * Closes the currently opened menu.
+     */
     public void closeMenu() {
         this.currentMenu = null;
         this.handle.closeInventory();
     }
 
+    /**
+     * Plays a sound for the player.
+     * 
+     * @param location
+     *            The location
+     * @param sound
+     *            The sound
+     * @param volume
+     *            The volume
+     * @param pitch
+     *            The pitch
+     */
     public void playSound(Location location, Sound sound, float volume, float pitch) {
         this.handle.playSound(location.toHandle(), sound, volume, pitch);
     }
 
+    /**
+     * Plays a sound for the player.
+     * 
+     * @param location
+     *            The location
+     * @param sound
+     *            The sound
+     * @param volume
+     *            The volume
+     */
     public void playSound(Location location, Sound sound, float volume) {
         this.handle.playSound(location.toHandle(), sound, volume, 1f);
     }
 
+    /**
+     * Plays a sound for the player.
+     * 
+     * @param location
+     *            The location
+     * @param sound
+     *            The sound
+     */
     public void playSound(Location location, Sound sound) {
         this.handle.playSound(location.toHandle(), sound, 1f, 1f);
     }
 
+    /**
+     * Plays a sound for the player.
+     * 
+     * @param sound
+     *            The sound
+     * @param volume
+     *            The volume
+     * @param pitch
+     *            The pitch
+     */
     public void playSound(Sound sound, float volume, float pitch) {
         this.handle.playSound(this.getLocation().toHandle(), sound, volume, pitch);
     }
 
+    /**
+     * Plays a sound for the player.
+     * 
+     * @param sound
+     *            The sound
+     * @param volume
+     *            The volume
+     */
     public void playSound(Sound sound, float volume) {
         this.handle.playSound(this.getLocation().toHandle(), sound, volume, 1f);
     }
 
+    /**
+     * Plays a sound for the player.
+     * 
+     * @param sound
+     *            The sound
+     */
     public void playSound(Sound sound) {
         this.handle.playSound(this.getLocation().toHandle(), sound, 1f, 1f);
     }
 
+    /**
+     * Sends a packet to the player.
+     * 
+     * @param packet
+     *            The player
+     */
     public void sendPacket(Object packet) {
         this.packetService.sendPacket(this, packet);
     }
 
+    /**
+     * Sets the scoreboard of the player.
+     * 
+     * @param scoreboard
+     *            The scoreboard
+     */
     public void setScoreboard(Scoreboard scoreboard) {
         this.handle.setScoreboard(scoreboard.toHandle());
         this.currentScoreboard = scoreboard;
     }
 
+    /**
+     * Checks if the player is marked for removal.
+     * 
+     * @return True if it is, false if not
+     */
     public boolean isDirty() {
         return this.dirty;
     }
 
+    /**
+     * Returns the handle of the player.
+     * 
+     * @return The handle
+     */
     public org.bukkit.entity.Player toHandle() {
         return this.handle;
     }
 
+    /**
+     * Gets the UUID of the player.
+     * 
+     * @return The UUID
+     */
     public UUID getUUID() {
         return this.handle.getUniqueId();
     }
 
+    @Override
     public Injector<Player> getInjector() {
         return this.injector;
     }
 
-    public DataContainer<Class<? extends PlayerWrapper>, PlayerWrapper> getWrappers() {
+    /**
+     * Gets a list of wrappers from the player.
+     * 
+     * @return The list of wrappers
+     */
+    public Collection<PlayerWrapper> getWrappers() {
+        return this.wrappers.valueSet();
+    }
+
+    protected DataContainer<Class<? extends PlayerWrapper>, PlayerWrapper> getWrapperMap() {
         return this.wrappers.clone();
     }
 
+    /**
+     * Gets a wrapper from the player.
+     * 
+     * @param <T> The type of the wrapper
+     * @param wrapperClass
+     *            The type of the wrapper
+     * @return An optional containing the wrapper if it's present, an empty
+     *         optional if not
+     */
     @SuppressWarnings("unchecked")
-    public <T extends PlayerWrapper> T getWrapper(Class<? extends PlayerWrapper> wrapperClass) {
-        return (T) this.wrappers.get(wrapperClass);
+    public <T extends PlayerWrapper> Optional<T> getWrapper(Class<? extends PlayerWrapper> wrapperClass) {
+        return Optional.ofNullable((T) this.wrappers.get(wrapperClass));
     }
 
+    /**
+     * Gets the name of the player.
+     * 
+     * @return The name
+     */
     public String getName() {
         return this.handle.getName();
     }
 
+    /**
+     * Gets the world the player is in.
+     * 
+     * @return The world
+     */
     public World getWorld() {
         return Cantaloupe.getWorldManager().getWorld(this.handle.getWorld().getName());
     }
 
+    /**
+     * Gets the location of the player.
+     * 
+     * @return The location
+     */
     public ImmutableLocation getLocation() {
         return ImmutableLocation.of(this.handle.getLocation());
     }
 
+    /**
+     * Gets the eye location of the player.
+     * 
+     * @return The eye location
+     */
     public ImmutableLocation getEyeLocation() {
         return ImmutableLocation.of(this.handle.getEyeLocation());
     }
 
+    /**
+     * Gets the bed location of the player.
+     * 
+     * @return The bed location
+     */
     public ImmutableLocation getBedSpawnLocation() {
         return ImmutableLocation.of(this.handle.getBedSpawnLocation());
     }
 
+    /**
+     * Gets the position of the player.
+     * 
+     * @return The position
+     */
     public Vector3d getPosition() {
         return this.getLocation().getPosition();
     }
 
+    /**
+     * Gets the eye position of the player.
+     * 
+     * @return The eye position
+     */
     public Vector3d getEyePosition() {
         return this.getEyeLocation().getPosition();
     }
 
+    /**
+     * Gets the bed position of the player.
+     * 
+     * @return The bed position
+     */
     public Vector3d getBedSpawnPosition() {
         return this.getBedSpawnLocation().getPosition();
     }
 
+    /**
+     * Gets the rotation of the player.
+     * 
+     * @return The rotation
+     */
     public Vector2f getRotation() {
         return this.getLocation().getRotation();
     }
 
+    /**
+     * Gets a collection of groups the player is in.
+     * 
+     * @return The collection of groups
+     */
     public Collection<Group> getGroups() {
         return this.groups;
     }
 
+    /**
+     * Gets a map of permissio
+     * 
+     * @return The container of permissions.
+     */
     public DataContainer<String, List<String>> getPermissions() {
         return this.permissions.clone();
     }
 
+    /**
+     * Gets a list of permission from the group for a world.
+     * 
+     * @param world
+     *            The world
+     * @return The list of permissions
+     */
     public List<String> getPermissions(World world) {
         return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
     }
 
+    /**
+     * Gets the current scoreboard of the player.
+     * 
+     * @return The scoreboard
+     */
     public Scoreboard getCurrentScoreboard() {
         return this.currentScoreboard;
     }
 
+    /**
+     * Gets the current menu of the player.
+     * 
+     * @return The menu
+     */
     public Menu getCurrentMenu() {
         return this.currentMenu;
     }
 
+    /**
+     * Gets the public data container of the player.
+     * 
+     * @return The container
+     */
     public DataContainer<String, Object> getData() {
         return this.data;
     }

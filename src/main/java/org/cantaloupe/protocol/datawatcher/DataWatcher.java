@@ -18,6 +18,13 @@ public class DataWatcher {
         this.items = Maps.newHashMap();
     }
 
+    /**
+     * Creates and returns a new datawatcher.
+     * 
+     * @param entity
+     *            The entity
+     * @return The datawatcher
+     */
     public static DataWatcher of(Object entity) {
         return new DataWatcher(entity);
     }
@@ -29,6 +36,11 @@ public class DataWatcher {
         this.items.put(Integer.valueOf(object.getIndex()), new Item(object, value));
     }
 
+    /**
+     * Returns the NMS version of this datawatcher.
+     * 
+     * @return The NMS version
+     */
     public Object toNMS() {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 

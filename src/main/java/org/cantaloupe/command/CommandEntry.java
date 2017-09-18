@@ -116,35 +116,35 @@ public class CommandEntry {
         return null;
     }
 
-    public CantaloupePlugin getOwner() {
+    protected CantaloupePlugin getOwner() {
         return this.owner;
     }
 
-    public String getName() {
+    protected String getName() {
         return this.name;
     }
 
-    public List<String> getAliases() {
+    protected List<String> getAliases() {
         return this.aliases;
     }
 
-    public String getPermission() {
+    protected String getPermission() {
         return this.spec.getPermission();
     }
 
-    public Optional<Text> getUsage() {
+    protected Optional<Text> getUsage() {
         return this.spec.getUsage();
     }
 
-    public Optional<Text> getHelp() {
+    protected Optional<Text> getHelp() {
         return this.spec.getHelp();
     }
 
-    public Optional<Text> getDescription() {
+    protected Optional<Text> getDescription() {
         return this.spec.getDescription();
     }
 
-    public Command getHandle() {
+    protected Command getHandle() {
         return this.handle;
     }
 }

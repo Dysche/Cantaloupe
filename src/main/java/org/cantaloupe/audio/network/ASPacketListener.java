@@ -7,7 +7,10 @@ import org.cantaloupe.audio.AudioServer;
 import org.cantaloupe.audio.AudioServer.Scopes;
 import org.cantaloupe.audio.AudioWrapper;
 import org.cantaloupe.audio.network.packets.C002PacketParams;
+import org.cantaloupe.audio.network.packets.C003PacketSync;
 import org.cantaloupe.audio.network.packets.S003PacketCIDVerified;
+import org.cantaloupe.audio.network.packets.S012PacketSync;
+import org.cantaloupe.audio.source.ISource;
 import org.cantaloupe.network.IConnection;
 import org.cantaloupe.network.packet.IPacket;
 import org.cantaloupe.network.packet.IPacketListener;
@@ -31,23 +34,35 @@ public class ASPacketListener implements IPacketListener {
 
             if (playerOpt.isPresent()) {
                 Player player = playerOpt.get();
-                AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
+                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
 
-                if (wrapper.getCID().equals(((C002PacketParams) packet).getCID())) {
-                    wrapper.setConnection(clientConnection);
+                if (wrapperOpt.isPresent()) {
+                    AudioWrapper wrapper = wrapperOpt.get();
 
-                    clientConnection.inject(WebServer.Scopes.DISCONNECTED, c -> {
-                        this.server.getInjector().accept(Scopes.SESSION_END, wrapper);
+                    if (wrapper.getCID() != null) {
+                        if (wrapper.getCID().equals(((C002PacketParams) packet).getCID())) {
+                            wrapper.setConnection(clientConnection);
 
-                        wrapper.disconnect();
-                    });
+                            clientConnection.inject(WebServer.Scopes.DISCONNECTED, c -> {
+                                this.server.getInjector().accept(Scopes.SESSION_END, wrapper);
 
-                    this.server.getInjector().accept(Scopes.SESSION_BEGIN, wrapper);
-                    
-                    clientConnection.sendPacket(S003PacketCIDVerified.of());
+                                wrapper.disconnect();
+                            });
+
+                            this.server.getInjector().accept(Scopes.SESSION_BEGIN, wrapper);
+
+                            clientConnection.sendPacket(S003PacketCIDVerified.of());
+                        }
+                    }
                 }
             } else {
                 connection.closeExt();
+            }
+        } else if (packet instanceof C003PacketSync) {
+            Optional<ISource> sourceOpt = Cantaloupe.getAudioServer().get().getSourceManager().getSource(((C003PacketSync) packet).getSourceID());
+
+            if (sourceOpt.isPresent()) {
+                clientConnection.sendPacket(S012PacketSync.of(sourceOpt.get()));
             }
         }
     }

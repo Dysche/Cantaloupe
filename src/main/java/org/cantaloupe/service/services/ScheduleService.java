@@ -7,9 +7,9 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.plugin.CantaloupePlugin;
-import org.cantaloupe.service.Service;
+import org.cantaloupe.service.IService;
 
-public class ScheduleService implements Service {
+public class ScheduleService implements IService {
     private DataContainer<String, DataContainer<String, Integer>> services  = null;
     private BukkitScheduler                                       scheduler = null;
     private int                                                   checkTask = -1;

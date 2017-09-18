@@ -2,6 +2,6 @@ package org.cantaloupe.command;
 
 import org.cantaloupe.command.args.CommandContext;
 
-public interface CommandExecutor {
+public interface ICommandExecutor {
     CommandResult execute(CommandSource src, CommandContext args);
 }

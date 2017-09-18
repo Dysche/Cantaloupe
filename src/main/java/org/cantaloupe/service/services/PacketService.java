@@ -4,9 +4,15 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
-import org.cantaloupe.service.Service;
+import org.cantaloupe.service.IService;
 
-public class PacketService implements Service {
+/**
+ * A service used to manage packets.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
+public class PacketService implements IService {
     private NMSService nmsService = null;
 
     @Override
@@ -19,6 +25,14 @@ public class PacketService implements Service {
         this.nmsService = null;
     }
 
+    /**
+     * Sends a packet to the player.
+     * 
+     * @param player
+     *            The player
+     * @param packet
+     *            The packet
+     */
     public void sendPacket(Player player, Object packet) {
         Object playerConnection = this.nmsService.getPlayerConnection(player);
 

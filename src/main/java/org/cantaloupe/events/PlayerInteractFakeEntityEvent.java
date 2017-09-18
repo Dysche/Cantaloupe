@@ -25,10 +25,20 @@ public class PlayerInteractFakeEntityEvent extends Event implements Cancellable 
         this.cancelled = cancel;
     }
 
+    /**
+     * Gets the player.
+     * 
+     * @return The player
+     */
     public Player getPlayer() {
         return this.player;
     }
 
+    /**
+     * Gets the right clicked entity.
+     * 
+     * @return The entity
+     */
     public FakeEntity getRightClicked() {
         return this.entity;
     }

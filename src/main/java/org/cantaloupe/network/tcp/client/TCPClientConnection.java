@@ -23,7 +23,7 @@ public class TCPClientConnection implements IConnection {
     private final TCPClient                     client;
     private final PacketHandler                 packetHandler;
     private final Injector<TCPClientConnection> injector;
-    
+
     private Session                             session;
     private InputStream                         inputStream  = null;
     private OutputStream                        outputStream = null;
@@ -31,7 +31,7 @@ public class TCPClientConnection implements IConnection {
     protected TCPClientConnection(TCPClient client) {
         this.client = client;
 
-        this.packetHandler = new PacketHandler();
+        this.packetHandler = PacketHandler.of();
         this.packetHandler.registerListener(new TCPClientPacketListener());
         this.packetHandler.registerServerPacketClass((byte) 0, S000PacketSession.class);
         this.packetHandler.registerServerPacketClass((byte) 1, S001PacketConnect.class);
@@ -96,7 +96,7 @@ public class TCPClientConnection implements IConnection {
     public void closeExt() {
         this.client.disconnect();
     }
-    
+
     @Override
     public void sendPacket(IPacket packet) {
         try {
@@ -118,7 +118,7 @@ public class TCPClientConnection implements IConnection {
     public TCPClient getClient() {
         return this.client;
     }
-    
+
     public PacketHandler getPacketHandler() {
         return this.packetHandler;
     }
@@ -126,7 +126,8 @@ public class TCPClientConnection implements IConnection {
     public Session getSession() {
         return this.session;
     }
-    
+
+    @Override
     public Injector<TCPClientConnection> getInjector() {
         return this.injector;
     }

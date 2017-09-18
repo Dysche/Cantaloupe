@@ -6,15 +6,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.cantaloupe.inventory.ItemStack;
 import org.cantaloupe.player.Player;
-import org.cantaloupe.service.Service;
+import org.cantaloupe.service.IService;
 import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.World;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
-public class NMSService implements Service {
+/**
+ * A service used to manage NMS-related actions.
+ * 
+ * @author Dylan Scheltens
+ *
+ */
+public class NMSService implements IService {
     private String  serverPackage                          = null;
-    private String  bukkitPackage                          = null;
+    private String  craftBukkitPackage                     = null;
 
     private String  serverVersion                          = null;
     private int     intVersion                             = -1;
@@ -95,7 +101,7 @@ public class NMSService implements Service {
         this.intVersion = Integer.parseInt(this.getServerVersion().split("_")[1]);
 
         this.serverPackage = "net.minecraft.server." + this.getServerVersion() + ".";
-        this.bukkitPackage = "org.bukkit.craftbukkit." + this.getServerVersion() + ".";
+        this.craftBukkitPackage = "org.bukkit.craftbukkit." + this.getServerVersion() + ".";
 
         this.loadClasses();
     }
@@ -164,37 +170,65 @@ public class NMSService implements Service {
         this.NMS_NBT_TAGINTARRAY_CLASS = this.getNMSClass("NBTTagIntArray");
 
         // Bukkit
-        this.BUKKIT_CRAFTSERVER_CLASS = this.getBukkitClass("CraftServer");
-        this.BUKKIT_CRAFTWORLD_CLASS = this.getBukkitClass("CraftWorld");
-        this.BUKKIT_ENTITY_CRAFTPLAYER_CLASS = this.getBukkitClass("entity.CraftPlayer");
-        this.BUKKIT_ENTITY_CRAFTENTITY_CLASS = this.getBukkitClass("entity.CraftEntity");
-        this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS = this.getBukkitClass("inventory.CraftItemStack");
+        this.BUKKIT_CRAFTSERVER_CLASS = this.getCraftBukkitClass("CraftServer");
+        this.BUKKIT_CRAFTWORLD_CLASS = this.getCraftBukkitClass("CraftWorld");
+        this.BUKKIT_ENTITY_CRAFTPLAYER_CLASS = this.getCraftBukkitClass("entity.CraftPlayer");
+        this.BUKKIT_ENTITY_CRAFTENTITY_CLASS = this.getCraftBukkitClass("entity.CraftEntity");
+        this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS = this.getCraftBukkitClass("inventory.CraftItemStack");
     }
 
     @Override
     public void unload() {
         this.serverPackage = null;
-        this.bukkitPackage = null;
+        this.craftBukkitPackage = null;
         this.serverVersion = null;
         this.intVersion = -1;
     }
 
+    /**
+     * Gets the version of the server.
+     * 
+     * @return The version
+     */
     public String getServerVersion() {
         return this.serverVersion;
     }
 
+    /**
+     * Gets the numeral version of the server.
+     * 
+     * @return The version
+     */
     public int getIntVersion() {
         return this.intVersion;
     }
 
+    /**
+     * Gets the package of the server.
+     * 
+     * @return The package
+     */
     public String getServerPackage() {
         return this.serverPackage;
     }
 
-    public String getBukkitPackage() {
-        return this.bukkitPackage;
+    /**
+     * Gets the craftbukkit package of the server.
+     * 
+     * @return The package
+     */
+    public String getCraftBukkitPackage() {
+        return this.craftBukkitPackage;
     }
 
+    /**
+     * Gets a NMS class.
+     * 
+     * @param path
+     *            The classpath
+     * 
+     * @return The class
+     */
     public Class<?> getNMSClass(String path) {
         try {
             return Class.forName(this.serverPackage + path);
@@ -205,9 +239,17 @@ public class NMSService implements Service {
         return null;
     }
 
-    public Class<?> getBukkitClass(String path) {
+    /**
+     * Gets a craftbukkit class.
+     * 
+     * @param path
+     *            The classpath
+     * 
+     * @return The class
+     */
+    public Class<?> getCraftBukkitClass(String path) {
         try {
-            return Class.forName(this.bukkitPackage + path);
+            return Class.forName(this.craftBukkitPackage + path);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -215,6 +257,14 @@ public class NMSService implements Service {
         return null;
     }
 
+    /**
+     * Gets the NMS handle of an entity.
+     * 
+     * @param entity
+     *            The entity
+     * 
+     * @return The handle
+     */
     public Object getEntityHandle(Entity entity) {
         try {
             return ReflectionHelper.invokeDeclaredMethod("getHandle", this.BUKKIT_ENTITY_CRAFTENTITY_CLASS.cast(entity));
@@ -225,10 +275,26 @@ public class NMSService implements Service {
         return null;
     }
 
+    /**
+     * Gets the NMS handle of a world.
+     * 
+     * @param world
+     *            The world
+     * 
+     * @return The handle
+     */
     public Object getWorldHandle(World world) {
         return this.getWorldHandle(world.toHandle());
     }
 
+    /**
+     * Gets the NMS handle of a world.
+     * 
+     * @param world
+     *            The world
+     * 
+     * @return The handle
+     */
     public Object getWorldHandle(org.bukkit.World world) {
         try {
             return ReflectionHelper.invokeDeclaredMethod("getHandle", this.BUKKIT_CRAFTWORLD_CLASS.cast(world));
@@ -239,6 +305,14 @@ public class NMSService implements Service {
         return null;
     }
 
+    /**
+     * Gets the connection of a player.
+     * 
+     * @param player
+     *            The player
+     * 
+     * @return The connection
+     */
     public Object getPlayerConnection(Player player) {
         Object craftPlayer = this.BUKKIT_ENTITY_CRAFTPLAYER_CLASS.cast(player.toHandle());
 
@@ -254,18 +328,14 @@ public class NMSService implements Service {
         return null;
     }
 
-    public Object getItemStack(org.bukkit.inventory.ItemStack stack) {
-        try {
-            return ReflectionHelper.invokeStaticMethod("asNMSCopy", this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS, new Class<?>[] {
-                    org.bukkit.inventory.ItemStack.class
-            }, stack);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
+    /**
+     * Gets the NMS handle of an itemstack.
+     * 
+     * @param stack
+     *            The itemstack
+     * 
+     * @return The handle
+     */
     public Object getItemStack(ItemStack stack) {
         try {
             return ReflectionHelper.invokeStaticMethod("asNMSCopy", this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS, new Class<?>[] {
@@ -278,6 +348,34 @@ public class NMSService implements Service {
         return null;
     }
 
+    /**
+     * Gets the NMS handle of an itemstack.
+     * 
+     * @param stack
+     *            The itemstack
+     * 
+     * @return The handle
+     */
+    public Object getItemStack(org.bukkit.inventory.ItemStack stack) {
+        try {
+            return ReflectionHelper.invokeStaticMethod("asNMSCopy", this.BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS, new Class<?>[] {
+                    org.bukkit.inventory.ItemStack.class
+            }, stack);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the NMS handle of a vector.
+     * 
+     * @param vec
+     *            The vector
+     * 
+     * @return The handle
+     */
     public Object getVector3f(Vector3f vec) {
         try {
             return this.NMS_VECTOR3F_CLASS.getConstructor(float.class, float.class, float.class).newInstance(vec.x, vec.y, vec.z);
@@ -288,6 +386,14 @@ public class NMSService implements Service {
         return null;
     }
 
+    /**
+     * Gets the NMS handle of a block position.
+     * 
+     * @param blockPosition
+     *            The block position
+     * 
+     * @return The handle
+     */
     public Object getBlockPosition(Vector3i blockPosition) {
         try {
             return this.NMS_BLOCKPOSITION_CLASS.getConstructor(int.class, int.class, int.class).newInstance(blockPosition.x, blockPosition.y, blockPosition.z);
