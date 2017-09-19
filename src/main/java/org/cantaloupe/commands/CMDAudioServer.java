@@ -33,7 +33,7 @@ public class CMDAudioServer {
 
                             if (actionOpt.isPresent()) {
                                 if (actionOpt.get().equalsIgnoreCase("connect")) {
-                                    player.sendMessage(Text.of("Click here to connect.").onClick(TextActions.openUrl(wrapper.generateConnectURL("http://81.205.230.204/Cantaloupe/AudioClient/index.html"))));
+                                    player.sendMessage(Text.of("Click here to connect.").onClick(TextActions.openUrl(wrapper.generateConnectURL("http://localhost/Cantaloupe/AudioClient/index.html"))));
 
                                     return CommandResult.SUCCESS;
                                 } else if (actionOpt.get().equalsIgnoreCase("test")) {

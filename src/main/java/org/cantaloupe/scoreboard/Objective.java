@@ -95,7 +95,7 @@ public class Objective {
      * @param slot
      *            The slot
      */
-    public void setDisplaySlot(DisplaySlot slot) {
+    public void setSlot(DisplaySlot slot) {
         this.handle.setDisplaySlot(org.bukkit.scoreboard.DisplaySlot.valueOf(slot.name()));
     }
 
@@ -137,7 +137,7 @@ public class Objective {
         return Text.fromLegacy(this.handle.getDisplayName());
     }
 
-    protected DisplaySlot getDisplaySlot() {
+    protected DisplaySlot getSlot() {
         return DisplaySlot.valueOf(this.handle.getDisplaySlot().name());
     }
 

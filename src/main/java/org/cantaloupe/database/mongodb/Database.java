@@ -2,6 +2,7 @@ package org.cantaloupe.database.mongodb;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.bson.Document;
 
@@ -32,13 +33,17 @@ public class Database {
     }
 
     /**
-     * Creates a new collection in the database.
+     * Creates and returns new collection.
      * 
      * @param collectionName
      *            The name of the collection
+     * 
+     * @return The collection
      */
-    public void createCollection(String collectionName) {
+    public Collection createCollection(String collectionName) {
         this.handle.createCollection(collectionName);
+
+        return this.getCollection(collectionName).get();
     }
 
     /**
@@ -67,14 +72,15 @@ public class Database {
     }
 
     /**
-     * Gets the collection from the database.
+     * Gets a collection from the database.
      * 
      * @param collectionName
-     *            The name of the collection
-     * @return The collection
+     *            The name of a collection
+     * @return An optional containing the collection if it's present, an empty
+     *         optional if not
      */
-    public Collection getCollection(String collectionName) {
-        return Collection.of(this.handle.getCollection(collectionName));
+    public Optional<Collection> getCollection(String collectionName) {
+        return Optional.ofNullable(Collection.of(this.handle.getCollection(collectionName)));
     }
 
     /**
@@ -87,7 +93,7 @@ public class Database {
         MongoIterable<String> names = this.handle.listCollectionNames();
 
         for (String name : names) {
-            collections.add(this.getCollection(name));
+            collections.add(this.getCollection(name).get());
         }
 
         return collections;
