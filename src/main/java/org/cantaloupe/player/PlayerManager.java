@@ -258,7 +258,7 @@ public class PlayerManager implements IInjectable<Player> {
      *         optional if not
      */
     public Optional<Player> getPlayerFromHandle(org.bukkit.entity.Player handle) {
-        return Optional.of(this.players.get(handle.getUniqueId()));
+        return Optional.ofNullable(this.players.get(handle.getUniqueId()));
     }
 
     /**
@@ -270,7 +270,7 @@ public class PlayerManager implements IInjectable<Player> {
      *         optional if not
      */
     public Optional<Player> getPlayer(UUID uuid) {
-        return Optional.of(this.players.get(uuid));
+        return Optional.ofNullable(this.players.get(uuid));
     }
 
     /**
