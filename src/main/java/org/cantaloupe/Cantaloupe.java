@@ -10,6 +10,7 @@ import org.cantaloupe.command.CommandManager;
 import org.cantaloupe.commands.CMDAudioServer;
 import org.cantaloupe.main.CantaloupeMain;
 import org.cantaloupe.player.PlayerManager;
+import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.plugin.CantaloupePluginManager;
 import org.cantaloupe.service.ServiceManager;
 import org.cantaloupe.util.CantaloupeClassLoader;
@@ -168,6 +169,19 @@ public class Cantaloupe {
      */
     public static void registerListener(Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, getInstance());
+    }
+
+    /**
+     * Registers an event listener.
+     * 
+     * @param listener
+     *            The listener to register
+     * 
+     * @param plugin
+     *            The plugin
+     */
+    public static void registerListener(Listener listener, CantaloupePlugin plugin) {
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
 
     /**

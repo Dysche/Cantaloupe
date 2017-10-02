@@ -283,6 +283,24 @@ public class ImmutableLocation implements Location {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof ImmutableLocation)) {
+            return false;
+        }
+
+        ImmutableLocation location = (ImmutableLocation) obj;
+        if (!location.getPosition().equals(this.getPosition()) || !location.getRotation().equals(this.getRotation())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "[X: " + this.getPosition().x + ", Y: " + this.getPosition().y + ", Z: " + this.getPosition().z + ", Yaw: " + this.getYaw() + ", Pitch: " + this.getPitch() + "]";
     }

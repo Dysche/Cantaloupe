@@ -375,11 +375,11 @@ public class MutableLocation implements Location {
     public Location clone() {
         return MutableLocation.of(this);
     }
-    
+
     public ImmutableLocation toImmutable() {
         return ImmutableLocation.of(this);
     }
-    
+
     @Override
     public org.bukkit.Location toHandle() {
         return this.handle;
@@ -389,7 +389,25 @@ public class MutableLocation implements Location {
     public World getWorld() {
         return this.world;
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof MutableLocation)) {
+            return false;
+        }
+
+        MutableLocation location = (MutableLocation) obj;
+        if (!location.getPosition().equals(this.getPosition()) || !location.getRotation().equals(this.getRotation())) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     public String toString() {
         return "[X: " + this.getPosition().x + ", Y: " + this.getPosition().y + ", Z: " + this.getPosition().z + ", Yaw: " + this.getRotation().x + ", Pitch: " + this.getRotation().y + "]";

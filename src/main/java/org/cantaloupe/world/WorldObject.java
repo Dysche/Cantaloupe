@@ -23,7 +23,8 @@ public abstract class WorldObject {
         this.onPlaced();
     }
 
-    protected void removeInternal() {
+    protected void removeInternal(RemoveCause cause) {
+        this.onRemoved(cause);
         this.onRemoved();
 
         this.placed = false;
@@ -41,10 +42,18 @@ public abstract class WorldObject {
         this.dirty = true;
     }
 
-    protected abstract void onPlaced();
+    protected void onPlaced() {
+        
+    }
 
-    protected abstract void onRemoved();
-
+    protected void onRemoved(RemoveCause cause) {
+        
+    }
+    
+    protected void onRemoved() {
+        
+    }
+    
     public boolean isPlaced() {
         return this.placed;
     }

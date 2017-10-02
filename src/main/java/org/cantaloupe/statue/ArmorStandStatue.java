@@ -20,7 +20,7 @@ import org.joml.Vector3f;
 public class ArmorStandStatue extends WorldObject {
     private ImmutableLocation                      location     = null;
     private float                                  headRotation = 0f;
-    private Vector3f                               headPose     = null;
+    private Vector3f                               headPose     = null, bodyPose = null, leftArmPose = null, rightArmPose = null, leftLegPose = null, rightLegPose = null;
     private FakeArmorStand                         entity       = null;
     private Text                                   displayName  = null;
     private DataContainer<EnumItemSlot, ItemStack> equipment    = null;
@@ -28,10 +28,16 @@ public class ArmorStandStatue extends WorldObject {
 
     private final List<Player>                     players;
 
-    private ArmorStandStatue(ImmutableLocation location, float headRotation, Vector3f headPose, DataContainer<EnumItemSlot, ItemStack> equipment, Text displayName, boolean invisible, boolean small, boolean basePlate, boolean arms) {
+    private ArmorStandStatue(ImmutableLocation location, float headRotation, Vector3f headPose, Vector3f bodyPose, Vector3f leftArmPose, Vector3f rightArmPose, Vector3f leftLegPose, Vector3f rightLegPose, DataContainer<EnumItemSlot, ItemStack> equipment, Text displayName, boolean invisible, boolean small,
+            boolean basePlate, boolean arms) {
         this.location = location;
         this.headRotation = headRotation;
         this.headPose = headPose;
+        this.bodyPose = bodyPose;
+        this.leftArmPose = leftArmPose;
+        this.rightArmPose = rightArmPose;
+        this.leftLegPose = leftLegPose;
+        this.rightLegPose = rightLegPose;
         this.equipment = equipment;
         this.displayName = displayName;
         this.invisible = invisible;
@@ -55,20 +61,9 @@ public class ArmorStandStatue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakeArmorStand.builder()
-                .world(this.location.getWorld())
-                .position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5))
-                .rotation(this.location.getRotation())
-                .headRotation(this.headRotation)
-                .headPose(this.headPose)
-                .equipment(this.equipment)
-                .customName(this.displayName)
-                .customNameVisible(this.displayName != null ? true : false)
-                .invisible(this.invisible)
-                .small(this.small)
-                .basePlate(this.basePlate)
-                .arms(this.arms)
-                .build();
+        this.entity = FakeArmorStand.builder().world(this.location.getWorld()).position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5)).rotation(this.location.getRotation()).headRotation(this.headRotation).headPose(this.headPose)
+                .bodyPose(this.bodyPose).leftArmPose(this.leftArmPose).rightArmPose(this.rightArmPose).leftLegPose(this.leftLegPose).rightLegPose(this.rightLegPose).equipment(this.equipment).customName(this.displayName).customNameVisible(this.displayName != null ? true : false).invisible(this.invisible)
+                .small(this.small).basePlate(this.basePlate).arms(this.arms).build();
     }
 
     public void placeFor(Player player) {
@@ -83,6 +78,22 @@ public class ArmorStandStatue extends WorldObject {
             this.entity.despawn(player);
             this.players.remove(player);
         }
+    }
+
+    @Override
+    protected void onPlaced() {
+        for (Player player : this.location.getWorld().getPlayers()) {
+            this.tickFor(player);
+        }
+    }
+
+    @Override
+    protected void onRemoved() {
+        for (Player player : this.players) {
+            this.entity.despawn(player);
+        }
+
+        this.players.clear();
     }
 
     @Override
@@ -112,15 +123,40 @@ public class ArmorStandStatue extends WorldObject {
         this.entity.setRotation(this.players, rotation);
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
     }
-    
+
     public void setHeadRotation(float headRotation) {
         this.entity.setHeadRotation(this.players, headRotation);
         this.headRotation = headRotation;
     }
-    
+
     public void setHeadPose(Vector3f headPose) {
         this.entity.setHeadPose(this.players, headPose);
         this.headPose = new Vector3f(headPose.x, headPose.y, headPose.z);
+    }
+
+    public void setBodyPose(Vector3f bodyPose) {
+        this.entity.setBodyPose(this.players, bodyPose);
+        this.bodyPose = new Vector3f(bodyPose.x, bodyPose.y, bodyPose.z);
+    }
+
+    public void setLeftArmPose(Vector3f leftArmPose) {
+        this.entity.setLeftArmPose(this.players, leftArmPose);
+        this.leftArmPose = new Vector3f(leftArmPose.x, leftArmPose.y, leftArmPose.z);
+    }
+
+    public void setRightArmPose(Vector3f rightArmPose) {
+        this.entity.setRightArmPose(this.players, rightArmPose);
+        this.rightArmPose = new Vector3f(rightArmPose.x, rightArmPose.y, rightArmPose.z);
+    }
+
+    public void setLeftLegPose(Vector3f leftLegPose) {
+        this.entity.setLeftLegPose(this.players, leftLegPose);
+        this.leftLegPose = new Vector3f(leftLegPose.x, leftLegPose.y, leftLegPose.z);
+    }
+
+    public void setRightLegPose(Vector3f rightLegPose) {
+        this.entity.setRightLegPose(this.players, rightLegPose);
+        this.rightLegPose = new Vector3f(rightLegPose.x, rightLegPose.y, rightLegPose.z);
     }
 
     public void setDisplayName(Text displayName) {
@@ -136,21 +172,6 @@ public class ArmorStandStatue extends WorldObject {
     public void setInvisible(boolean invisible) {
         this.entity.setInvisible(this.players, invisible);
     }
-    
-    protected void onPlaced() {
-        for (Player player : this.location.getWorld().getPlayers()) {
-            this.tickFor(player);
-        }
-    }
-
-    @Override
-    protected void onRemoved() {
-        for (Player player : this.players) {
-            this.entity.despawn(player);
-        }
-
-        this.players.clear();
-    }
 
     public boolean isPlacedFor(Player player) {
         return this.players.contains(player);
@@ -164,25 +185,53 @@ public class ArmorStandStatue extends WorldObject {
     public ImmutableLocation getLocation() {
         return this.location;
     }
-    
+
     public Vector3d getPosition() {
         return this.location.getPosition();
     }
-    
+
     public Vector2f getRotation() {
         return this.location.getRotation();
     }
-    
+
     public float getHeadRotation() {
         return this.headRotation;
     }
-    
+
     public Vector3f getHeadPose() {
         return new Vector3f(this.headPose.x, this.headPose.y, this.headPose.z);
     }
 
     public Text getDisplayName() {
         return this.displayName;
+    }
+
+    public DataContainer<EnumItemSlot, ItemStack> getEquipment() {
+        return this.equipment.clone();
+    }
+
+    public ItemStack getItemInMainHand() {
+        return this.equipment.get(EnumItemSlot.MAINHAND);
+    }
+
+    public ItemStack getItemInOffHand() {
+        return this.equipment.get(EnumItemSlot.OFFHAND);
+    }
+
+    public ItemStack getHelmet() {
+        return this.equipment.get(EnumItemSlot.HEAD);
+    }
+
+    public ItemStack getChestPlate() {
+        return this.equipment.get(EnumItemSlot.CHEST);
+    }
+
+    public ItemStack getLeggings() {
+        return this.equipment.get(EnumItemSlot.LEGS);
+    }
+
+    public ItemStack getBoots() {
+        return this.equipment.get(EnumItemSlot.FEET);
     }
 
     public List<Player> getPlayers() {
@@ -195,7 +244,7 @@ public class ArmorStandStatue extends WorldObject {
         private Vector3d                               position     = null;
         private Vector2f                               rotation     = null;
         private float                                  headRotation = -1f;
-        private Vector3f                               headPose     = null;
+        private Vector3f                               headPose     = null, bodyPose = null, leftArmPose = null, rightArmPose = null, leftLegPose = null, rightLegPose = null;
         private Text                                   displayName  = null;
         private boolean                                invisible    = false, small = false, basePlate = true, arms = false;
         private DataContainer<EnumItemSlot, ItemStack> equipment    = null;
@@ -236,6 +285,36 @@ public class ArmorStandStatue extends WorldObject {
 
         public Builder headPose(Vector3f headPose) {
             this.headPose = headPose;
+
+            return this;
+        }
+
+        public Builder bodyPose(Vector3f bodyPose) {
+            this.bodyPose = bodyPose;
+
+            return this;
+        }
+
+        public Builder leftArmPose(Vector3f leftArmPose) {
+            this.leftArmPose = leftArmPose;
+
+            return this;
+        }
+
+        public Builder rightArmPose(Vector3f rightArmPose) {
+            this.rightArmPose = rightArmPose;
+
+            return this;
+        }
+
+        public Builder leftLegPose(Vector3f leftLegPose) {
+            this.leftLegPose = leftLegPose;
+
+            return this;
+        }
+
+        public Builder rightLegPose(Vector3f rightLegPose) {
+            this.rightLegPose = rightLegPose;
 
             return this;
         }
@@ -319,7 +398,7 @@ public class ArmorStandStatue extends WorldObject {
                 }
             }
 
-            ArmorStandStatue statue = new ArmorStandStatue(this.location, this.headRotation, this.headPose, this.equipment, this.displayName, this.invisible, this.small, this.basePlate, this.arms);
+            ArmorStandStatue statue = new ArmorStandStatue(this.location, this.headRotation, this.headPose, this.bodyPose, this.leftArmPose, this.rightArmPose, this.leftLegPose, this.rightLegPose, this.equipment, this.displayName, this.invisible, this.small, this.basePlate, this.arms);
             statue.create();
 
             return statue;

@@ -30,7 +30,7 @@ public class World {
     }
 
     protected void unload() {
-        this.worldObjects.forEach((uuid, object) -> object.removeInternal());
+        this.worldObjects.forEach((uuid, object) -> object.removeInternal(RemoveCause.WORLD_UNLOAD));
         this.worldObjects.clear();
     }
 
@@ -69,7 +69,7 @@ public class World {
             Bukkit.getServer().getPluginManager().callEvent(event);
 
             if (!event.isCancelled()) {
-                this.worldObjects.get(uuid).removeInternal();
+                this.worldObjects.get(uuid).removeInternal(RemoveCause.GENERAL);
                 this.worldObjects.remove(uuid);
 
                 return true;
