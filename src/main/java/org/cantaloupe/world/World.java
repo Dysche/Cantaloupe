@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.events.WorldObjectPlaceEvent;
+import org.cantaloupe.events.WorldObjectRemoveEvent;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.world.location.Location;
 import org.joml.Vector3d;
@@ -52,7 +53,7 @@ public class World {
             }
 
             this.worldObjects.put(object.getUUID(), object);
-
+            
             return true;
         }
 
@@ -65,7 +66,7 @@ public class World {
 
     public boolean remove(UUID uuid) {
         if (this.worldObjects.containsKey(uuid)) {
-            WorldObjectPlaceEvent event = new WorldObjectPlaceEvent(this, this.worldObjects.get(uuid));
+            WorldObjectRemoveEvent event = new WorldObjectRemoveEvent(this, this.worldObjects.get(uuid));
             Bukkit.getServer().getPluginManager().callEvent(event);
 
             if (!event.isCancelled()) {

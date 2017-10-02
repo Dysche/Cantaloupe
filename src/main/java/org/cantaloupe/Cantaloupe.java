@@ -9,6 +9,7 @@ import org.cantaloupe.audio.AudioServer;
 import org.cantaloupe.command.CommandManager;
 import org.cantaloupe.commands.CMDAudioServer;
 import org.cantaloupe.main.CantaloupeMain;
+import org.cantaloupe.model.ModelManager;
 import org.cantaloupe.player.PlayerManager;
 import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.plugin.CantaloupePluginManager;
@@ -27,6 +28,7 @@ public class Cantaloupe {
     private static WorldManager            worldManager   = null;
     private static CommandManager          commandManager = null;
     private static ServiceManager          serviceManager = null;
+    private static ModelManager            modelManager   = null;
     private static AudioServer             audioServer    = null;
 
     public static void initialize(CantaloupeMain plugin) {
@@ -54,6 +56,9 @@ public class Cantaloupe {
         // Command Manager
         commandManager = CommandManager.of();
         registerCommands();
+
+        // Model Manager
+        modelManager = ModelManager.of();
 
         // Plugin Manager
         pluginManager = CantaloupePluginManager.of();
@@ -99,6 +104,9 @@ public class Cantaloupe {
         // Service Manager
         serviceManager.unload();
         serviceManager = null;
+
+        // Model Manager
+        modelManager.unload();
 
         System.out.println("Deinitialized Cantaloupe.");
     }
@@ -245,6 +253,15 @@ public class Cantaloupe {
      */
     public static ServiceManager getServiceManager() {
         return serviceManager;
+    }
+
+    /**
+     * Gets the {@link org.cantaloupe.model.Model model} manager.
+     * 
+     * @return The model manager
+     */
+    public static ModelManager getModelManager() {
+        return modelManager;
     }
 
     /**

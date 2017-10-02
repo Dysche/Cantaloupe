@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.block.BlockFace;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.entity.FakePlayer;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.services.ScheduleService;
 import org.cantaloupe.text.Text;
+import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
@@ -17,6 +19,7 @@ import org.joml.Vector3d;
 
 public class PlayerStatue extends WorldObject {
     private ImmutableLocation  location     = null;
+    private BlockFace          blockFace    = null;
     private float              headRotation = 0f;
     private FakePlayer         entity       = null;
     private UUID               uuid         = null;
@@ -25,8 +28,9 @@ public class PlayerStatue extends WorldObject {
 
     private final List<Player> players;
 
-    private PlayerStatue(ImmutableLocation location, float headRotation, UUID uuid, Text name, boolean keepInTab) {
+    private PlayerStatue(ImmutableLocation location, BlockFace blockFace, float headRotation, UUID uuid, Text name, boolean keepInTab) {
         this.location = location;
+        this.blockFace = blockFace;
         this.headRotation = headRotation;
         this.uuid = uuid;
         this.name = name;
@@ -48,12 +52,7 @@ public class PlayerStatue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakePlayer.builder()
-                .world(this.location.getWorld())
-                .position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5))
-                .uuid(this.uuid)
-                .name(this.name.toLegacy())
-                .build();
+        this.entity = FakePlayer.builder().world(this.location.getWorld()).position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5)).uuid(this.uuid).name(this.name.toLegacy()).build();
     }
 
     public void placeFor(Player player) {
@@ -113,6 +112,12 @@ public class PlayerStatue extends WorldObject {
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
     }
 
+    public void setBlockFace(BlockFace blockFace) {
+        this.setRotation(new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0));
+
+        this.blockFace = blockFace;
+    }
+
     public void setHeadRotation(float headRotation) {
         this.entity.setHeadRotation(this.players, headRotation);
         this.headRotation = headRotation;
@@ -160,6 +165,10 @@ public class PlayerStatue extends WorldObject {
         return this.location.getRotation();
     }
 
+    public BlockFace getBlockFace() {
+        return this.blockFace;
+    }
+
     public float getHeadRotation() {
         return this.headRotation;
     }
@@ -178,6 +187,7 @@ public class PlayerStatue extends WorldObject {
 
     public static final class Builder {
         private ImmutableLocation location     = null;
+        private BlockFace         blockFace    = null;
         private World             world        = null;
         private Vector3d          position     = null;
         private Vector2f          rotation     = null;
@@ -210,6 +220,13 @@ public class PlayerStatue extends WorldObject {
 
         public Builder rotation(Vector2f rotation) {
             this.rotation = rotation;
+
+            return this;
+        }
+
+        public Builder facing(BlockFace blockFace) {
+            this.blockFace = blockFace;
+            this.rotation = new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0);
 
             return this;
         }
@@ -253,7 +270,7 @@ public class PlayerStatue extends WorldObject {
                 }
             }
 
-            PlayerStatue statue = new PlayerStatue(this.location, this.headRotation, this.uuid, this.name, this.keepInTab);
+            PlayerStatue statue = new PlayerStatue(this.location, this.blockFace, this.headRotation, this.uuid, this.name, this.keepInTab);
             statue.create();
 
             return statue;

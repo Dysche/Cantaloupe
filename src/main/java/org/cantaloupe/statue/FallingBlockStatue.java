@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.cantaloupe.entity.FakeFallingBlock;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
@@ -13,15 +15,17 @@ import org.joml.Vector2f;
 import org.joml.Vector3d;
 
 public class FallingBlockStatue extends WorldObject {
-    private ImmutableLocation  location = null;
-    private FakeFallingBlock   entity   = null;
-    private Material           material = null;
-    private byte               data     = 0;
+    private ImmutableLocation  location  = null;
+    private BlockFace          blockFace = null;
+    private FakeFallingBlock   entity    = null;
+    private Material           material  = null;
+    private byte               data      = 0;
 
     private final List<Player> players;
 
-    private FallingBlockStatue(ImmutableLocation location, Material material, byte data) {
+    private FallingBlockStatue(ImmutableLocation location, BlockFace blockFace, Material material, byte data) {
         this.location = location;
+        this.blockFace = blockFace;
         this.material = material;
         this.data = data;
 
@@ -86,6 +90,12 @@ public class FallingBlockStatue extends WorldObject {
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
     }
 
+    public void setBlockFace(BlockFace blockFace) {
+        this.setRotation(new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0));
+
+        this.blockFace = blockFace;
+    }
+
     public void setMaterial(Material material) {
         this.entity.setMaterial(this.players, material);
         this.material = material;
@@ -128,6 +138,10 @@ public class FallingBlockStatue extends WorldObject {
         return this.location.getRotation();
     }
 
+    public BlockFace getBlockFace() {
+        return this.blockFace;
+    }
+
     public Material getMaterial() {
         return this.material;
     }
@@ -141,12 +155,13 @@ public class FallingBlockStatue extends WorldObject {
     }
 
     public static final class Builder {
-        private ImmutableLocation location = null;
-        private World             world    = null;
-        private Vector3d          position = null;
-        private Vector2f          rotation = null;
-        private Material          material = null;
-        private byte              data     = 0;
+        private ImmutableLocation location  = null;
+        private BlockFace         blockFace = null;
+        private World             world     = null;
+        private Vector3d          position  = null;
+        private Vector2f          rotation  = null;
+        private Material          material  = null;
+        private byte              data      = 0;
 
         private Builder() {
 
@@ -176,6 +191,13 @@ public class FallingBlockStatue extends WorldObject {
             return this;
         }
 
+        public Builder facing(BlockFace blockFace) {
+            this.blockFace = blockFace;
+            this.rotation = new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0);
+
+            return this;
+        }
+
         public Builder material(Material material) {
             this.material = material;
 
@@ -197,7 +219,7 @@ public class FallingBlockStatue extends WorldObject {
                 }
             }
 
-            FallingBlockStatue statue = new FallingBlockStatue(this.location, this.material, this.data);
+            FallingBlockStatue statue = new FallingBlockStatue(this.location, this.blockFace, this.material, this.data);
             statue.create();
 
             return statue;

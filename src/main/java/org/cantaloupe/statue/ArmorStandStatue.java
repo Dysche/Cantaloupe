@@ -3,6 +3,7 @@ package org.cantaloupe.statue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.block.BlockFace;
 import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.entity.FakeArmorStand;
 import org.cantaloupe.inventory.EnumItemSlot;
@@ -10,6 +11,7 @@ import org.cantaloupe.inventory.ItemStack;
 import org.cantaloupe.inventory.Skull;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.text.Text;
+import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
@@ -19,6 +21,7 @@ import org.joml.Vector3f;
 
 public class ArmorStandStatue extends WorldObject {
     private ImmutableLocation                      location     = null;
+    private BlockFace                              blockFace    = null;
     private float                                  headRotation = 0f;
     private Vector3f                               headPose     = null, bodyPose = null, leftArmPose = null, rightArmPose = null, leftLegPose = null, rightLegPose = null;
     private FakeArmorStand                         entity       = null;
@@ -28,9 +31,10 @@ public class ArmorStandStatue extends WorldObject {
 
     private final List<Player>                     players;
 
-    private ArmorStandStatue(ImmutableLocation location, float headRotation, Vector3f headPose, Vector3f bodyPose, Vector3f leftArmPose, Vector3f rightArmPose, Vector3f leftLegPose, Vector3f rightLegPose, DataContainer<EnumItemSlot, ItemStack> equipment, Text displayName, boolean invisible, boolean small,
-            boolean basePlate, boolean arms) {
+    private ArmorStandStatue(ImmutableLocation location, BlockFace blockFace, float headRotation, Vector3f headPose, Vector3f bodyPose, Vector3f leftArmPose, Vector3f rightArmPose, Vector3f leftLegPose, Vector3f rightLegPose, DataContainer<EnumItemSlot, ItemStack> equipment, Text displayName, boolean invisible,
+            boolean small, boolean basePlate, boolean arms) {
         this.location = location;
+        this.blockFace = blockFace;
         this.headRotation = headRotation;
         this.headPose = headPose;
         this.bodyPose = bodyPose;
@@ -123,6 +127,12 @@ public class ArmorStandStatue extends WorldObject {
         this.entity.setRotation(this.players, rotation);
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
     }
+    
+    public void setBlockFace(BlockFace blockFace) {
+        this.setRotation(new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0));
+
+        this.blockFace = blockFace;
+    }
 
     public void setHeadRotation(float headRotation) {
         this.entity.setHeadRotation(this.players, headRotation);
@@ -194,6 +204,10 @@ public class ArmorStandStatue extends WorldObject {
         return this.location.getRotation();
     }
 
+    public BlockFace getBlockFace() {
+        return this.blockFace;
+    }
+
     public float getHeadRotation() {
         return this.headRotation;
     }
@@ -260,6 +274,7 @@ public class ArmorStandStatue extends WorldObject {
 
     public static final class Builder {
         private ImmutableLocation                      location     = null;
+        private BlockFace                              blockFace    = null;
         private World                                  world        = null;
         private Vector3d                               position     = null;
         private Vector2f                               rotation     = null;
@@ -293,6 +308,13 @@ public class ArmorStandStatue extends WorldObject {
 
         public Builder rotation(Vector2f rotation) {
             this.rotation = rotation;
+
+            return this;
+        }
+
+        public Builder facing(BlockFace blockFace) {
+            this.blockFace = blockFace;
+            this.rotation = new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0);
 
             return this;
         }
@@ -418,7 +440,7 @@ public class ArmorStandStatue extends WorldObject {
                 }
             }
 
-            ArmorStandStatue statue = new ArmorStandStatue(this.location, this.headRotation, this.headPose, this.bodyPose, this.leftArmPose, this.rightArmPose, this.leftLegPose, this.rightLegPose, this.equipment, this.displayName, this.invisible, this.small, this.basePlate, this.arms);
+            ArmorStandStatue statue = new ArmorStandStatue(this.location, this.blockFace, this.headRotation, this.headPose, this.bodyPose, this.leftArmPose, this.rightArmPose, this.leftLegPose, this.rightLegPose, this.equipment, this.displayName, this.invisible, this.small, this.basePlate, this.arms);
             statue.create();
 
             return statue;

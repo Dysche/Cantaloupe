@@ -3,10 +3,12 @@ package org.cantaloupe.statue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.block.BlockFace;
 import org.cantaloupe.entity.EntityType;
 import org.cantaloupe.entity.FakeEntity;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.text.Text;
+import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
@@ -14,17 +16,19 @@ import org.joml.Vector2f;
 import org.joml.Vector3d;
 
 public class Statue extends WorldObject {
-    private ImmutableLocation  location    = null;
+    private ImmutableLocation  location     = null;
+    private BlockFace          blockFace    = null;
     private float              headRotation = 0f;
-    private EntityType         entityType  = null;
-    private FakeEntity         entity      = null;
-    private Text               displayName = null;
-    private boolean            invisible   = false;
+    private EntityType         entityType   = null;
+    private FakeEntity         entity       = null;
+    private Text               displayName  = null;
+    private boolean            invisible    = false;
 
     private final List<Player> players;
 
-    private Statue(ImmutableLocation location, float headRotation, EntityType entityType, Text displayName, boolean invisible) {
+    private Statue(ImmutableLocation location, BlockFace blockFace, float headRotation, EntityType entityType, Text displayName, boolean invisible) {
         this.location = location;
+        this.blockFace = blockFace;
         this.headRotation = headRotation;
         this.entityType = entityType;
         this.displayName = displayName;
@@ -46,16 +50,8 @@ public class Statue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakeEntity.builder()
-                .type(this.entityType)
-                .world(this.location.getWorld())
-                .position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5))
-                .rotation(this.location.getRotation())
-                .headRotation(this.headRotation)
-                .customName(this.displayName)
-                .customNameVisible(this.displayName != null ? true : false)
-                .invisible(this.invisible)
-                .build();
+        this.entity = FakeEntity.builder().type(this.entityType).world(this.location.getWorld()).position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5)).rotation(this.location.getRotation()).headRotation(this.headRotation)
+                .customName(this.displayName).customNameVisible(this.displayName != null ? true : false).invisible(this.invisible).build();
     }
 
     public void placeFor(Player player) {
@@ -99,7 +95,7 @@ public class Statue extends WorldObject {
         this.entity.setRotation(this.players, rotation);
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
     }
-    
+
     public void setHeadRotation(float headRotation) {
         this.entity.setHeadRotation(this.players, headRotation);
         this.headRotation = headRotation;
@@ -142,15 +138,19 @@ public class Statue extends WorldObject {
     public ImmutableLocation getLocation() {
         return this.location;
     }
-    
+
     public Vector3d getPosition() {
         return this.location.getPosition();
     }
-    
+
     public Vector2f getRotation() {
         return this.location.getRotation();
     }
-    
+
+    public BlockFace getBlockFace() {
+        return this.blockFace;
+    }
+
     public float getHeadRotation() {
         return this.headRotation;
     }
@@ -169,6 +169,7 @@ public class Statue extends WorldObject {
 
     public static final class Builder {
         private ImmutableLocation location     = null;
+        private BlockFace         blockFace    = null;
         private World             world        = null;
         private Vector3d          position     = null;
         private Vector2f          rotation     = null;
@@ -205,12 +206,19 @@ public class Statue extends WorldObject {
             return this;
         }
 
+        public Builder facing(BlockFace blockFace) {
+            this.blockFace = blockFace;
+            this.rotation = new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0);
+
+            return this;
+        }
+
         public Builder headRotation(float headRotation) {
             this.headRotation = headRotation;
 
             return this;
         }
-        
+
         public Builder entityType(EntityType entityType) {
             this.entityType = entityType;
 
@@ -238,7 +246,7 @@ public class Statue extends WorldObject {
                 }
             }
 
-            Statue statue = new Statue(this.location, this.headRotation, this.entityType, this.displayName, this.invisible);
+            Statue statue = new Statue(this.location, this.blockFace, this.headRotation, this.entityType, this.displayName, this.invisible);
             statue.create();
 
             return statue;

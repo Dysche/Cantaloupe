@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.cantaloupe.audio.AudioWrapper;
 import org.cantaloupe.command.CommandSource;
@@ -226,6 +227,51 @@ public class PlayerManager implements IInjectable<Player> {
     }
 
     /**
+     * Plays a sound to all players.
+     * 
+     * @param sound
+     *            The sound
+     */
+    public void playSound(Sound sound) {
+        this.players.forEach((uuid, player) -> {
+            player.playSound(sound);
+        });
+    }
+
+    /**
+     * Plays a sound to all players.
+     * 
+     * @param sound
+     *            The sound
+     * 
+     * @param volume
+     *            The volume of the sound
+     */
+    public void playSound(Sound sound, float volume) {
+        this.players.forEach((uuid, player) -> {
+            player.playSound(sound, volume);
+        });
+    }
+
+    /**
+     * Plays a sound to all players.
+     * 
+     * @param sound
+     *            The sound
+     * 
+     * @param volume
+     *            The volume of the sound
+     * 
+     * @param pitch
+     *            The pitch of the sound
+     */
+    public void playSound(Sound sound, float volume, float pitch) {
+        this.players.forEach((uuid, player) -> {
+            player.playSound(sound, volume, pitch);
+        });
+    }
+
+    /**
      * Gets a player from a command source.
      * 
      * @param source
@@ -296,7 +342,8 @@ public class PlayerManager implements IInjectable<Player> {
     /**
      * Gets a wrapper from a player.
      * 
-     * @param <T> The type of the wrapper
+     * @param <T>
+     *            The type of the wrapper
      * @param player
      *            The player
      * @param wrapperClass
