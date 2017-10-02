@@ -3,6 +3,7 @@ package org.cantaloupe.service.services;
 import java.lang.reflect.InvocationTargetException;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.cantaloupe.inventory.ItemStack;
 import org.cantaloupe.player.Player;
@@ -29,6 +30,7 @@ public class NMSService implements IService {
     public Class<?> NMS_PACKET_CLASS                       = null;
     public Class<?> NMS_PACKET_OUT_ENTITY                  = null;
     public Class<?> NMS_PACKET_OUT_ENTITYLOOK              = null;
+    public Class<?> NMS_PACKET_OUT_SPAWNENTITY             = null;
     public Class<?> NMS_PACKET_OUT_SPAWNENTITYLIVING_CLASS = null;
     public Class<?> NMS_PACKET_OUT_NAMEDENTITYSPAWN_CLASS  = null;
     public Class<?> NMS_PACKET_OUT_DESTROYENTITY_CLASS     = null;
@@ -66,8 +68,11 @@ public class NMSService implements IService {
     public Class<?> NMS_WORLD_CLASS                        = null;
     public Class<?> NMS_WORLDSERVER_CLASS                  = null;
     public Class<?> NMS_CHUNK_CLASS                        = null;
+    public Class<?> NMS_BLOCK_CLASS                        = null;
     public Class<?> NMS_PLAYERINTERACTMANAGER_CLASS        = null;
     public Class<?> NMS_ITEMSTACK_CLASS                    = null;
+    public Class<?> NMS_MATERIAL_CLASS                     = null;
+    public Class<?> NMS_IBLOCKDATA_CLASS                   = null;
     public Class<?> NMS_VECTOR3F_CLASS                     = null;
     public Class<?> NMS_BLOCKPOSITION_CLASS                = null;
     public Class<?> NMS_ICHATBASECOMPONENT_CLASS           = null;
@@ -111,6 +116,7 @@ public class NMSService implements IService {
         this.NMS_PACKET_CLASS = this.getNMSClass("Packet");
         this.NMS_PACKET_OUT_ENTITY = this.getNMSClass(this.getIntVersion() < 7 ? "Packet30Entity" : "PacketPlayOutEntity");
         this.NMS_PACKET_OUT_ENTITYLOOK = this.NMS_PACKET_OUT_ENTITY.getClasses()[0];
+        this.NMS_PACKET_OUT_SPAWNENTITY = this.getNMSClass(this.getIntVersion() < 7 ? "Packet23VehicleSpawn" : "PacketPlayOutSpawnEntity");
         this.NMS_PACKET_OUT_SPAWNENTITYLIVING_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet24MobSpawn" : "PacketPlayOutSpawnEntityLiving");
         this.NMS_PACKET_OUT_NAMEDENTITYSPAWN_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet20NamedEntitySpawn" : "PacketPlayOutNamedEntitySpawn");
         this.NMS_PACKET_OUT_DESTROYENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet29DestroyEntity" : "PacketPlayOutEntityDestroy");
@@ -148,8 +154,11 @@ public class NMSService implements IService {
         this.NMS_WORLD_CLASS = this.getNMSClass("World");
         this.NMS_WORLDSERVER_CLASS = this.getNMSClass("WorldServer");
         this.NMS_CHUNK_CLASS = this.getNMSClass("Chunk");
+        this.NMS_BLOCK_CLASS = this.getNMSClass("Block");
         this.NMS_PLAYERINTERACTMANAGER_CLASS = this.getNMSClass("PlayerInteractManager");
         this.NMS_ITEMSTACK_CLASS = this.getNMSClass("ItemStack");
+        this.NMS_MATERIAL_CLASS = this.getNMSClass("Material");
+        this.NMS_IBLOCKDATA_CLASS = this.getNMSClass("IBlockData");
         this.NMS_VECTOR3F_CLASS = this.getNMSClass("Vector3f");
         this.NMS_BLOCKPOSITION_CLASS = this.getNMSClass("BlockPosition");
         this.NMS_ICHATBASECOMPONENT_CLASS = this.getNMSClass("IChatBaseComponent");
@@ -402,6 +411,47 @@ public class NMSService implements IService {
         }
 
         return null;
+    }
+
+    /**
+     * Gets the NMS block data from a material and data.
+     * 
+     * @param material
+     *            The material
+     * 
+     * @param data
+     *            The data
+     * 
+     * @return The handle
+     */
+    public Object getBlockData(Material material, byte data) {
+        int combined = this.getCombinedID(material, data);
+
+        try {
+            return ReflectionHelper.invokeStaticMethod("getByCombinedId", this.NMS_BLOCK_CLASS, new Class<?>[] {
+                    int.class
+            }, combined);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the combined ID.
+     * 
+     * @param material
+     *            The material
+     * 
+     * @param data
+     *            The data
+     * 
+     * @return The combined ID
+     */
+    @SuppressWarnings("deprecation")
+    public int getCombinedID(Material material, byte data) {
+        return material.getId() + (data << 12);
     }
 
     @Override

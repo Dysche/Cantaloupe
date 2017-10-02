@@ -202,6 +202,26 @@ public class ArmorStandStatue extends WorldObject {
         return new Vector3f(this.headPose.x, this.headPose.y, this.headPose.z);
     }
 
+    public Vector3f getBodyPose() {
+        return new Vector3f(this.bodyPose.x, this.bodyPose.y, this.bodyPose.z);
+    }
+
+    public Vector3f getLeftArmPose() {
+        return new Vector3f(this.leftArmPose.x, this.leftArmPose.y, this.leftArmPose.z);
+    }
+
+    public Vector3f getRightArmPose() {
+        return new Vector3f(this.rightArmPose.x, this.rightArmPose.y, this.rightArmPose.z);
+    }
+
+    public Vector3f getLeftLegPose() {
+        return new Vector3f(this.leftLegPose.x, this.leftLegPose.y, this.leftLegPose.z);
+    }
+
+    public Vector3f getRightLegPose() {
+        return new Vector3f(this.rightLegPose.x, this.rightLegPose.y, this.rightLegPose.z);
+    }
+
     public Text getDisplayName() {
         return this.displayName;
     }

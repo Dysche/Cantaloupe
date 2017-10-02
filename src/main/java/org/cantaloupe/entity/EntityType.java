@@ -8,7 +8,10 @@ package org.cantaloupe.entity;
  */
 public enum EntityType {
     // Enum Values
-    ARMOR_STAND("EntityArmorStand"), BLAZE("EntityBlaze"), PLAYER("EntityPlayer");
+    ARMOR_STAND("EntityArmorStand"), 
+    BLAZE("EntityBlaze"), 
+    PLAYER("EntityPlayer"),
+    FALLING_BLOCK("EntityFallingBlock");
 
     // Enum Structure
     private final String className;

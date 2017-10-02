@@ -51,7 +51,7 @@ public class FakeEntity {
         return new Builder();
     }
 
-    private void create(float headRotation, String customName, boolean customNameVisible, boolean invisible) {
+    protected void create(float headRotation, String customName, boolean customNameVisible, boolean invisible) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
         try {
