@@ -20,84 +20,86 @@ import org.joml.Vector3i;
  *
  */
 public class NMSService implements IService {
-    private String  serverPackage                          = null;
-    private String  craftBukkitPackage                     = null;
+    private String  serverPackage                           = null;
+    private String  craftBukkitPackage                      = null;
 
-    private String  serverVersion                          = null;
-    private int     intVersion                             = -1;
+    private String  serverVersion                           = null;
+    private int     intVersion                              = -1;
 
     // NMS Classes
-    public Class<?> NMS_PACKET_CLASS                       = null;
-    public Class<?> NMS_PACKET_OUT_ENTITY                  = null;
-    public Class<?> NMS_PACKET_OUT_ENTITYLOOK              = null;
-    public Class<?> NMS_PACKET_OUT_SPAWNENTITY             = null;
-    public Class<?> NMS_PACKET_OUT_SPAWNENTITYLIVING_CLASS = null;
-    public Class<?> NMS_PACKET_OUT_NAMEDENTITYSPAWN_CLASS  = null;
-    public Class<?> NMS_PACKET_OUT_DESTROYENTITY_CLASS     = null;
-    public Class<?> NMS_PACKET_OUT_WORLDPARTICLES_CLASS    = null;
-    public Class<?> NMS_PACKET_OUT_ENTITYMETA_CLASS        = null;
-    public Class<?> NMS_PACKET_OUT_ENTITYEQUIPMENT_CLASS   = null;
-    public Class<?> NMS_PACKET_OUT_MOUNT_CLASS             = null;
-    public Class<?> NMS_PACKET_OUT_ATTACHENTITY_CLASS      = null;
-    public Class<?> NMS_PACKET_OUT_PLAYERINFO_CLASS        = null;
-    public Class<?> NMS_PACKET_OUT_ENTITYTELEPORT          = null;
-    public Class<?> NMS_PACKET_OUT_ENTITYHEADROTATION      = null;
-    public Class<?> NMS_PACKET_OUT_MAPCHUNK                = null;
-    public Class<?> NMS_PACKET_OUT_TITLE                   = null;
-    public Class<?> NMS_PACKET_OUT_CHAT                    = null;
-    public Class<?> NMS_PACKET_IN_USEENTITY_CLASS          = null;
+    public Class<?> NMS_PACKET_CLASS                        = null;
+    public Class<?> NMS_PACKET_OUT_ENTITY_CLASS             = null;
+    public Class<?> NMS_PACKET_OUT_ENTITYLOOK_CLASS         = null;
+    public Class<?> NMS_PACKET_OUT_SPAWNENTITY_CLASS        = null;
+    public Class<?> NMS_PACKET_OUT_SPAWNENTITYLIVING_CLASS  = null;
+    public Class<?> NMS_PACKET_OUT_NAMEDENTITYSPAWN_CLASS   = null;
+    public Class<?> NMS_PACKET_OUT_DESTROYENTITY_CLASS      = null;
+    public Class<?> NMS_PACKET_OUT_WORLDPARTICLES_CLASS     = null;
+    public Class<?> NMS_PACKET_OUT_ENTITYMETA_CLASS         = null;
+    public Class<?> NMS_PACKET_OUT_ENTITYEQUIPMENT_CLASS    = null;
+    public Class<?> NMS_PACKET_OUT_MOUNT_CLASS              = null;
+    public Class<?> NMS_PACKET_OUT_ATTACHENTITY_CLASS       = null;
+    public Class<?> NMS_PACKET_OUT_PLAYERINFO_CLASS         = null;
+    public Class<?> NMS_PACKET_OUT_ENTITYTELEPORT_CLASS     = null;
+    public Class<?> NMS_PACKET_OUT_ENTITYHEADROTATION_CLASS = null;
+    public Class<?> NMS_PACKET_OUT_MAPCHUNK_CLASS           = null;
+    public Class<?> NMS_PACKET_OUT_TITLE_CLASS              = null;
+    public Class<?> NMS_PACKET_OUT_CHAT_CLASS               = null;
+    public Class<?> NMS_PACKET_IN_USEENTITY_CLASS           = null;
+    public Class<?> NMS_PACKET_IN_ENTITYACTION_CLASS        = null;
+    public Class<?> NMS_PACKET_IN_STEERVEHICLE_CLASS        = null;
 
-    public Class<?> NMS_ENTITY_CLASS                       = null;
-    public Class<?> NMS_ENTITY_LIVING_CLASS                = null;
-    public Class<?> NMS_ENTITY_ARMORSTAND_CLASS            = null;
-    public Class<?> NMS_ENTITY_HUMAN_CLASS                 = null;
-    public Class<?> NMS_ENTITY_PLAYER_CLASS                = null;
+    public Class<?> NMS_ENTITY_CLASS                        = null;
+    public Class<?> NMS_ENTITY_LIVING_CLASS                 = null;
+    public Class<?> NMS_ENTITY_ARMORSTAND_CLASS             = null;
+    public Class<?> NMS_ENTITY_HUMAN_CLASS                  = null;
+    public Class<?> NMS_ENTITY_PLAYER_CLASS                 = null;
 
-    public Class<?> NMS_ENUM_PARTICLE_CLASS                = null;
-    public Class<?> NMS_ENUM_PLAYERINFOACTION_CLASS        = null;
-    public Class<?> NMS_ENUM_ITEMSLOT_CLASS                = null;
-    public Class<?> NMS_ENUM_SKYBLOCK_CLASS                = null;
-    public Class<?> NMS_ENUM_TITLEACTION_CLASS             = null;
+    public Class<?> NMS_ENUM_PARTICLE_CLASS                 = null;
+    public Class<?> NMS_ENUM_PLAYERINFOACTION_CLASS         = null;
+    public Class<?> NMS_ENUM_ITEMSLOT_CLASS                 = null;
+    public Class<?> NMS_ENUM_SKYBLOCK_CLASS                 = null;
+    public Class<?> NMS_ENUM_TITLEACTION_CLASS              = null;
 
-    public Class<?> NMS_DATAWATCHER_CLASS                  = null;
-    public Class<?> NMS_DATAWATCHEROBJECT_CLASS            = null;
-    public Class<?> NMS_DATAWATCHERREGISTRY_CLASS          = null;
-    public Class<?> NMS_DATAWATCHERSERIALIZER_CLASS        = null;
+    public Class<?> NMS_DATAWATCHER_CLASS                   = null;
+    public Class<?> NMS_DATAWATCHEROBJECT_CLASS             = null;
+    public Class<?> NMS_DATAWATCHERREGISTRY_CLASS           = null;
+    public Class<?> NMS_DATAWATCHERSERIALIZER_CLASS         = null;
 
-    public Class<?> NMS_MINECRAFTSERVER_CLASS              = null;
-    public Class<?> NMS_WORLD_CLASS                        = null;
-    public Class<?> NMS_WORLDSERVER_CLASS                  = null;
-    public Class<?> NMS_CHUNK_CLASS                        = null;
-    public Class<?> NMS_BLOCK_CLASS                        = null;
-    public Class<?> NMS_PLAYERINTERACTMANAGER_CLASS        = null;
-    public Class<?> NMS_ITEMSTACK_CLASS                    = null;
-    public Class<?> NMS_MATERIAL_CLASS                     = null;
-    public Class<?> NMS_IBLOCKDATA_CLASS                   = null;
-    public Class<?> NMS_VECTOR3F_CLASS                     = null;
-    public Class<?> NMS_BLOCKPOSITION_CLASS                = null;
-    public Class<?> NMS_ICHATBASECOMPONENT_CLASS           = null;
-    public Class<?> NMS_CHATSERIALIZER_CLASS               = null;
+    public Class<?> NMS_MINECRAFTSERVER_CLASS               = null;
+    public Class<?> NMS_WORLD_CLASS                         = null;
+    public Class<?> NMS_WORLDSERVER_CLASS                   = null;
+    public Class<?> NMS_CHUNK_CLASS                         = null;
+    public Class<?> NMS_BLOCK_CLASS                         = null;
+    public Class<?> NMS_PLAYERINTERACTMANAGER_CLASS         = null;
+    public Class<?> NMS_ITEMSTACK_CLASS                     = null;
+    public Class<?> NMS_MATERIAL_CLASS                      = null;
+    public Class<?> NMS_IBLOCKDATA_CLASS                    = null;
+    public Class<?> NMS_VECTOR3F_CLASS                      = null;
+    public Class<?> NMS_BLOCKPOSITION_CLASS                 = null;
+    public Class<?> NMS_ICHATBASECOMPONENT_CLASS            = null;
+    public Class<?> NMS_CHATSERIALIZER_CLASS                = null;
 
-    public Class<?> NMS_NBT_BASE_CLASS                     = null;
-    public Class<?> NMS_NBT_NUMBER_CLASS                   = null;
-    public Class<?> NMS_NBT_TAGCOMPOUND_CLASS              = null;
-    public Class<?> NMS_NBT_TAGLIST_CLASS                  = null;
-    public Class<?> NMS_NBT_TAGBYTE_CLASS                  = null;
-    public Class<?> NMS_NBT_TAGSHORT_CLASS                 = null;
-    public Class<?> NMS_NBT_TAGINT_CLASS                   = null;
-    public Class<?> NMS_NBT_TAGLONG_CLASS                  = null;
-    public Class<?> NMS_NBT_TAGFLOAT_CLASS                 = null;
-    public Class<?> NMS_NBT_TAGDOUBLE_CLASS                = null;
-    public Class<?> NMS_NBT_TAGSTRING_CLASS                = null;
-    public Class<?> NMS_NBT_TAGBYTEARRAY_CLASS             = null;
-    public Class<?> NMS_NBT_TAGINTARRAY_CLASS              = null;
+    public Class<?> NMS_NBT_BASE_CLASS                      = null;
+    public Class<?> NMS_NBT_NUMBER_CLASS                    = null;
+    public Class<?> NMS_NBT_TAGCOMPOUND_CLASS               = null;
+    public Class<?> NMS_NBT_TAGLIST_CLASS                   = null;
+    public Class<?> NMS_NBT_TAGBYTE_CLASS                   = null;
+    public Class<?> NMS_NBT_TAGSHORT_CLASS                  = null;
+    public Class<?> NMS_NBT_TAGINT_CLASS                    = null;
+    public Class<?> NMS_NBT_TAGLONG_CLASS                   = null;
+    public Class<?> NMS_NBT_TAGFLOAT_CLASS                  = null;
+    public Class<?> NMS_NBT_TAGDOUBLE_CLASS                 = null;
+    public Class<?> NMS_NBT_TAGSTRING_CLASS                 = null;
+    public Class<?> NMS_NBT_TAGBYTEARRAY_CLASS              = null;
+    public Class<?> NMS_NBT_TAGINTARRAY_CLASS               = null;
 
     // Bukkit Classes
-    public Class<?> BUKKIT_CRAFTSERVER_CLASS               = null;
-    public Class<?> BUKKIT_CRAFTWORLD_CLASS                = null;
-    public Class<?> BUKKIT_ENTITY_CRAFTPLAYER_CLASS        = null;
-    public Class<?> BUKKIT_ENTITY_CRAFTENTITY_CLASS        = null;
-    public Class<?> BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS  = null;
+    public Class<?> BUKKIT_CRAFTSERVER_CLASS                = null;
+    public Class<?> BUKKIT_CRAFTWORLD_CLASS                 = null;
+    public Class<?> BUKKIT_ENTITY_CRAFTPLAYER_CLASS         = null;
+    public Class<?> BUKKIT_ENTITY_CRAFTENTITY_CLASS         = null;
+    public Class<?> BUKKIT_INVENTORY_CRAFTITEMSTACK_CLASS   = null;
 
     @Override
     public void load() {
@@ -114,9 +116,9 @@ public class NMSService implements IService {
     private void loadClasses() {
         // NMS
         this.NMS_PACKET_CLASS = this.getNMSClass("Packet");
-        this.NMS_PACKET_OUT_ENTITY = this.getNMSClass(this.getIntVersion() < 7 ? "Packet30Entity" : "PacketPlayOutEntity");
-        this.NMS_PACKET_OUT_ENTITYLOOK = this.NMS_PACKET_OUT_ENTITY.getClasses()[0];
-        this.NMS_PACKET_OUT_SPAWNENTITY = this.getNMSClass(this.getIntVersion() < 7 ? "Packet23VehicleSpawn" : "PacketPlayOutSpawnEntity");
+        this.NMS_PACKET_OUT_ENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet30Entity" : "PacketPlayOutEntity");
+        this.NMS_PACKET_OUT_ENTITYLOOK_CLASS = this.NMS_PACKET_OUT_ENTITY_CLASS.getClasses()[0];
+        this.NMS_PACKET_OUT_SPAWNENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet23VehicleSpawn" : "PacketPlayOutSpawnEntity");
         this.NMS_PACKET_OUT_SPAWNENTITYLIVING_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet24MobSpawn" : "PacketPlayOutSpawnEntityLiving");
         this.NMS_PACKET_OUT_NAMEDENTITYSPAWN_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet20NamedEntitySpawn" : "PacketPlayOutNamedEntitySpawn");
         this.NMS_PACKET_OUT_DESTROYENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet29DestroyEntity" : "PacketPlayOutEntityDestroy");
@@ -126,12 +128,14 @@ public class NMSService implements IService {
         this.NMS_PACKET_OUT_MOUNT_CLASS = this.getNMSClass("PacketPlayOutMount");
         this.NMS_PACKET_OUT_ATTACHENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet39AttachEntity" : "PacketPlayOutAttachEntity");
         this.NMS_PACKET_OUT_PLAYERINFO_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet201PlayerInfo" : "PacketPlayOutPlayerInfo");
-        this.NMS_PACKET_OUT_ENTITYTELEPORT = this.getNMSClass(this.getIntVersion() < 7 ? "Packet34EntityTeleport" : "PacketPlayOutEntityTeleport");
-        this.NMS_PACKET_OUT_ENTITYHEADROTATION = this.getNMSClass(this.getIntVersion() < 7 ? "Packet35EntityHeadRotation" : "PacketPlayOutEntityHeadRotation");
-        this.NMS_PACKET_OUT_MAPCHUNK = this.getNMSClass(this.getIntVersion() < 7 ? "Packet51MapChunk" : "PacketPlayOutMapChunk");
-        this.NMS_PACKET_OUT_TITLE = this.getNMSClass("PacketPlayOutTitle");
-        this.NMS_PACKET_OUT_CHAT = this.getNMSClass(this.getIntVersion() < 7 ? "Packet3Chat" : "PacketPlayOutChat");
+        this.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet34EntityTeleport" : "PacketPlayOutEntityTeleport");
+        this.NMS_PACKET_OUT_ENTITYHEADROTATION_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet35EntityHeadRotation" : "PacketPlayOutEntityHeadRotation");
+        this.NMS_PACKET_OUT_MAPCHUNK_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet51MapChunk" : "PacketPlayOutMapChunk");
+        this.NMS_PACKET_OUT_TITLE_CLASS = this.getNMSClass("PacketPlayOutTitle");
+        this.NMS_PACKET_OUT_CHAT_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet3Chat" : "PacketPlayOutChat");
         this.NMS_PACKET_IN_USEENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet7UseEntity" : "PacketPlayInUseEntity");
+        this.NMS_PACKET_IN_ENTITYACTION_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet19EntityAction" : "PacketPlayInEntityAction");
+        this.NMS_PACKET_IN_STEERVEHICLE_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet27PlayerInput" : "PacketPlayInSteerVehicle");
 
         this.NMS_ENTITY_CLASS = this.getNMSClass("Entity");
         this.NMS_ENTITY_LIVING_CLASS = this.getNMSClass("EntityLiving");
@@ -143,7 +147,7 @@ public class NMSService implements IService {
         this.NMS_ENUM_PLAYERINFOACTION_CLASS = this.NMS_PACKET_OUT_PLAYERINFO_CLASS.getClasses()[1];
         this.NMS_ENUM_ITEMSLOT_CLASS = this.getNMSClass("EnumItemSlot");
         this.NMS_ENUM_SKYBLOCK_CLASS = this.getNMSClass("EnumSkyBlock");
-        this.NMS_ENUM_TITLEACTION_CLASS = this.NMS_PACKET_OUT_TITLE.getClasses()[0];
+        this.NMS_ENUM_TITLEACTION_CLASS = this.NMS_PACKET_OUT_TITLE_CLASS.getClasses()[0];
 
         this.NMS_DATAWATCHER_CLASS = this.getNMSClass("DataWatcher");
         this.NMS_DATAWATCHEROBJECT_CLASS = this.getNMSClass("DataWatcherObject");

@@ -80,22 +80,6 @@ public class World {
         return false;
     }
 
-    public Block getBlock(Location location) {
-        return location.getBlock();
-    }
-
-    public Block getBlock(Vector3i position) {
-        return this.handle.getBlockAt(position.x, position.y, position.z);
-    }
-
-    public Block getBlock(Vector3d position) {
-        return this.handle.getBlockAt((int) position.x, (int) position.y, (int) position.z);
-    }
-
-    public Block getBlock(Vector3f position) {
-        return this.handle.getBlockAt((int) position.x, (int) position.y, (int) position.z);
-    }
-
     protected void tick() {
         List<WorldObject> dirtyObjects = null;
 
@@ -122,6 +106,22 @@ public class World {
 
     public void tickPlayer(Player player) {
         this.worldObjects.forEach((uuid, object) -> object.tickFor(player));
+    }
+    
+    public Block getBlock(Location location) {
+        return location.getBlock();
+    }
+
+    public Block getBlock(Vector3i position) {
+        return this.handle.getBlockAt(position.x, position.y, position.z);
+    }
+
+    public Block getBlock(Vector3d position) {
+        return this.handle.getBlockAt((int) position.x, (int) position.y, (int) position.z);
+    }
+
+    public Block getBlock(Vector3f position) {
+        return this.handle.getBlockAt((int) position.x, (int) position.y, (int) position.z);
     }
 
     @SuppressWarnings("unchecked")

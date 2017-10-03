@@ -45,7 +45,12 @@ public class FallingBlockStatue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakeFallingBlock.builder().world(this.location.getWorld()).position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5)).material(this.material).data(this.data).build();
+        this.entity = FakeFallingBlock.builder()
+                .location(this.location.add(0.5, 0, 0.5))
+                .facing(this.blockFace)
+                .material(this.material)
+                .data(this.data)
+                .build();
     }
 
     public void placeFor(Player player) {
@@ -150,6 +155,10 @@ public class FallingBlockStatue extends WorldObject {
         return this.data;
     }
 
+    public FakeFallingBlock getEntity() {
+        return this.entity;
+    }
+
     public List<Player> getPlayers() {
         return this.players;
     }
@@ -193,8 +202,7 @@ public class FallingBlockStatue extends WorldObject {
 
         public Builder facing(BlockFace blockFace) {
             this.blockFace = blockFace;
-            this.rotation = new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0);
-
+ 
             return this;
         }
 

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
@@ -15,6 +16,7 @@ import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.util.BitFlags;
+import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.location.ImmutableLocation;
@@ -28,14 +30,16 @@ import org.joml.Vector3d;
  *
  */
 public class FakeEntity {
-    protected Object            handle   = null;
+    protected Object            handle    = null;
     protected final EntityType  type;
-    protected ImmutableLocation location = null;
-    protected byte              flags    = 0;
+    protected ImmutableLocation location  = null;
+    protected BlockFace         blockFace = null;
+    protected byte              flags     = 0;
 
-    protected FakeEntity(EntityType type, ImmutableLocation location, float headRotation, String customName, boolean customNameVisible, boolean invisible, boolean create) {
+    protected FakeEntity(EntityType type, ImmutableLocation location, BlockFace blockFace, float headRotation, String customName, boolean customNameVisible, boolean invisible, boolean create) {
         this.type = type;
         this.location = location;
+        this.blockFace = blockFace;
 
         if (create) {
             this.create(headRotation, customName, customNameVisible, invisible);
@@ -59,7 +63,7 @@ public class FakeEntity {
 
             ReflectionHelper.invokeMethod("setPositionRotation", entity, new Class<?>[] {
                     double.class, double.class, double.class, float.class, float.class
-            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, this.location.getYaw(), this.location.getPitch());
+            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, this.location.getYaw() + (blockFace != null ? MathUtils.faceToYaw(this.blockFace) : 0f), this.location.getPitch());
 
             if (customName != null) {
                 ReflectionHelper.invokeMethod("setCustomName", entity, customName);
@@ -229,8 +233,8 @@ public class FakeEntity {
             Object lookPacket = null;
 
             if (nmsService.getIntVersion() < 7) {
-                teleportPacket = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.newInstance();
-                lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(location.getYaw()), this.getFixRotation(location.getPitch()), false);
+                teleportPacket = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.newInstance();
+                lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(location.getYaw()), this.getFixRotation(location.getPitch()), false);
 
                 ReflectionHelper.setDeclaredField("a", teleportPacket, this.getEntityID());
                 ReflectionHelper.setDeclaredField("b", teleportPacket, this.getFixPosition(location.getPosition().x));
@@ -239,8 +243,8 @@ public class FakeEntity {
                 ReflectionHelper.setDeclaredField("e", teleportPacket, this.getFixRotation(location.getYaw()));
                 ReflectionHelper.setDeclaredField("f", teleportPacket, this.getFixRotation(location.getPitch()));
             } else {
-                teleportPacket = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
-                lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(location.getYaw()), this.getFixRotation(location.getPitch()), false);
+                teleportPacket = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
+                lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(location.getYaw()), this.getFixRotation(location.getPitch()), false);
             }
 
             for (Player player : players) {
@@ -278,7 +282,7 @@ public class FakeEntity {
             Object packet = null;
 
             if (nmsService.getIntVersion() < 7) {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.newInstance();
+                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.newInstance();
 
                 ReflectionHelper.setDeclaredField("a", packet, this.getEntityID());
                 ReflectionHelper.setDeclaredField("b", packet, this.getFixPosition(position.x));
@@ -287,7 +291,7 @@ public class FakeEntity {
                 ReflectionHelper.setDeclaredField("e", packet, this.getFixRotation(this.location.getYaw()));
                 ReflectionHelper.setDeclaredField("f", packet, this.getFixRotation(this.location.getPitch()));
             } else {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
+                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
             }
 
             for (Player player : players) {
@@ -321,7 +325,7 @@ public class FakeEntity {
         }
 
         try {
-            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(location.getYaw()), this.getFixRotation(location.getPitch()), false);
+            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(this.location.getYaw()), this.getFixRotation(this.location.getPitch()), false);
 
             for (Player player : players) {
                 packetService.sendPacket(player, lookPacket);
@@ -331,6 +335,40 @@ public class FakeEntity {
         }
 
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
+    }
+
+    /**
+     * Sets the rotation of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param rotation
+     *            The rotation
+     */
+    public void setBlockFace(Collection<Player> players, BlockFace blockFace) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+        PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+
+        try {
+            ReflectionHelper.invokeMethod("setPositionRotation", this.handle, new Class<?>[] {
+                    double.class, double.class, double.class, float.class, float.class
+            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, MathUtils.faceToYaw(blockFace), this.getLocation().getPitch());
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(this.location.getYaw()), this.getFixRotation(this.location.getPitch()), false);
+
+            for (Player player : players) {
+                packetService.sendPacket(player, lookPacket);
+            }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        this.blockFace = blockFace;
+        this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), new Vector2f(MathUtils.faceToYaw(blockFace), this.getLocation().getPitch()));
     }
 
     /**
@@ -357,9 +395,9 @@ public class FakeEntity {
             Object lookPacket = null;
 
             if (nmsService.getIntVersion() < 7) {
-                nmsService.NMS_PACKET_OUT_ENTITYHEADROTATION.getConstructor(int.class, byte.class).newInstance(this.getEntityID(), this.getFixRotation(headRotation));
+                nmsService.NMS_PACKET_OUT_ENTITYHEADROTATION_CLASS.getConstructor(int.class, byte.class).newInstance(this.getEntityID(), this.getFixRotation(headRotation));
             } else {
-                nmsService.NMS_PACKET_OUT_ENTITYHEADROTATION.getConstructor(nmsService.NMS_ENTITY_CLASS, byte.class).newInstance(this.handle, this.getFixRotation(headRotation));
+                nmsService.NMS_PACKET_OUT_ENTITYHEADROTATION_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS, byte.class).newInstance(this.handle, this.getFixRotation(headRotation));
             }
 
             for (Player player : players) {
@@ -734,6 +772,15 @@ public class FakeEntity {
     }
 
     /**
+     * Gets the block face of the entity.
+     * 
+     * @return The block face
+     */
+    public BlockFace getBlockFace() {
+        return this.blockFace;
+    }
+
+    /**
      * Gets the head rotation of the entity.
      * 
      * @return The head rotation
@@ -840,6 +887,7 @@ public class FakeEntity {
         protected World             world             = null;
         protected Vector3d          position          = null;
         protected Vector2f          rotation          = null;
+        protected BlockFace         blockFace         = null;
         protected float             headRotation      = -1f;
         protected EntityType        type              = null;
         protected Text              customName        = null;
@@ -897,6 +945,19 @@ public class FakeEntity {
          */
         public Builder rotation(Vector2f rotation) {
             this.rotation = rotation;
+
+            return this;
+        }
+
+        /**
+         * Sets the block face of the builder.
+         * 
+         * @param blockFace
+         *            The block face
+         * @return The builder
+         */
+        public Builder facing(BlockFace blockFace) {
+            this.blockFace = blockFace;
 
             return this;
         }
@@ -980,7 +1041,7 @@ public class FakeEntity {
                 }
             }
 
-            return new FakeEntity(this.type, this.location, this.headRotation, this.customName != null ? this.customName.toLegacy() : null, this.customNameVisible, this.invisible, true);
+            return new FakeEntity(this.type, this.location, this.blockFace, this.headRotation, this.customName != null ? this.customName.toLegacy() : null, this.customNameVisible, this.invisible, true);
         }
     }
 }

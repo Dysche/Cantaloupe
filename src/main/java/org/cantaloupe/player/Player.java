@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.bukkit.Sound;
+import org.bukkit.block.BlockFace;
 import org.bukkit.permissions.PermissionAttachment;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.data.DataContainer;
@@ -27,6 +28,7 @@ import org.cantaloupe.text.Text;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.location.ImmutableLocation;
 import org.cantaloupe.world.location.Location;
+import org.cantaloupe.world.objects.Seat;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -49,9 +51,10 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
     private final List<Allowable>                                              allowables;
     private Menu                                                               currentMenu       = null;
     private Scoreboard                                                         currentScoreboard = null;
-    private boolean                                                            dirty             = false;
+    private Seat                                                               currentSeat       = null;
 
     private PacketService                                                      packetService     = null;
+    private boolean                                                            dirty             = false;
 
     private Player(org.bukkit.entity.Player handle) {
         this.handle = handle;
@@ -107,6 +110,11 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
 
         // Tick Player
         this.getWorld().tickPlayer(this);
+
+        // Seat
+        if (this.isSitting()) {
+            this.unsit();
+        }
     }
 
     public void onUnload() {
@@ -509,6 +517,32 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         this.groups.remove(group);
     }
 
+    public void sit(ImmutableLocation location, BlockFace blockFace) {
+        if (this.currentSeat != null) {
+            this.unsit();
+        }
+
+        this.currentSeat = Seat.of(location, blockFace != null ? blockFace.getOppositeFace() : blockFace);
+        this.currentSeat.place();
+        this.currentSeat.seatPlayer(this);
+    }
+
+    public void sit(ImmutableLocation location) {
+        if (this.currentSeat != null) {
+            this.unsit();
+        }
+
+        this.currentSeat = Seat.of(location);
+        this.currentSeat.place();
+        this.currentSeat.seatPlayer(this);
+    }
+
+    public void unsit() {
+        this.currentSeat.unseatPlayer();
+        this.currentSeat.remove();
+        this.currentSeat = null;
+    }
+
     @Override
     public void setPermission(String node) {
         this.permissions.get("_global_").add(node);
@@ -705,6 +739,15 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
     }
 
     /**
+     * Checks if the player is sitting.
+     * 
+     * @return True if it is, false if not
+     */
+    public boolean isSitting() {
+        return this.currentSeat != null;
+    }
+
+    /**
      * Checks if the player is marked for removal.
      * 
      * @return True if it is, false if not
@@ -752,7 +795,8 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
     /**
      * Gets a wrapper from the player.
      * 
-     * @param <T> The type of the wrapper
+     * @param <T>
+     *            The type of the wrapper
      * @param wrapperClass
      *            The type of the wrapper
      * @return An optional containing the wrapper if it's present, an empty
@@ -889,6 +933,15 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      */
     public Menu getCurrentMenu() {
         return this.currentMenu;
+    }
+
+    /**
+     * Gets the current seat of the player.
+     * 
+     * @return The seat
+     */
+    public Seat getCurrentSeat() {
+        return this.currentSeat;
     }
 
     /**

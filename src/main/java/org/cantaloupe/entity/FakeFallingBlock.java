@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.protocol.datawatcher.DataWatcher;
@@ -28,8 +29,8 @@ public class FakeFallingBlock extends FakeEntity {
     private final Material material;
     private final byte     data;
 
-    private FakeFallingBlock(ImmutableLocation location, Material material, byte data) {
-        super(EntityType.FALLING_BLOCK, location, 0f, null, false, false, false);
+    private FakeFallingBlock(ImmutableLocation location, BlockFace blockFace, Material material, byte data) {
+        super(EntityType.FALLING_BLOCK, location, blockFace, 0f, null, false, false, false);
 
         this.material = material;
         this.data = data;
@@ -80,7 +81,7 @@ public class FakeFallingBlock extends FakeEntity {
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
-            Object spawnPacket = nmsService.NMS_PACKET_OUT_SPAWNENTITY.getConstructor(nmsService.NMS_ENTITY_CLASS, int.class, int.class).newInstance(this.handle, 70, nmsService.getCombinedID(this.material, this.data));
+            Object spawnPacket = nmsService.NMS_PACKET_OUT_SPAWNENTITY_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS, int.class, int.class).newInstance(this.handle, 70, nmsService.getCombinedID(this.material, this.data));
 
             for (Player player : players) {
                 packetService.sendPacket(player, spawnPacket);
@@ -215,6 +216,20 @@ public class FakeFallingBlock extends FakeEntity {
             return this;
         }
 
+        /**
+         * Sets the block face of the builder.
+         * 
+         * @param blockFace
+         *            The block face
+         * @return The builder
+         */
+        @Override
+        public Builder facing(BlockFace blockFace) {
+            this.blockFace = blockFace;
+
+            return this;
+        }
+
         @Deprecated
         @Override
         public Builder headRotation(float headRotation) {
@@ -280,7 +295,7 @@ public class FakeFallingBlock extends FakeEntity {
                 }
             }
 
-            return new FakeFallingBlock(this.location, this.material, this.data);
+            return new FakeFallingBlock(this.location, this.blockFace, this.material, this.data);
         }
     }
 }

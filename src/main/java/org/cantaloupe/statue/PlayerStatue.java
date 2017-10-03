@@ -52,7 +52,12 @@ public class PlayerStatue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakePlayer.builder().world(this.location.getWorld()).position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5)).uuid(this.uuid).name(this.name.toLegacy()).build();
+        this.entity = FakePlayer.builder()
+                .location(this.location.add(0.5, 0, 0.5))
+                .facing(this.blockFace)
+                .uuid(this.uuid)
+                .name(this.name.toLegacy())
+                .build();
     }
 
     public void placeFor(Player player) {
@@ -181,6 +186,10 @@ public class PlayerStatue extends WorldObject {
         return this.name;
     }
 
+    public FakePlayer getEntity() {
+        return this.entity;
+    }
+
     public List<Player> getPlayers() {
         return this.players;
     }
@@ -226,7 +235,6 @@ public class PlayerStatue extends WorldObject {
 
         public Builder facing(BlockFace blockFace) {
             this.blockFace = blockFace;
-            this.rotation = new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0);
 
             return this;
         }

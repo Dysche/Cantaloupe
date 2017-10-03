@@ -110,11 +110,11 @@ public class ScreenService implements IService {
 
         try {
             Object packetTitle = titleText != null
-                    ? nmsService.NMS_PACKET_OUT_TITLE.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("TITLE", nmsService.NMS_ENUM_TITLEACTION_CLASS),
+                    ? nmsService.NMS_PACKET_OUT_TITLE_CLASS.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("TITLE", nmsService.NMS_ENUM_TITLEACTION_CLASS),
                             ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, ComponentSerializer.toString(titleText.getComponent())), fadeIn, duration, fadeOut)
-                    : nmsService.NMS_PACKET_OUT_TITLE.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("CLEAR", nmsService.NMS_ENUM_TITLEACTION_CLASS), null, -1, -1, -1);
+                    : nmsService.NMS_PACKET_OUT_TITLE_CLASS.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("CLEAR", nmsService.NMS_ENUM_TITLEACTION_CLASS), null, -1, -1, -1);
 
-            Object packetSubtitle = subText != null ? nmsService.NMS_PACKET_OUT_TITLE.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("SUBTITLE", nmsService.NMS_ENUM_TITLEACTION_CLASS),
+            Object packetSubtitle = subText != null ? nmsService.NMS_PACKET_OUT_TITLE_CLASS.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("SUBTITLE", nmsService.NMS_ENUM_TITLEACTION_CLASS),
                     ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, ComponentSerializer.toString(subText.getComponent())), fadeIn, duration, fadeOut) : null;
 
             for (Player player : players) {
@@ -134,7 +134,7 @@ public class ScreenService implements IService {
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
-            Object packet = nmsService.NMS_PACKET_OUT_TITLE.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("SUBTITLE", nmsService.NMS_ENUM_TITLEACTION_CLASS),
+            Object packet = nmsService.NMS_PACKET_OUT_TITLE_CLASS.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("SUBTITLE", nmsService.NMS_ENUM_TITLEACTION_CLASS),
                     ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, ComponentSerializer.toString(text.getComponent())), fadeIn, duration, fadeOut);
 
             for (Player player : players) {
@@ -150,7 +150,7 @@ public class ScreenService implements IService {
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
-            Object packet = nmsService.NMS_PACKET_OUT_TITLE.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("CLEAR", nmsService.NMS_ENUM_TITLEACTION_CLASS),
+            Object packet = nmsService.NMS_PACKET_OUT_TITLE_CLASS.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("CLEAR", nmsService.NMS_ENUM_TITLEACTION_CLASS),
                     ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, null, fadeIn, duration, fadeOut));
 
             for (Player player : players) {
@@ -166,7 +166,7 @@ public class ScreenService implements IService {
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
-            Object packet = nmsService.NMS_PACKET_OUT_TITLE.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("CLEAR", nmsService.NMS_ENUM_TITLEACTION_CLASS),
+            Object packet = nmsService.NMS_PACKET_OUT_TITLE_CLASS.getConstructor(nmsService.NMS_ENUM_TITLEACTION_CLASS, nmsService.NMS_ICHATBASECOMPONENT_CLASS, int.class, int.class, int.class).newInstance(ReflectionHelper.getStaticField("CLEAR", nmsService.NMS_ENUM_TITLEACTION_CLASS),
                     ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, null, -1, -1, -1));
 
             for (Player player : players) {
@@ -183,7 +183,7 @@ public class ScreenService implements IService {
 
         try {
             Object component = ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, text != null ? "{\"text\":\"" + text.toLegacy() + "\"}" : "{\"text\":\"\"}");
-            Object packet = nmsService.NMS_PACKET_OUT_CHAT.getConstructor(nmsService.NMS_ICHATBASECOMPONENT_CLASS, byte.class).newInstance(component, (byte) 2);
+            Object packet = nmsService.NMS_PACKET_OUT_CHAT_CLASS.getConstructor(nmsService.NMS_ICHATBASECOMPONENT_CLASS, byte.class).newInstance(component, (byte) 2);
 
             for (Player player : players) {
                 packetService.sendPacket(player, packet);

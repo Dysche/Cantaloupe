@@ -7,6 +7,7 @@ import org.cantaloupe.entity.FakeEntityContainer;
 import org.cantaloupe.events.PlayerAttackFakeEntityEvent;
 import org.cantaloupe.events.PlayerInteractAtFakeEntityEvent;
 import org.cantaloupe.events.PlayerInteractFakeEntityEvent;
+import org.cantaloupe.events.PlayerSteerEvent;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.util.ReflectionHelper;
@@ -27,6 +28,8 @@ public class PacketAccessor {
             public void channelRead(ChannelHandlerContext context, Object packet) throws Exception {
                 if (packet.getClass() == service.NMS_PACKET_IN_USEENTITY_CLASS) {
                     handleUseEntityPacket(player, packet);
+                } else if (packet.getClass() == service.NMS_PACKET_IN_STEERVEHICLE_CLASS) {
+                    handleSteerVehiclePacket(player, packet);
                 }
 
                 super.channelRead(context, packet);
@@ -55,22 +58,22 @@ public class PacketAccessor {
     private static void handleUseEntityPacket(Player player, Object packet) {
         try {
             int entityID = (int) ReflectionHelper.getDeclaredField("a", packet);
-            Enum<?> type = (Enum<?>) ReflectionHelper.getDeclaredField("action", packet);
+            Enum<?> action = (Enum<?>) ReflectionHelper.getDeclaredField("action", packet);
 
-            FakeEntity entity = FakeEntityContainer.getEntity(entityID);                     
+            FakeEntity entity = FakeEntityContainer.getEntity(entityID);
             if (entity != null) {
-                if(!PacketVerifier.verifyEntityUsePacket(player, entity)) {
+                if (!PacketVerifier.verifyEntityUsePacket(player, entity)) {
                     return;
                 }
-                
-                if (type.name().equals("INTERACT")) {
+
+                if (action.name().equals("INTERACT")) {
                     PlayerInteractFakeEntityEvent event = new PlayerInteractFakeEntityEvent(player, entity);
                     Bukkit.getServer().getPluginManager().callEvent(event);
 
                     if (event.isCancelled()) {
                         return;
                     }
-                } else if (type.name().equals("INTERACT_AT")) {
+                } else if (action.name().equals("INTERACT_AT")) {
                     Object clickedPositionObject = ReflectionHelper.getDeclaredField("c", packet);
                     Vector3d clickedPosition = new Vector3d((double) ReflectionHelper.getField("x", clickedPositionObject), (double) ReflectionHelper.getField("y", clickedPositionObject), (double) ReflectionHelper.getField("z", clickedPositionObject));
 
@@ -80,7 +83,7 @@ public class PacketAccessor {
                     if (event.isCancelled()) {
                         return;
                     }
-                } else if (type.name().equals("ATTACK")) {
+                } else if (action.name().equals("ATTACK")) {
                     PlayerAttackFakeEntityEvent event = new PlayerAttackFakeEntityEvent(player, entity);
                     Bukkit.getServer().getPluginManager().callEvent(event);
 
@@ -89,6 +92,20 @@ public class PacketAccessor {
                     }
                 }
             }
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void handleSteerVehiclePacket(Player player, Object packet) {
+        try {
+            boolean shift = (boolean) ReflectionHelper.getDeclaredField("d", packet);
+            boolean space = (boolean) ReflectionHelper.getDeclaredField("c", packet);
+            float forward = (float) ReflectionHelper.getDeclaredField("b", packet);
+            float side = (float) ReflectionHelper.getDeclaredField("a", packet);
+
+            PlayerSteerEvent event = new PlayerSteerEvent(player, shift, space, forward, side);
+            Bukkit.getServer().getPluginManager().callEvent(event);
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }

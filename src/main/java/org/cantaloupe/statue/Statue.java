@@ -8,7 +8,6 @@ import org.cantaloupe.entity.EntityType;
 import org.cantaloupe.entity.FakeEntity;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.text.Text;
-import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
@@ -50,8 +49,15 @@ public class Statue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakeEntity.builder().type(this.entityType).world(this.location.getWorld()).position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5)).rotation(this.location.getRotation()).headRotation(this.headRotation)
-                .customName(this.displayName).customNameVisible(this.displayName != null ? true : false).invisible(this.invisible).build();
+        this.entity = FakeEntity.builder()
+                .type(this.entityType)
+                .location(this.location.add(0.5, 0, 0.5))
+                .facing(this.blockFace)
+                .headRotation(this.headRotation)
+                .customName(this.displayName)
+                .customNameVisible(this.displayName != null ? true : false)
+                .invisible(this.invisible)
+                .build();
     }
 
     public void placeFor(Player player) {
@@ -163,6 +169,10 @@ public class Statue extends WorldObject {
         return this.displayName;
     }
 
+    public FakeEntity getEntity() {
+        return this.entity;
+    }
+
     public List<Player> getPlayers() {
         return this.players;
     }
@@ -208,7 +218,6 @@ public class Statue extends WorldObject {
 
         public Builder facing(BlockFace blockFace) {
             this.blockFace = blockFace;
-            this.rotation = new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0);
 
             return this;
         }

@@ -65,9 +65,24 @@ public class ArmorStandStatue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakeArmorStand.builder().world(this.location.getWorld()).position(new Vector3d(this.location.getPosition().x + 0.5, this.location.getPosition().y, this.location.getPosition().z + 0.5)).rotation(this.location.getRotation()).headRotation(this.headRotation).headPose(this.headPose)
-                .bodyPose(this.bodyPose).leftArmPose(this.leftArmPose).rightArmPose(this.rightArmPose).leftLegPose(this.leftLegPose).rightLegPose(this.rightLegPose).equipment(this.equipment).customName(this.displayName).customNameVisible(this.displayName != null ? true : false).invisible(this.invisible)
-                .small(this.small).basePlate(this.basePlate).arms(this.arms).build();
+        this.entity = FakeArmorStand.builder()
+                .location(this.location.add(0.5, 0, 0.5))
+                .facing(this.blockFace)
+                .headRotation(this.headRotation)
+                .headPose(this.headPose)
+                .bodyPose(this.bodyPose)
+                .leftArmPose(this.leftArmPose)
+                .rightArmPose(this.rightArmPose)
+                .leftLegPose(this.leftLegPose)
+                .rightLegPose(this.rightLegPose)
+                .equipment(this.equipment)
+                .customName(this.displayName)
+                .customNameVisible(this.displayName != null ? true : false)
+                .invisible(this.invisible)
+                .small(this.small)
+                .basePlate(this.basePlate)
+                .arms(this.arms)
+                .build();
     }
 
     public void placeFor(Player player) {
@@ -127,7 +142,7 @@ public class ArmorStandStatue extends WorldObject {
         this.entity.setRotation(this.players, rotation);
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
     }
-    
+
     public void setBlockFace(BlockFace blockFace) {
         this.setRotation(new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0));
 
@@ -268,6 +283,10 @@ public class ArmorStandStatue extends WorldObject {
         return this.equipment.get(EnumItemSlot.FEET);
     }
 
+    public FakeArmorStand getEntity() {
+        return this.entity;
+    }
+
     public List<Player> getPlayers() {
         return this.players;
     }
@@ -314,7 +333,6 @@ public class ArmorStandStatue extends WorldObject {
 
         public Builder facing(BlockFace blockFace) {
             this.blockFace = blockFace;
-            this.rotation = new Vector2f(MathUtils.faceToYaw(blockFace), 0).add(180, 0);
 
             return this;
         }

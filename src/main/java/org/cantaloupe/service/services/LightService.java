@@ -73,9 +73,9 @@ public class LightService implements IService {
             }, chunkX, chunkZ);
 
             if (nmsService.getIntVersion() > 9) {
-                nmsService.NMS_PACKET_OUT_MAPCHUNK.getConstructor(nmsService.NMS_CHUNK_CLASS, int.class).newInstance(nmsChunk, 65535);
+                nmsService.NMS_PACKET_OUT_MAPCHUNK_CLASS.getConstructor(nmsService.NMS_CHUNK_CLASS, int.class).newInstance(nmsChunk, 65535);
             } else {
-                nmsService.NMS_PACKET_OUT_MAPCHUNK.getConstructor(nmsService.NMS_CHUNK_CLASS, boolean.class, int.class).newInstance(nmsChunk, false, 65535);
+                nmsService.NMS_PACKET_OUT_MAPCHUNK_CLASS.getConstructor(nmsService.NMS_CHUNK_CLASS, boolean.class, int.class).newInstance(nmsChunk, false, 65535);
             }
 
             for (Player player : players) {

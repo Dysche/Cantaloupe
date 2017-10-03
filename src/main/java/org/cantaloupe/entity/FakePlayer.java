@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.BlockFace;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.services.NMSService;
@@ -33,8 +34,8 @@ public class FakePlayer extends FakeEntity {
     private final String name;
     private GameProfile  gameProfile = null;
 
-    private FakePlayer(ImmutableLocation location, float headRotation, UUID uuid, String name, boolean invisible) {
-        super(EntityType.PLAYER, location, headRotation, null, false, invisible, false);
+    private FakePlayer(ImmutableLocation location, BlockFace blockFace, float headRotation, UUID uuid, String name, boolean invisible) {
+        super(EntityType.PLAYER, location, blockFace, headRotation, null, false, invisible, false);
 
         this.uuid = uuid;
         this.name = name;
@@ -232,7 +233,7 @@ public class FakePlayer extends FakeEntity {
             Object packet = null;
 
             if (nmsService.getIntVersion() < 7) {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.newInstance();
+                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.newInstance();
 
                 ReflectionHelper.setDeclaredField("a", packet, this.getEntityID());
                 ReflectionHelper.setDeclaredField("b", packet, this.getFixPosition(position.x));
@@ -241,7 +242,7 @@ public class FakePlayer extends FakeEntity {
                 ReflectionHelper.setDeclaredField("e", packet, this.getFixRotation(this.location.getYaw()));
                 ReflectionHelper.setDeclaredField("f", packet, this.getFixRotation(this.location.getPitch()));
             } else {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
+                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
             }
 
             for (Player player : players) {
@@ -271,7 +272,7 @@ public class FakePlayer extends FakeEntity {
             Object packet = null;
 
             if (nmsService.getIntVersion() < 7) {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.newInstance();
+                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.newInstance();
 
                 ReflectionHelper.setDeclaredField("a", packet, this.getEntityID());
                 ReflectionHelper.setDeclaredField("b", packet, this.getFixPosition(location.getPosition().x));
@@ -280,7 +281,7 @@ public class FakePlayer extends FakeEntity {
                 ReflectionHelper.setDeclaredField("e", packet, this.getFixRotation(location.getYaw()));
                 ReflectionHelper.setDeclaredField("f", packet, this.getFixRotation(location.getPitch()));
             } else {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
+                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
             }
 
             for (Player player : players) {
@@ -377,6 +378,20 @@ public class FakePlayer extends FakeEntity {
         }
 
         /**
+         * Sets the block face of the builder.
+         * 
+         * @param blockFace
+         *            The block face
+         * @return The builder
+         */
+        @Override
+        public Builder facing(BlockFace blockFace) {
+            this.blockFace = blockFace;
+
+            return this;
+        }
+
+        /**
          * Sets the head rotation of the builder.
          * 
          * @param headRotation
@@ -454,7 +469,7 @@ public class FakePlayer extends FakeEntity {
                 }
             }
 
-            return new FakePlayer(this.location, this.headRotation, this.uuid, this.name, this.invisible);
+            return new FakePlayer(this.location, this.blockFace, this.headRotation, this.uuid, this.name, this.invisible);
         }
     }
 }
