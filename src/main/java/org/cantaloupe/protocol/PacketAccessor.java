@@ -31,7 +31,7 @@ public class PacketAccessor {
                 } else if (packet.getClass() == service.NMS_PACKET_IN_STEERVEHICLE_CLASS) {
                     handleSteerVehiclePacket(player, packet);
                 }
-
+                
                 super.channelRead(context, packet);
             }
 

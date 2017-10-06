@@ -730,6 +730,15 @@ public class FakeEntity {
     }
 
     /**
+     * Gets the handle of the entity.
+     * 
+     * @return The handle
+     */
+    public Object toHandle() {
+        return this.handle;
+    }
+
+    /**
      * Gets the ID of the entity.
      * 
      * @return The ID

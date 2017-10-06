@@ -1,7 +1,6 @@
 package org.cantaloupe.audio.sources;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.cantaloupe.audio.AudioWrapper;
 import org.cantaloupe.audio.network.packets.S005PacketPlayBounds;
@@ -38,11 +37,9 @@ public class SharedLocalSource extends LocalSource implements ITimableSource {
             this.startTime = System.currentTimeMillis();
 
             for (Player player : this.players) {
-                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+                AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-                if (wrapperOpt.isPresent()) {
-                    AudioWrapper wrapper = wrapperOpt.get();
-
+                if (wrapper.isConnected()) {
                     if (wrapper.isConnected()) {
                         wrapper.getConnection().sendPacket(S005PacketPlayBounds.of(this, this.getVolume(), 0, this.getElapsedTime(), this.getSound().getDuration()));
                         wrapper.getSourceSettings(this).setPlaying(true);
@@ -63,11 +60,9 @@ public class SharedLocalSource extends LocalSource implements ITimableSource {
             this.totalPauseTime = 0;
 
             for (Player player : this.players) {
-                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+                AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-                if (wrapperOpt.isPresent()) {
-                    AudioWrapper wrapper = wrapperOpt.get();
-
+                if (wrapper.isConnected()) {
                     if (wrapper.isConnected()) {
                         wrapper.getConnection().sendPacket(S006PacketStop.of(this));
                         wrapper.getSourceSettings(this).setPlaying(false);
@@ -83,11 +78,9 @@ public class SharedLocalSource extends LocalSource implements ITimableSource {
     public void pause() {
         if (this.started) {
             for (Player player : this.players) {
-                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+                AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-                if (wrapperOpt.isPresent()) {
-                    AudioWrapper wrapper = wrapperOpt.get();
-
+                if (wrapper.isConnected()) {
                     if (wrapper.isConnected()) {
                         wrapper.getConnection().sendPacket(S007PacketPause.of(this));
                         wrapper.getSourceSettings(this).setPaused(true);
@@ -105,11 +98,9 @@ public class SharedLocalSource extends LocalSource implements ITimableSource {
     public void resume() {
         if (this.started) {
             for (Player player : this.players) {
-                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+                AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-                if (wrapperOpt.isPresent()) {
-                    AudioWrapper wrapper = wrapperOpt.get();
-
+                if (wrapper.isConnected()) {
                     if (wrapper.isConnected()) {
                         wrapper.getConnection().sendPacket(S008PacketResume.of(this));
                         wrapper.getSourceSettings(this).setPaused(false);
@@ -129,11 +120,9 @@ public class SharedLocalSource extends LocalSource implements ITimableSource {
      *            The player
      */
     public void addPlayer(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+        AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
-
+        if (wrapper.isConnected()) {
             if (wrapper.isConnected()) {
                 if (this.started) {
                     wrapper.getConnection().sendPacket(S005PacketPlayBounds.of(this, this.getVolume(), 0, this.getElapsedTime(), this.getSound().getDuration()));
@@ -154,11 +143,9 @@ public class SharedLocalSource extends LocalSource implements ITimableSource {
      *            The player
      */
     public void removePlayer(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+        AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
-
+        if (wrapper.isConnected()) {
             if (wrapper.isConnected()) {
                 if (this.started) {
                     wrapper.getConnection().sendPacket(S006PacketStop.of(this));

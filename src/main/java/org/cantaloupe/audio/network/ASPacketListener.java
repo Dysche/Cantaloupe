@@ -34,11 +34,9 @@ public class ASPacketListener implements IPacketListener {
 
             if (playerOpt.isPresent()) {
                 Player player = playerOpt.get();
-                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+                AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-                if (wrapperOpt.isPresent()) {
-                    AudioWrapper wrapper = wrapperOpt.get();
-
+                if (wrapper.isConnected()) {
                     if (wrapper.getCID() != null) {
                         if (wrapper.getCID().equals(((C002PacketParams) packet).getCID())) {
                             wrapper.setConnection(clientConnection);

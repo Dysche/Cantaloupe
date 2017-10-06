@@ -2,6 +2,8 @@ package org.cantaloupe.util;
 
 import org.bukkit.block.BlockFace;
 
+import io.netty.util.internal.ThreadLocalRandom;
+
 public class MathUtils {
     private static final BlockFace[] axis   = {
             BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST
@@ -50,5 +52,41 @@ public class MathUtils {
             default:
                 return 0;
         }
+    }
+
+    public static boolean randomBoolean() {
+        return ThreadLocalRandom.current().nextBoolean();
+    }
+
+    public static int randomInt(int n) {
+        return ThreadLocalRandom.current().nextInt(n);
+    }
+
+    public static int randomInt(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max);
+    }
+
+    public static long randomLong(long n) {
+        return ThreadLocalRandom.current().nextLong(n);
+    }
+
+    public static long randomLong(long min, long max) {
+        return ThreadLocalRandom.current().nextLong(min, max);
+    }
+
+    public static float randomFloat(float n) {
+        return ThreadLocalRandom.current().nextFloat() * n;
+    }
+
+    public static float randomFloat(float min, float max) {
+        return min + (ThreadLocalRandom.current().nextFloat() * (max - min));
+    }
+
+    public static double randomDouble(double n) {
+        return ThreadLocalRandom.current().nextDouble(n);
+    }
+
+    public static double randomDouble(double min, double max) {
+        return ThreadLocalRandom.current().nextDouble(min, max);
     }
 }

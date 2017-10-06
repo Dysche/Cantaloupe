@@ -351,7 +351,7 @@ public class PlayerManager implements IInjectable<Player> {
      * @return An optional containing the wrapper if it's present, an empty
      *         optional if not
      */
-    public <T extends PlayerWrapper> Optional<T> getWrapper(Player player, Class<? extends PlayerWrapper> wrapperClass) {
+    public <T extends PlayerWrapper> T getWrapper(Player player, Class<T> wrapperClass) {
         return player.getWrapper(wrapperClass);
     }
 

@@ -45,6 +45,7 @@ public class NMSService implements IService {
     public Class<?> NMS_PACKET_OUT_MAPCHUNK_CLASS           = null;
     public Class<?> NMS_PACKET_OUT_TITLE_CLASS              = null;
     public Class<?> NMS_PACKET_OUT_CHAT_CLASS               = null;
+    public Class<?> NMS_PACKET_OUT_CAMERA_CLASS             = null;
     public Class<?> NMS_PACKET_IN_USEENTITY_CLASS           = null;
     public Class<?> NMS_PACKET_IN_ENTITYACTION_CLASS        = null;
     public Class<?> NMS_PACKET_IN_STEERVEHICLE_CLASS        = null;
@@ -133,6 +134,7 @@ public class NMSService implements IService {
         this.NMS_PACKET_OUT_MAPCHUNK_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet51MapChunk" : "PacketPlayOutMapChunk");
         this.NMS_PACKET_OUT_TITLE_CLASS = this.getNMSClass("PacketPlayOutTitle");
         this.NMS_PACKET_OUT_CHAT_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet3Chat" : "PacketPlayOutChat");
+        this.NMS_PACKET_OUT_CAMERA_CLASS = this.getNMSClass("PacketPlayOutCamera");
         this.NMS_PACKET_IN_USEENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet7UseEntity" : "PacketPlayInUseEntity");
         this.NMS_PACKET_IN_ENTITYACTION_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet19EntityAction" : "PacketPlayInEntityAction");
         this.NMS_PACKET_IN_STEERVEHICLE_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet27PlayerInput" : "PacketPlayInSteerVehicle");
@@ -311,6 +313,42 @@ public class NMSService implements IService {
     public Object getWorldHandle(org.bukkit.World world) {
         try {
             return ReflectionHelper.invokeDeclaredMethod("getHandle", this.BUKKIT_CRAFTWORLD_CLASS.cast(world));
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the NMS handle of a player.
+     * 
+     * @param player
+     *            The player
+     * 
+     * @return The handle
+     */
+    public Object getPlayerHandle(Player player) {
+        try {
+            return ReflectionHelper.invokeDeclaredMethod("getHandle", this.BUKKIT_ENTITY_CRAFTPLAYER_CLASS.cast(player.toHandle()));
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the NMS handle of a player.
+     * 
+     * @param player
+     *            The player
+     * 
+     * @return The handle
+     */
+    public Object getPlayerHandle(org.bukkit.entity.Player player) {
+        try {
+            return ReflectionHelper.invokeDeclaredMethod("getHandle", this.BUKKIT_ENTITY_CRAFTPLAYER_CLASS.cast(player));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }

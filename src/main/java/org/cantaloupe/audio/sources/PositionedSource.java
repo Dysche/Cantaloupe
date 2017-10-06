@@ -1,7 +1,5 @@
 package org.cantaloupe.audio.sources;
 
-import java.util.Optional;
-
 import org.cantaloupe.audio.AudioWrapper;
 import org.cantaloupe.audio.source.WorldSource;
 import org.cantaloupe.player.Player;
@@ -22,11 +20,9 @@ public class PositionedSource extends WorldSource {
     protected void tick() {
         if (this.hasStarted()) {
             for (Player player : this.getWorld().getPlayers()) {
-                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+                AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-                if (wrapperOpt.isPresent()) {
-                    AudioWrapper wrapper = wrapperOpt.get();
-
+                if (wrapper.isConnected()) {
                     if (wrapper.isConnected()) {
                         if (player.getPosition().distance(this.getLocation().getPosition()) < this.getSettings().getMaxRadius()) {
                             if (this.getElapsedTime() < this.getSound().getDuration()) {
@@ -57,11 +53,9 @@ public class PositionedSource extends WorldSource {
     @Override
     protected void tickFor(Player player) {
         if (this.hasStarted()) {
-            Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+            AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-            if (wrapperOpt.isPresent()) {
-                AudioWrapper wrapper = wrapperOpt.get();
-
+            if (wrapper.isConnected()) {
                 if (wrapper.isConnected()) {
                     if (this.hasPlayer(player)) {
                         if (player.getWorld() != this.getWorld()) {

@@ -12,8 +12,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.permissions.PermissionAttachment;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.data.DataContainer;
+import org.cantaloupe.entity.FakeEntity;
 import org.cantaloupe.inject.IInjectable;
 import org.cantaloupe.inject.Injector;
+import org.cantaloupe.inventory.PlayerInventory;
 import org.cantaloupe.inventory.menu.Menu;
 import org.cantaloupe.permission.Allowable;
 import org.cantaloupe.permission.IPermissionHolder;
@@ -23,6 +25,7 @@ import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.player.PlayerManager.Scopes;
 import org.cantaloupe.protocol.PacketAccessor;
 import org.cantaloupe.scoreboard.Scoreboard;
+import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.world.World;
@@ -49,6 +52,7 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
     private final PermissionAttachment                                         permissionAttachment;
     private final List<Group>                                                  groups;
     private final List<Allowable>                                              allowables;
+    private final PlayerInventory                                              inventory;
     private Menu                                                               currentMenu       = null;
     private Scoreboard                                                         currentScoreboard = null;
     private Seat                                                               currentSeat       = null;
@@ -66,6 +70,8 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         this.permissionAttachment = this.handle.addAttachment(Cantaloupe.getInstance());
         this.groups = new ArrayList<Group>();
         this.allowables = new ArrayList<Allowable>();
+
+        this.inventory = PlayerInventory.of(handle.getInventory());
     }
 
     /**
@@ -717,6 +723,36 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         this.handle.playSound(this.getLocation().toHandle(), sound, 1f, 1f);
     }
 
+    public void spectate(FakeEntity entity) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
+        try {
+            this.sendPacket(nmsService.NMS_PACKET_OUT_CAMERA_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(entity.toHandle()));
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void spectate(Player player) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
+        try {
+            this.sendPacket(nmsService.NMS_PACKET_OUT_CAMERA_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(nmsService.getPlayerHandle(player)));
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void unspectate() {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
+        try {
+            this.sendPacket(nmsService.NMS_PACKET_OUT_CAMERA_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(nmsService.getPlayerHandle(this)));
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Sends a packet to the player.
      * 
@@ -799,12 +835,12 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      *            The type of the wrapper
      * @param wrapperClass
      *            The type of the wrapper
-     * @return An optional containing the wrapper if it's present, an empty
-     *         optional if not
+     * 
+     * @return The wrapper
      */
     @SuppressWarnings("unchecked")
-    public <T extends PlayerWrapper> Optional<T> getWrapper(Class<? extends PlayerWrapper> wrapperClass) {
-        return Optional.ofNullable((T) this.wrappers.get(wrapperClass));
+    public <T extends PlayerWrapper> T getWrapper(Class<T> wrapperClass) {
+        return (T) this.wrappers.get(wrapperClass);
     }
 
     /**
@@ -915,6 +951,15 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      */
     public List<String> getPermissions(World world) {
         return world != null != this.permissions.containsKey(world.getName()) ? this.permissions.get(world.getName()) : this.permissions.get("_global_");
+    }
+
+    /**
+     * Gets the inventory of the player.
+     * 
+     * @return The inventory
+     */
+    public PlayerInventory getInventory() {
+        return this.inventory;
     }
 
     /**

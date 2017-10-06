@@ -1,7 +1,6 @@
 package org.cantaloupe.audio.sources;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.cantaloupe.audio.AudioWrapper;
 import org.cantaloupe.audio.network.packets.S004PacketPlay;
@@ -51,11 +50,9 @@ public class LocalSource implements ISource {
      *            The player
      */
     public void play(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+        AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
-
+        if (wrapper.isConnected()) {
             if (wrapper.isConnected()) {
                 if (!wrapper.hasSourceSettings(this)) {
                     wrapper.getConnection().sendPacket(S004PacketPlay.of(this, this.volume, 0));
@@ -78,11 +75,9 @@ public class LocalSource implements ISource {
      *            The end time of the sound in milliseconds
      */
     public void playBounds(Player player, int begin, int end) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+        AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
-
+        if (wrapper.isConnected()) {
             if (wrapper.isConnected()) {
                 if (!wrapper.hasSourceSettings(this)) {
                     wrapper.getConnection().sendPacket(S005PacketPlayBounds.of(this, this.volume, 0, begin, end));
@@ -101,11 +96,9 @@ public class LocalSource implements ISource {
      *            The player
      */
     public void stop(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+        AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
-
+        if (wrapper.isConnected()) {
             if (wrapper.isConnected()) {
                 SourcePlayerSettings sourceSettings = wrapper.getSourceSettings(this.getID());
 
@@ -126,11 +119,9 @@ public class LocalSource implements ISource {
      *            The player
      */
     public void pause(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+        AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
-
+        if (wrapper.isConnected()) {
             if (wrapper.isConnected()) {
                 SourcePlayerSettings sourceSettings = wrapper.getSourceSettings(this.getID());
 
@@ -150,11 +141,9 @@ public class LocalSource implements ISource {
      *            The player
      */
     public void resume(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
+        AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
-
+        if (wrapper.isConnected()) {
             if (wrapper.isConnected()) {
                 SourcePlayerSettings sourceSettings = wrapper.getSourceSettings(this.getID());
 

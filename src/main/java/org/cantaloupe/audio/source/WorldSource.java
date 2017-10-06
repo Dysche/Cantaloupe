@@ -96,10 +96,8 @@ public abstract class WorldSource extends WorldObject implements ISource, ITimab
     public void pause() {
         if (this.started) {
             for (Player player : this.players) {
-                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-                if (wrapperOpt.isPresent()) {
-                    AudioWrapper wrapper = wrapperOpt.get();
+                if (player.hasWrapper(AudioWrapper.class)) {
+                    AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
                     if (wrapper.isConnected()) {
                         wrapper.getConnection().sendPacket(S007PacketPause.of(this));
@@ -118,10 +116,8 @@ public abstract class WorldSource extends WorldObject implements ISource, ITimab
     public void resume() {
         if (this.started) {
             for (Player player : this.players) {
-                Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-                if (wrapperOpt.isPresent()) {
-                    AudioWrapper wrapper = wrapperOpt.get();
+                if (player.hasWrapper(AudioWrapper.class)) {
+                    AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
 
                     if (wrapper.isConnected()) {
                         wrapper.getConnection().sendPacket(S008PacketResume.of(this));
@@ -138,10 +134,8 @@ public abstract class WorldSource extends WorldObject implements ISource, ITimab
     @Override
     public void clear() {
         for (Player player : this.players) {
-            Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-            if (wrapperOpt.isPresent()) {
-                wrapperOpt.get().removeSourceSettings(this);
+            if (player.hasWrapper(AudioWrapper.class)) {
+                player.getWrapper(AudioWrapper.class).removeSourceSettings(this);
             }
         }
 
@@ -149,60 +143,48 @@ public abstract class WorldSource extends WorldObject implements ISource, ITimab
     }
 
     protected void play(Player player, int volume, int pan) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
+        if (player.hasWrapper(AudioWrapper.class)) {
+            AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
             wrapper.getConnection().sendPacket(S004PacketPlay.of(this, volume, pan));
             wrapper.getSourceSettings(this).setPlaying(true);
         }
     }
 
     protected void playBounds(Player player, int volume, int pan, int begin, int end) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
+        if (player.hasWrapper(AudioWrapper.class)) {
+            AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
             wrapper.getConnection().sendPacket(S005PacketPlayBounds.of(this, volume, pan, begin, end));
             wrapper.getSourceSettings(this).setPlaying(true);
         }
     }
 
     protected void stop(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
+        if (player.hasWrapper(AudioWrapper.class)) {
+            AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
             wrapper.getConnection().sendPacket(S006PacketStop.of(this));
             wrapper.getSourceSettings(this).setPlaying(false);
         }
     }
 
     protected void setVolume(Player player, int volume) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
+        if (player.hasWrapper(AudioWrapper.class)) {
+            AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
             wrapper.getConnection().sendPacket(S009PacketVolume.of(this, volume));
             wrapper.getSourceSettings(this).setVolume(volume);
         }
     }
 
     protected void setPan(Player player, int pan) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
+        if (player.hasWrapper(AudioWrapper.class)) {
+            AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
             wrapper.getConnection().sendPacket(S010PacketPan.of(this, pan));
             wrapper.getSourceSettings(this).setPan(pan);
         }
     }
 
     protected void setVolumePan(Player player, int volume, int pan) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-        if (wrapperOpt.isPresent()) {
-            AudioWrapper wrapper = wrapperOpt.get();
+        if (player.hasWrapper(AudioWrapper.class)) {
+            AudioWrapper wrapper = player.getWrapper(AudioWrapper.class);
             wrapper.getConnection().sendPacket(S011PacketVolumePan.of(this, volume, pan));
             wrapper.getSourceSettings(this).setVolume(volume);
             wrapper.getSourceSettings(this).setPan(pan);
@@ -210,20 +192,16 @@ public abstract class WorldSource extends WorldObject implements ISource, ITimab
     }
 
     protected void addPlayer(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-        if (wrapperOpt.isPresent()) {
-            wrapperOpt.get().addSourceSettings(SourcePlayerSettings.of(this, 0, 0, false, false));
+        if (player.hasWrapper(AudioWrapper.class)) {
+            player.getWrapper(AudioWrapper.class).addSourceSettings(SourcePlayerSettings.of(this, 0, 0, false, false));
         }
 
         this.players.add(player);
     }
 
     protected void removePlayer(Player player) {
-        Optional<AudioWrapper> wrapperOpt = player.getWrapper(AudioWrapper.class);
-
-        if (wrapperOpt.isPresent()) {
-            wrapperOpt.get().removeSourceSettings(this);
+        if (player.hasWrapper(AudioWrapper.class)) {
+            player.<AudioWrapper>getWrapper(AudioWrapper.class).removeSourceSettings(this);
         }
 
         this.players.remove(player);
