@@ -3,7 +3,6 @@ package org.cantaloupe.network.tcp;
 import java.util.UUID;
 
 import org.cantaloupe.network.session.Session;
-import org.cantaloupe.network.tcp.TCPPacket;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;

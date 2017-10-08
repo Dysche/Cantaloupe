@@ -67,6 +67,62 @@ public class ItemStack {
      * 
      * @param material
      *            The material
+     * @param durability
+     *            The durability
+     * @return The itemstack
+     */
+    public static ItemStack of(Material material, short durability) {
+        return new ItemStack(new org.bukkit.inventory.ItemStack(material)).setDurability(durability);
+    }
+
+    /**
+     * Creates and returns a new itemstack.
+     * 
+     * @param material
+     *            The material
+     * @param color
+     *            The color
+     * @return The itemstack
+     */
+    public static ItemStack of(Material material, EnumColor color) {
+        return new ItemStack(new org.bukkit.inventory.ItemStack(material)).setDurability(color.getColor());
+    }
+
+    /**
+     * Creates and returns a new itemstack.
+     * 
+     * @param material
+     *            The material
+     * @param amount
+     *            The amount
+     * @param durability
+     *            The durability
+     * @return The itemstack
+     */
+    public static ItemStack of(Material material, int amount, short durability) {
+        return new ItemStack(new org.bukkit.inventory.ItemStack(material, amount)).setDurability(durability);
+    }
+
+    /**
+     * Creates and returns a new itemstack.
+     * 
+     * @param material
+     *            The material
+     * @param amount
+     *            The amount
+     * @param color
+     *            The color
+     * @return The itemstack
+     */
+    public static ItemStack of(Material material, EnumColor color, int amount) {
+        return new ItemStack(new org.bukkit.inventory.ItemStack(material, amount)).setDurability(color.getColor());
+    }
+
+    /**
+     * Creates and returns a new itemstack.
+     * 
+     * @param material
+     *            The material
      * @param amount
      *            The amount
      * @param data
@@ -319,6 +375,15 @@ public class ItemStack {
      */
     public short getDurability() {
         return this.handle.getDurability();
+    }
+
+    /**
+     * Gets the color of the itemstack.
+     * 
+     * @return The color
+     */
+    public EnumColor getColor() {
+        return EnumColor.valueOf(this.handle.getDurability());
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.cantaloupe.player.PlayerManager;
 import org.cantaloupe.plugin.CantaloupePlugin;
 import org.cantaloupe.plugin.CantaloupePluginManager;
 import org.cantaloupe.service.ServiceManager;
+import org.cantaloupe.tool.ToolManager;
 import org.cantaloupe.util.CantaloupeClassLoader;
 import org.cantaloupe.world.WorldManager;
 import org.cantaloupe.wrapper.listeners.PickupListenerNew;
@@ -23,13 +24,15 @@ import org.cantaloupe.wrapper.listeners.WorldListener;
 
 public class Cantaloupe {
     private static CantaloupeMain          instance       = null;
+    private static AudioServer             audioServer    = null;
+
     private static CantaloupePluginManager pluginManager  = null;
     private static PlayerManager           playerManager  = null;
     private static WorldManager            worldManager   = null;
     private static CommandManager          commandManager = null;
     private static ServiceManager          serviceManager = null;
     private static ModelManager            modelManager   = null;
-    private static AudioServer             audioServer    = null;
+    private static ToolManager             toolManager    = null;
 
     public static void initialize(CantaloupeMain plugin) {
         System.out.println("Initializing Cantaloupe.");
@@ -59,6 +62,9 @@ public class Cantaloupe {
 
         // Model Manager
         modelManager = ModelManager.of();
+
+        // Tool Manager
+        toolManager = ToolManager.of();
 
         // Plugin Manager
         pluginManager = CantaloupePluginManager.of();
@@ -262,6 +268,15 @@ public class Cantaloupe {
      */
     public static ModelManager getModelManager() {
         return modelManager;
+    }
+
+    /**
+     * Gets the {@link org.cantaloupe.tool.Tool tool} manager.
+     * 
+     * @return The tool manager
+     */
+    public static ToolManager getToolManager() {
+        return toolManager;
     }
 
     /**

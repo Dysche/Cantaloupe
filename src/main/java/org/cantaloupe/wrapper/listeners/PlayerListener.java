@@ -24,6 +24,7 @@ import org.cantaloupe.permission.Allowable;
 import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.services.ScheduleService;
+import org.cantaloupe.tool.Tool;
 
 public class PlayerListener implements Listener {
     @EventHandler
@@ -180,29 +181,55 @@ public class PlayerListener implements Listener {
         if (playerOpt.isPresent()) {
             Player player = playerOpt.get();
 
-            if (player.isAllowed(Allowable.INTERACT_ALL)) {
+            if (!player.isAllowed(Allowable.INTERACT_ALL)) {
+                event.setCancelled(true);
+
                 return;
             }
-            
-            if (player.isAllowed(Allowable.INTERACT_BLOCK)) {
+
+            if (!player.isAllowed(Allowable.INTERACT_BLOCK)) {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                    return;
-                }
-            }
-            
-            if (player.isAllowed(Allowable.INTERACT_AIR)) {
-                if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_AIR) {
-                    return;
-                }
-            }
-            
-            if (player.isAllowed(Allowable.INTERACT_PHYSICAL)) {
-                if (event.getAction() == Action.PHYSICAL) {
+                    event.setCancelled(true);
+
                     return;
                 }
             }
 
-            event.setCancelled(true);
+            if (!player.isAllowed(Allowable.INTERACT_AIR)) {
+                if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_AIR) {
+                    event.setCancelled(true);
+
+                    return;
+                }
+            }
+
+            if (!player.isAllowed(Allowable.INTERACT_PHYSICAL)) {
+                if (event.getAction() == Action.PHYSICAL) {
+                    event.setCancelled(true);
+
+                    return;
+                }
+            }
+
+            if (event.getItem() != null) {
+                Optional<Tool> toolOpt = Cantaloupe.getToolManager().getTool(event.getItem());
+                
+                if (toolOpt.isPresent()) {
+                    Tool tool = toolOpt.get();
+
+                    if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+                        tool.onLeftClick(player, event.getClickedBlock());
+                        event.setCancelled(true);
+
+                        return;
+                    } else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                        tool.onRightClick(player, event.getClickedBlock());
+                        event.setCancelled(true);
+
+                        return;
+                    }
+                }
+            }
         }
     }
 

@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.cantaloupe.tool.Tool;
+
 public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerInventory> {
     private final org.bukkit.inventory.PlayerInventory handle;
 
@@ -14,6 +16,18 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
 
     public static PlayerInventory of(org.bukkit.inventory.PlayerInventory handle) {
         return new PlayerInventory(handle);
+    }
+
+    public PlayerInventory addTool(Tool tool) {
+        this.addItem(tool.getItem());
+
+        return this;
+    }
+
+    public PlayerInventory setTool(int index, Tool tool) {
+        this.setItem(index, tool.getItem());
+
+        return this;
     }
 
     public PlayerInventory setItemInHand(EnumItemSlot slot, ItemStack itemStack) {

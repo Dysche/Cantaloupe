@@ -345,7 +345,7 @@ public class NBTTagCompound {
      *            The key of the entry
      * @param i
      *            The type
-     *            
+     * 
      * @return True if it does, false if not
      */
     public boolean hasKeyOfType(String key, int i) {
@@ -575,7 +575,13 @@ public class NBTTagCompound {
      * @return The boolean
      */
     public boolean getBoolean(String key) {
-        return this.getByte(key) != 0;
+        try {
+            return (boolean) ReflectionHelper.invokeMethod("getBoolean", this.handle, key);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     /**

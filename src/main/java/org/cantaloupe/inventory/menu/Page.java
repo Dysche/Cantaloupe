@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.text.Text;
 
 /**
  * A class used to create a page.
@@ -14,26 +15,72 @@ import org.cantaloupe.player.Player;
  *
  */
 public class Page {
-    private Player            holder    = null;
-    private String            ID        = null;
-    private String            name      = "Page";
-    private int               size      = 54;
-    private ArrayList<Button> buttons   = null;
+    private Player                  holder    = null;
+    private final String            ID;
+    private final Text              name;
+    private final int               size;
+    private final ArrayList<Button> buttons;
 
-    private Menu              menu      = null;
-    private Inventory         inventory = null;
+    private Menu                    menu      = null;
+    private Inventory               inventory = null;
 
-    private Page() {
+    private Page(String ID, Text name, int size) {
+        this.ID = ID;
+        this.name = name;
+        this.size = size;
         this.buttons = new ArrayList<Button>();
     }
 
     /**
      * Creates and returns a new page.
      * 
+     * @param ID
+     *            The ID
      * @return The page
      */
-    public static Page of() {
-        return new Page();
+    public static Page of(String ID) {
+        return new Page(ID, Text.of("Page"), 54);
+    }
+
+    /**
+     * Creates and returns a new page.
+     * 
+     * @param ID
+     *            The ID
+     * @param name
+     *            The name
+     * @return The page
+     */
+    public static Page of(String ID, Text name) {
+        return new Page(ID, name, 54);
+    }
+
+    /**
+     * Creates and returns a new page.
+     * 
+     * @param ID
+     *            The ID
+     * @param size
+     *            The size
+     * @return The page
+     */
+    public static Page of(String ID, int size) {
+        return new Page(ID, Text.of("Page"), 54);
+    }
+
+    /**
+     * Creates and returns a new page.
+     * 
+     * @param ID
+     *            The ID
+     * @param name
+     *            The name
+     * @param size
+     *            The size
+     * @return The page
+     */
+    public static Page of(String ID, Text name, int size) {
+        return new Page(ID, name, 54);
     }
 
     /**
@@ -63,10 +110,13 @@ public class Page {
      * 
      * @param button
      *            The button
+     * @return The page
      */
-    public void addButton(Button button) {
+    public Page addButton(Button button) {
         button.setPage(this);
         this.buttons.add(button);
+
+        return this;
     }
 
     /**
@@ -74,13 +124,16 @@ public class Page {
      * 
      * @param slot
      *            The slot
+     * @return The page
      */
-    public void removeButton(int slot) {
+    public Page removeButton(int slot) {
         this.buttons.remove(slot);
 
         if (this.inventory != null) {
             this.inventory.setItem(slot, null);
         }
+
+        return this;
     }
 
     /**
@@ -88,13 +141,16 @@ public class Page {
      * 
      * @param button
      *            The button
+     * @return The page
      */
-    public void removeButton(Button button) {
+    public Page removeButton(Button button) {
         this.buttons.remove(button.getSlot());
 
         if (this.inventory != null) {
             this.inventory.setItem(button.getSlot(), null);
         }
+
+        return this;
     }
 
     /**
@@ -113,7 +169,7 @@ public class Page {
     }
 
     protected Page build() {
-        this.inventory = Bukkit.getServer().createInventory(this.holder.toHandle(), this.size, this.name);
+        this.inventory = Bukkit.getServer().createInventory(this.holder.toHandle(), this.size, this.name.toLegacy());
 
         for (Button button : this.buttons) {
             this.inventory.setItem(button.getSlot(), button.getIcon().toHandle());
@@ -137,36 +193,6 @@ public class Page {
         }
 
         return false;
-    }
-
-    /**
-     * Sets the ID of the page.
-     * 
-     * @param ID
-     *            The ID
-     */
-    public void setID(String ID) {
-        this.ID = ID;
-    }
-
-    /**
-     * Sets the name of the name.
-     * 
-     * @param name
-     *            The name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Sets the size of the name.
-     * 
-     * @param size
-     *            The size
-     */
-    public void setSize(int size) {
-        this.size = size;
     }
 
     protected void setMenu(Menu menu) {
@@ -209,7 +235,7 @@ public class Page {
      * 
      * @return The name
      */
-    public String getName() {
+    public Text getName() {
         return this.name;
     }
 

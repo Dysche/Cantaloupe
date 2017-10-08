@@ -21,8 +21,9 @@ public class Button {
 
     private Page                      page          = null;
 
-    private Button() {
-
+    private Button(int slot, ItemStack icon) {
+        this.slot = slot;
+        this.icon = icon;
     }
 
     /**
@@ -30,8 +31,19 @@ public class Button {
      * 
      * @return The button
      */
-    public static Button of() {
-        return new Button();
+    public static Button of(ItemStack icon) {
+        return new Button(-1, icon);
+    }
+
+    /**
+     * Creates and returns a new button.
+     * 
+     * @param The
+     *            slot
+     * @return The button
+     */
+    public static Button of(int slot, ItemStack icon) {
+        return new Button(slot, icon);
     }
 
     /**
@@ -76,9 +88,12 @@ public class Button {
      * 
      * @param slot
      *            The slot
+     * @return The button
      */
-    public void setSlot(int slot) {
+    public Button setSlot(int slot) {
         this.slot = slot;
+
+        return this;
     }
 
     /**
@@ -86,9 +101,12 @@ public class Button {
      * 
      * @param icon
      *            The icon
+     * @return The button
      */
-    public void setIcon(ItemStack icon) {
+    public Button setIcon(ItemStack icon) {
         this.icon = icon;
+
+        return this;
     }
 
     /**
@@ -96,9 +114,12 @@ public class Button {
      * 
      * @param consumer
      *            The consumer
+     * @return The button
      */
-    public void setClickConsumer(BiConsumer<Button, Page> consumer) {
+    public Button setClickConsumer(BiConsumer<Button, Page> consumer) {
         this.clickConsumer = consumer;
+
+        return this;
     }
 
     /**
@@ -106,9 +127,12 @@ public class Button {
      * 
      * @param consumer
      *            The consumer
+     * @return The button
      */
-    public void setMoveConsumer(BiConsumer<Integer, Page> consumer) {
+    public Button setMoveConsumer(BiConsumer<Integer, Page> consumer) {
         this.moveConsumer = consumer;
+
+        return this;
     }
 
     /**
@@ -116,9 +140,12 @@ public class Button {
      * 
      * @param canMove
      *            Whether or not the button cam be moved.
+     * @return The button
      */
-    public void setCanMove(boolean canMove) {
+    public Button setCanMove(boolean canMove) {
         this.canMove = canMove;
+
+        return this;
     }
 
     protected void setPage(Page page) {
