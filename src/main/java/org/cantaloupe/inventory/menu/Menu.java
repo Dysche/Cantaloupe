@@ -12,12 +12,15 @@ import org.cantaloupe.player.Player;
  *
  */
 public class Menu {
-    private HashMap<String, Page> pages  = null;
-    private Player                holder = null;
+    private Player                      holder      = null;
+    private final HashMap<String, Page> pages;
+
+    private Page                        currentPage = null;
+    private boolean                     isDirty     = false;
 
     private Menu(Player holder) {
-        this.pages = new HashMap<String, Page>();
         this.holder = holder;
+        this.pages = new HashMap<String, Page>();
     }
 
     /**
@@ -51,7 +54,12 @@ public class Menu {
      * Shows the landing page of the menu.
      */
     public void showLandingPage() {
+        this.isDirty = true;
+
         this.holder.toHandle().openInventory(this.pages.get("landing").getInventory());
+        this.currentPage = this.pages.get("landing");
+
+        this.isDirty = false;
     }
 
     /**
@@ -62,7 +70,12 @@ public class Menu {
      */
     public void showPage(String ID) {
         if (this.pages.get(ID) != null) {
+            this.isDirty = true;
+
             this.holder.toHandle().openInventory(this.pages.get(ID).getInventory());
+            this.currentPage = this.pages.get(ID);
+
+            this.isDirty = false;
         }
     }
 
@@ -108,6 +121,15 @@ public class Menu {
     }
 
     /**
+     * Checks if the menu is marked dirty.
+     * 
+     * @return True if it is, false if not
+     */
+    public boolean isDirty() {
+        return this.isDirty;
+    }
+
+    /**
      * Gets a page from the menu.
      * 
      * @param ID
@@ -116,6 +138,15 @@ public class Menu {
      */
     public Page getPage(String ID) {
         return this.pages.get(ID);
+    }
+
+    /**
+     * Gets the page currently opened on the page.
+     * 
+     * @return The page
+     */
+    public Page getCurrentPage() {
+        return this.currentPage;
     }
 
     /**

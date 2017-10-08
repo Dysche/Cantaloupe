@@ -641,8 +641,21 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      * Closes the currently opened menu.
      */
     public void closeMenu() {
-        this.currentMenu = null;
         this.handle.closeInventory();
+        this.currentMenu = null;
+    }
+
+    public void resetMenu() {
+        this.currentMenu = null;
+    }
+
+    /**
+     * Checks if the player has a menu opened.
+     * 
+     * @return True if it does, false if not
+     */
+    public boolean hasMenuOpened() {
+        return this.currentMenu != null;
     }
 
     /**
@@ -922,6 +935,15 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      */
     public Vector2f getRotation() {
         return this.getLocation().getRotation();
+    }
+
+    /**
+     * Gets the block face of the player.
+     * 
+     * @return The block face
+     */
+    public BlockFace getBlockFace() {
+        return this.getLocation().getBlockFace();
     }
 
     /**

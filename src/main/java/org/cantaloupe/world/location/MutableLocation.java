@@ -400,12 +400,12 @@ public class MutableLocation implements Location {
             return false;
         }
 
-        MutableLocation location = (MutableLocation) obj;
-        if (!location.getPosition().equals(this.getPosition()) || !location.getRotation().equals(this.getRotation())) {
-            return false;
+        ImmutableLocation location = (ImmutableLocation) obj;
+        if (location.getPosition().equals(this.getPosition()) && location.getRotation().equals(this.getRotation())) {
+            return true;
         }
-
-        return true;
+        
+        return false;
     }
 
     @Override

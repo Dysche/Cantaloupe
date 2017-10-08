@@ -12,6 +12,7 @@ import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.events.WorldObjectPlaceEvent;
 import org.cantaloupe.events.WorldObjectRemoveEvent;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.world.location.ImmutableLocation;
 import org.cantaloupe.world.location.Location;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -53,7 +54,7 @@ public class World {
             }
 
             this.worldObjects.put(object.getUUID(), object);
-            
+
             return true;
         }
 
@@ -107,7 +108,17 @@ public class World {
     public void tickPlayer(Player player) {
         this.worldObjects.forEach((uuid, object) -> object.tickFor(player));
     }
-    
+
+    public boolean isObject(ImmutableLocation location) {
+        for (WorldObject object : this.worldObjects.valueSet()) {
+            if (object.getLocation().equals(location)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public Block getBlock(Location location) {
         return location.getBlock();
     }
@@ -127,6 +138,17 @@ public class World {
     @SuppressWarnings("unchecked")
     public <T extends WorldObject> T getObject(UUID uuid) {
         return (T) this.worldObjects.get(uuid);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends WorldObject> T getObject(ImmutableLocation location) {
+        for (WorldObject object : this.worldObjects.valueSet()) {
+            if (object.getLocation().equals(location)) {
+                return (T) object;
+            }
+        }
+
+        return null;
     }
 
     public Collection<WorldObject> getObjects() {

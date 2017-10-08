@@ -1,6 +1,7 @@
 package org.cantaloupe.util;
 
 import org.bukkit.block.BlockFace;
+import org.joml.Vector2f;
 
 import io.netty.util.internal.ThreadLocalRandom;
 
@@ -21,7 +22,7 @@ public class MathUtils {
         return axis[Math.round(yaw / 90f) & 0x3];
     }
 
-    public static BlockFace yawToFace(float yaw, float pitch) {
+    public static BlockFace rotationToFace(float yaw, float pitch) {
         if (pitch < -80) {
             return BlockFace.UP;
         } else if (pitch > 80) {
@@ -29,6 +30,16 @@ public class MathUtils {
         }
 
         return axis[Math.round(yaw / 90f) & 0x3];
+    }
+
+    public static BlockFace rotationToFace(Vector2f rotation) {
+        if (rotation.y < -80) {
+            return BlockFace.UP;
+        } else if (rotation.y > 80) {
+            return BlockFace.DOWN;
+        }
+
+        return axis[Math.round(rotation.x / 90f) & 0x3];
     }
 
     public static float faceToYaw(BlockFace blockFace) {

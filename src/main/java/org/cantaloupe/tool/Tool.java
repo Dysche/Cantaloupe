@@ -4,6 +4,7 @@ import org.bukkit.block.Block;
 import org.cantaloupe.inventory.ItemStack;
 import org.cantaloupe.nbt.NBTTagCompound;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.world.WorldObject;
 
 public abstract class Tool {
     private final String    ID;
@@ -29,6 +30,14 @@ public abstract class Tool {
     }
 
     public void onRightClick(Player player, Block block) {
+
+    }
+
+    public void onLeftClickObject(Player player, WorldObject object) {
+
+    }
+
+    public void onRightClickObject(Player player, WorldObject object) {
 
     }
 

@@ -1,6 +1,8 @@
 package org.cantaloupe.world.location;
 
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.world.World;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
@@ -108,6 +110,10 @@ public interface Location {
 
     public default Vector2f getRotation() {
         return new Vector2f(this.getYaw(), this.getPitch());
+    }
+
+    public default BlockFace getBlockFace() {
+        return MathUtils.rotationToFace(this.getYaw(), this.getPitch());
     }
 
     public default float getYaw() {

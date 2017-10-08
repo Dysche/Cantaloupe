@@ -291,13 +291,13 @@ public class ImmutableLocation implements Location {
         if (!(obj instanceof ImmutableLocation)) {
             return false;
         }
-
+        
         ImmutableLocation location = (ImmutableLocation) obj;
-        if (!location.getPosition().equals(this.getPosition()) || !location.getRotation().equals(this.getRotation())) {
-            return false;
+        if (location.getPosition().equals(this.getPosition()) && location.getRotation().equals(this.getRotation())) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
