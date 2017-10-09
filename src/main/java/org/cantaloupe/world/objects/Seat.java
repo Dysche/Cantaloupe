@@ -3,7 +3,6 @@ package org.cantaloupe.world.objects;
 import org.bukkit.block.BlockFace;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.statue.ArmorStandStatue;
-import org.cantaloupe.world.RemoveCause;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
 
@@ -12,7 +11,13 @@ public class Seat extends WorldObject {
     private Player                 seatedPlayer = null;
 
     private Seat(ImmutableLocation location, BlockFace blockFace) {
-        this.armorStand = ArmorStandStatue.builder().location(location).facing(blockFace).invisible(true).build();
+        this.armorStand = ArmorStandStatue.builder()
+                .location(location)
+                .facing(blockFace)
+                .invisible(true)
+                .build();
+
+        this.addChild(this.armorStand);
     }
 
     public static Seat of(ImmutableLocation location, BlockFace blockFace) {
@@ -21,18 +26,6 @@ public class Seat extends WorldObject {
 
     public static Seat of(ImmutableLocation location) {
         return new Seat(location, null);
-    }
-
-    @Override
-    protected void onPlaced() {
-        this.armorStand.place();
-    }
-
-    @Override
-    protected void onRemoved(RemoveCause cause) {
-        if (cause == RemoveCause.GENERAL) {
-            this.armorStand.remove();
-        }
     }
 
     public void seatPlayer(Player player) {

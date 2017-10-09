@@ -8,6 +8,7 @@ import org.cantaloupe.entity.EntityType;
 import org.cantaloupe.entity.FakeEntity;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.text.Text;
+import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.WorldObject;
 import org.cantaloupe.world.location.ImmutableLocation;
@@ -94,12 +95,21 @@ public class Statue extends WorldObject {
 
     public void setPosition(Vector3d position) {
         this.entity.setPosition(this.players, new Vector3d(position.x + 0.5, position.y, position.z + 0.5));
-        this.location = ImmutableLocation.of(this.location.getWorld(), position);
+        this.location = ImmutableLocation.of(this.location.getWorld(), position, this.location.getRotation());
     }
 
     public void setRotation(Vector2f rotation) {
         this.entity.setRotation(this.players, rotation);
+
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
+        this.blockFace = MathUtils.rotationToFace(rotation);
+    }
+
+    public void setBlockFace(BlockFace blockFace) {
+        this.entity.setBlockFace(this.players, blockFace);
+
+        this.blockFace = blockFace;
+        this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), new Vector2f(blockFace != BlockFace.UP && blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(blockFace) : 0, blockFace == BlockFace.UP ? 90 : blockFace == BlockFace.DOWN ? -90 : 0));
     }
 
     public void setHeadRotation(float headRotation) {

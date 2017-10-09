@@ -63,7 +63,8 @@ public class FakeEntity {
 
             ReflectionHelper.invokeMethod("setPositionRotation", entity, new Class<?>[] {
                     double.class, double.class, double.class, float.class, float.class
-            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, this.location.getYaw() + (blockFace != null ? MathUtils.faceToYaw(this.blockFace) : 0f), this.location.getPitch());
+            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, this.blockFace != null ? (this.blockFace != BlockFace.UP && this.blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(this.blockFace) : 0) : 0,
+                    this.blockFace != null ? (this.blockFace == BlockFace.UP ? 90 : this.blockFace == BlockFace.DOWN ? -90 : 0) : this.location.getPitch());
 
             if (customName != null) {
                 ReflectionHelper.invokeMethod("setCustomName", entity, customName);
@@ -301,7 +302,7 @@ public class FakeEntity {
             e.printStackTrace();
         }
 
-        this.location = ImmutableLocation.of(this.location.getWorld(), position);
+        this.location = ImmutableLocation.of(this.location.getWorld(), position, this.location.getRotation());
     }
 
     /**
@@ -325,7 +326,7 @@ public class FakeEntity {
         }
 
         try {
-            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(this.location.getYaw()), this.getFixRotation(this.location.getPitch()), false);
+            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(rotation.x), this.getFixRotation(rotation.y), false);
 
             for (Player player : players) {
                 packetService.sendPacket(player, lookPacket);
@@ -335,6 +336,7 @@ public class FakeEntity {
         }
 
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), rotation);
+        this.blockFace = MathUtils.rotationToFace(rotation);
     }
 
     /**
@@ -352,13 +354,14 @@ public class FakeEntity {
         try {
             ReflectionHelper.invokeMethod("setPositionRotation", this.handle, new Class<?>[] {
                     double.class, double.class, double.class, float.class, float.class
-            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, MathUtils.faceToYaw(blockFace), this.getLocation().getPitch());
+            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, blockFace != BlockFace.UP && blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(blockFace) : 0, blockFace == BlockFace.UP ? 90 : blockFace == BlockFace.DOWN ? -90 : 0);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
 
         try {
-            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(this.location.getYaw()), this.getFixRotation(this.location.getPitch()), false);
+            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(blockFace != BlockFace.UP && blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(blockFace) : 0),
+                    this.getFixRotation(blockFace == BlockFace.UP ? 90 : blockFace == BlockFace.DOWN ? -90 : 0), false);
 
             for (Player player : players) {
                 packetService.sendPacket(player, lookPacket);
@@ -368,7 +371,7 @@ public class FakeEntity {
         }
 
         this.blockFace = blockFace;
-        this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), new Vector2f(MathUtils.faceToYaw(blockFace), this.getLocation().getPitch()));
+        this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), new Vector2f(blockFace != BlockFace.UP && blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(blockFace) : 0, blockFace == BlockFace.UP ? 90 : blockFace == BlockFace.DOWN ? -90 : 0));
     }
 
     /**
@@ -763,12 +766,30 @@ public class FakeEntity {
     }
 
     /**
+     * Gets the object location of the entity.
+     * 
+     * @return The location
+     */
+    public ImmutableLocation getLocationForObject() {
+        return this.location.subtract(0.5, 0, 0.5);
+    }
+
+    /**
      * Gets the position of the entity.
      * 
      * @return The position
      */
     public Vector3d getPosition() {
         return this.location.getPosition();
+    }
+
+    /**
+     * Gets the object position of the entity.
+     * 
+     * @return The position
+     */
+    public Vector3d getPositionForObject() {
+        return this.location.getPosition().sub(0.5, 0, 0.5);
     }
 
     /**

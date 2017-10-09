@@ -60,8 +60,14 @@ public class Hologram extends WorldObject {
         int count = 0;
 
         for (Text line : this.lines) {
-            this.entities.add(FakeEntity.builder().type(EntityType.ARMOR_STAND).world(this.location.getWorld()).position(new Vector3d(this.location.getPosition().x + 0.5, (this.location.getPosition().y - 2.0) - (count * 0.25), this.location.getPosition().z + 0.5)).customName(line).customNameVisible(true)
-                    .invisible(true).build());
+            this.entities.add(FakeEntity.builder()
+                    .type(EntityType.ARMOR_STAND)
+                    .world(this.location.getWorld())
+                    .position(new Vector3d(this.location.getPosition().x + 0.5, (this.location.getPosition().y - 2.0) - (count * 0.25), this.location.getPosition().z + 0.5))
+                    .customName(line)
+                    .customNameVisible(true)
+                    .invisible(true)
+                    .build());
 
             count++;
         }

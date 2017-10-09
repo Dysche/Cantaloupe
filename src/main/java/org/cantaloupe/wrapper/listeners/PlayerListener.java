@@ -282,8 +282,8 @@ public class PlayerListener implements Listener {
                 if (toolOpt.isPresent()) {
                     Tool tool = toolOpt.get();
 
-                    if (player.getWorld().isObject(ImmutableLocation.of(event.getRightClicked().getLocation()).subtract(0.5, -1, 0.5))) {
-                        tool.onLeftClickObject(player, player.getWorld().getObject(ImmutableLocation.of(event.getRightClicked().getLocation())));
+                    if (player.getWorld().isObject(ImmutableLocation.of(event.getRightClicked().getLocation()).subtract(0.5, 0, 0.5))) {
+                        tool.onRightClickObject(player, player.getWorld().getObject(ImmutableLocation.of(event.getRightClicked().getLocation().subtract(0.5, 0, 0.5))));
                         event.setCancelled(true);
 
                         return;
@@ -305,8 +305,8 @@ public class PlayerListener implements Listener {
                 if (toolOpt.isPresent()) {
                     Tool tool = toolOpt.get();
 
-                    if (player.getWorld().isObject(ImmutableLocation.of(event.getRightClicked().getLocation()).subtract(0.5, -1, 0.5))) {
-                        tool.onLeftClickObject(player, player.getWorld().getObject(ImmutableLocation.of(event.getRightClicked().getLocation())));
+                    if (player.getWorld().isObject(ImmutableLocation.of(event.getRightClicked().getLocation()).subtract(0.5, 0, 0.5))) {
+                        tool.onRightClickObject(player, player.getWorld().getObject(ImmutableLocation.of(event.getRightClicked().getLocation().subtract(0.5, 0, 0.5))));
                         event.setCancelled(true);
 
                         return;
@@ -326,8 +326,8 @@ public class PlayerListener implements Listener {
             if (toolOpt.isPresent()) {
                 Tool tool = toolOpt.get();
 
-                if (player.getWorld().isObject(event.getRightClicked().getLocation().subtract(0.5, -1, 0.5))) {
-                    tool.onLeftClickObject(player, player.getWorld().getObject(event.getRightClicked().getLocation()));
+                if (player.getWorld().isObject(event.getRightClicked().getLocationForObject())) {
+                    tool.onRightClickObject(player, player.getWorld().getObject(event.getRightClicked().getLocationForObject()));
                     event.setCancelled(true);
 
                     return;
@@ -345,9 +345,9 @@ public class PlayerListener implements Listener {
 
             if (toolOpt.isPresent()) {
                 Tool tool = toolOpt.get();
-
-                if (player.getWorld().isObject(event.getRightClicked().getLocation().subtract(0.5, -1, 0.5))) {
-                    tool.onLeftClickObject(player, player.getWorld().getObject(event.getRightClicked().getLocation()));
+                
+                if (player.getWorld().isObject(event.getRightClicked().getLocationForObject())) {
+                    tool.onRightClickObject(player, player.getWorld().getObject(event.getRightClicked().getLocationForObject()));
                     event.setCancelled(true);
 
                     return;
