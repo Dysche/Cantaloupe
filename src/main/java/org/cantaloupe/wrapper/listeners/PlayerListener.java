@@ -117,6 +117,12 @@ public class PlayerListener implements Listener {
                         }
                     }
                 }
+            } else if (event.getClickedInventory() == player.getInventory().toHandle()) {
+                if (player.getInventory().isLocked()) {
+                    event.setCancelled(true);
+
+                    return;
+                }
             }
         }
     }
@@ -345,7 +351,7 @@ public class PlayerListener implements Listener {
 
             if (toolOpt.isPresent()) {
                 Tool tool = toolOpt.get();
-                
+
                 if (player.getWorld().isObject(event.getRightClicked().getLocationForObject())) {
                     tool.onRightClickObject(player, player.getWorld().getObject(event.getRightClicked().getLocationForObject()));
                     event.setCancelled(true);

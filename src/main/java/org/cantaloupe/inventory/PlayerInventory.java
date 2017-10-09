@@ -9,6 +9,7 @@ import org.cantaloupe.tool.Tool;
 
 public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerInventory> {
     private final org.bukkit.inventory.PlayerInventory handle;
+    private boolean                                    locked = false;
 
     private PlayerInventory(org.bukkit.inventory.PlayerInventory handle) {
         this.handle = handle;
@@ -16,6 +17,10 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
 
     public static PlayerInventory of(org.bukkit.inventory.PlayerInventory handle) {
         return new PlayerInventory(handle);
+    }
+
+    public static PlayerInventory of(org.bukkit.inventory.PlayerInventory handle, boolean locked) {
+        return new PlayerInventory(handle).setLocked(locked);
     }
 
     public PlayerInventory addTool(Tool tool) {
@@ -120,6 +125,20 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
         this.handle.setBoots(itemStack.toHandle());
 
         return this;
+    }
+
+    public PlayerInventory setLocked(boolean locked) {
+        this.locked = locked;
+
+        return this;
+    }
+
+    public boolean isTool(ItemStack itemStack) {
+        return itemStack.hasTag() && itemStack.getTag().getBoolean("isTool");
+    }
+
+    public boolean isLocked() {
+        return this.locked;
     }
 
     public ItemStack getItemInHand(EnumItemSlot slot) {

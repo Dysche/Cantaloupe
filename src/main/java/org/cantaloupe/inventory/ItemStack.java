@@ -275,6 +275,15 @@ public class ItemStack {
     }
 
     /**
+     * Checks if the itemstack is empty.
+     * 
+     * @return True if it is, false if not.
+     */
+    public boolean isEmpty() {
+        return this.handle == null;
+    }
+
+    /**
      * Returns the handle of the itemstack.
      * 
      * @return The handle
@@ -388,6 +397,18 @@ public class ItemStack {
 
     @Override
     public boolean equals(Object other) {
-        return this.handle.equals(other);
+        if(this.handle == null && other == null) {
+            return true;
+        } else if(this.handle == null || other == null) {
+            return false;
+        }
+
+        if (other instanceof ItemStack) {
+            return this.handle.equals(((ItemStack) other).toHandle());
+        } else if (other instanceof org.bukkit.inventory.ItemStack) {
+            return this.handle.equals(other);
+        }
+
+        return false;
     }
 }
