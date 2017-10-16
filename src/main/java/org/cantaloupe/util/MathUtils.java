@@ -64,7 +64,7 @@ public class MathUtils {
                 return 0;
         }
     }
-
+    
     public static boolean randomBoolean() {
         return ThreadLocalRandom.current().nextBoolean();
     }

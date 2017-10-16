@@ -13,6 +13,7 @@ import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.service.services.PacketService;
+import org.cantaloupe.skin.Skin;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.World;
@@ -30,23 +31,25 @@ import com.mojang.authlib.properties.Property;
  *
  */
 public class FakePlayer extends FakeEntity {
-    private final UUID   uuid;
-    private final String name;
-    private GameProfile  gameProfile = null;
+    private UUID        uuid;
+    private String      name;
+    private Skin        skin;
+    private GameProfile gameProfile = null;
 
-    private FakePlayer(ImmutableLocation location, BlockFace blockFace, float headRotation, UUID uuid, String name, boolean invisible) {
+    private FakePlayer(ImmutableLocation location, BlockFace blockFace, float headRotation, UUID uuid, String name, boolean invisible, Skin skin) {
         super(EntityType.PLAYER, location, blockFace, headRotation, null, false, invisible, false);
 
         this.uuid = uuid;
         this.name = name;
+        this.skin = skin;
+
         this.gameProfile = new GameProfile(uuid, name);
 
-        /** TODO: Skin System */
-        String value = "eyJ0aW1lc3RhbXAiOjE0NDI4MzY1MTU1NzksInByb2ZpbGVJZCI6IjkwZWQ3YWY0NmU4YzRkNTQ4MjRkZTc0YzI1MTljNjU1IiwicHJvZmlsZU5hbWUiOiJDb25DcmFmdGVyIiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8xMWNlZDMzMjNmYjczMmFjMTc3MTc5Yjg5NWQ5YzJmNjFjNzczZWYxNTVlYmQ1Y2M4YzM5NTZiZjlhMDlkMTIifX19";
-        String signature = "tFGNBQNpxNGvD27SN7fqh3LqNinjJJFidcdF8LTRHOdoMNXcE5ezN172BnDlRsExspE9X4z7FPglqh/b9jrLFDfQrdqX3dGm1cKjYbvOXL9BO2WIOEJLTDCgUQJC4/n/3PZHEG2mVADc4v125MFYMfjzkznkA6zbs7w6z8f7pny9eCWNXPOQklstcdc1h/LvflnR+E4TUuxCf0jVsdT5AZsUYIsJa6fvr0+vItUXUdQ3pps0zthObPEnBdLYMtNY3G6ZLGVKcSGa/KRK2D/k69fmu/uTKbjAWtniFB/sdO0VNhLuvyr/PcZVXB78l1SfBR88ZMiW6XSaVqNnSP+MEfRkxgkJWUG+aiRRLE8G5083EQ8vhIle5GxzK68ZR48IrEX/JwFjALslCLXAGR05KrtuTD3xyq2Nut12GCaooBEhb46sipWLq4AXI9IpJORLOW8+GvY+FcDwMqXYN94juDQtbJGCQo8PX670YjbmVx7+IeFjLJJTZotemXu1wiQmDmtAAmug4U5jgMYIJryXMitD7r5pEop/cw42JbCO2u0b5NB7sI/mr4OhBKEesyC5usiARzuk6e/4aJUvwQ9nsiXfeYxZz8L/mh6e8YPJMyhVkFtblbt/4jPe0bs3xSUXO9XrDyhy9INC0jlLT22QjNzrDkD8aiGAopVvfnTTAug=";
-        this.gameProfile.getProperties().put("textures", new Property("textures", value, signature));
+        if (skin != null) {
+            this.gameProfile.getProperties().put("textures", new Property("textures", skin.getTexture(), skin.getSignature()));
+        }
 
-        this.create(uuid, name, headRotation, invisible);
+        this.create(headRotation, invisible);
     }
 
     /**
@@ -58,7 +61,7 @@ public class FakePlayer extends FakeEntity {
         return new Builder();
     }
 
-    private void create(UUID uuid, String name, float headRotation, boolean invisible) {
+    private void create(float headRotation, boolean invisible) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
         try {
@@ -309,6 +312,15 @@ public class FakePlayer extends FakeEntity {
     }
 
     /**
+     * Gets the skin of the entity.
+     * 
+     * @return The skin
+     */
+    public Skin getSkin() {
+        return this.skin;
+    }
+
+    /**
      * Gets the game profile of the entity.
      * 
      * @return The game profile
@@ -320,6 +332,7 @@ public class FakePlayer extends FakeEntity {
     public static final class Builder extends FakeEntity.Builder {
         private UUID   uuid = null;
         private String name = null;
+        private Skin   skin = null;
 
         /**
          * Sets the location of the builder.
@@ -459,6 +472,19 @@ public class FakePlayer extends FakeEntity {
             return this;
         }
 
+        /**
+         * Sets the skin of the builder.
+         * 
+         * @param skin
+         *            The skin
+         * @return The builder
+         */
+        public Builder skin(Skin skin) {
+            this.skin = skin;
+
+            return this;
+        }
+
         @Override
         public FakePlayer build() {
             if (this.location == null) {
@@ -469,7 +495,7 @@ public class FakePlayer extends FakeEntity {
                 }
             }
 
-            return new FakePlayer(this.location, this.blockFace, this.headRotation, this.uuid, this.name, this.invisible);
+            return new FakePlayer(this.location, this.blockFace, this.headRotation, this.uuid, this.name, this.invisible, this.skin);
         }
     }
 }

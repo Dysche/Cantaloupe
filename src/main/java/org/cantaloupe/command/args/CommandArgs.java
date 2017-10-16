@@ -32,11 +32,15 @@ public final class CommandArgs {
 
     public String peek() throws ArgumentParseException {
         if (!hasNext()) {
-            Map<ErrorType, Text> errors = spec.getErrors();
+            Map<ErrorType, Text> errors = this.spec.getErrors();
             Text error = null;
 
             if (errors != null) {
                 error = errors.get(ErrorType.NOT_ENOUGH_ARGUMENTS);
+            }
+
+            if (!this.spec.requiresArguments()) {
+                return null;
             }
 
             throw createError(error == null ? t("Not enough arguments") : error);
@@ -47,11 +51,15 @@ public final class CommandArgs {
 
     public String next() throws ArgumentParseException {
         if (!hasNext()) {
-            Map<ErrorType, Text> errors = spec.getErrors();
+            Map<ErrorType, Text> errors = this.spec.getErrors();
             Text error = null;
 
             if (errors != null) {
                 error = errors.get(ErrorType.NOT_ENOUGH_ARGUMENTS);
+            }
+
+            if (!this.spec.requiresArguments()) {
+                return null;
             }
 
             throw createError(error == null ? t("Not enough arguments") : error);

@@ -38,29 +38,29 @@ public class Text {
         this.children = new ArrayList<Text>();
         this.actions = new ArrayList<TextAction<?>>();
 
-        this.format = format;
+        this.format(format);
     }
 
     private Text(String content, TextFormat format) {
         this.component = new TextComponent();
         this.component.setText(content);
 
+        this.content = content;
         this.children = new ArrayList<Text>();
         this.actions = new ArrayList<TextAction<?>>();
 
-        this.content = content;
-        this.format = format;
+        this.format(format);
     }
 
     private Text(TextFormat format, String... contents) {
         this.component = new TextComponent();
         this.component.setText(contents[0]);
 
+        this.content = contents[0];
         this.children = new ArrayList<Text>();
         this.actions = new ArrayList<TextAction<?>>();
 
-        this.content = contents[0];
-        this.format = format;
+        this.format(format);
 
         for (String content : Arrays.copyOfRange(contents, 1, contents.length)) {
             this.addChild(Text.of(content, format));
@@ -121,6 +121,18 @@ public class Text {
 
     public static Text of() {
         return new Text(TextFormat.of());
+    }
+
+    public static Text of(TextColor color) {
+        return new Text(TextFormat.of(color));
+    }
+
+    public static Text of(TextStyle style) {
+        return new Text(TextFormat.of(style));
+    }
+
+    public static Text of(TextFormat format) {
+        return new Text(format);
     }
 
     public static Text of(String content) {
@@ -221,7 +233,7 @@ public class Text {
 
     public Text color(TextColor color) {
         this.format.color(color);
-        this.component.setColor(color.getHandle());
+        this.component.setColor(color.toHandle());
 
         return this;
     }
@@ -229,8 +241,8 @@ public class Text {
     public Text style(TextStyle style) {
         this.format.style(style);
 
-        if (style.getHandle() != null) {
-            switch (style.getHandle()) {
+        if (style.toHandle() != null) {
+            switch (style.toHandle()) {
                 case MAGIC:
                     this.component.setObfuscated(true);
 
@@ -276,10 +288,10 @@ public class Text {
 
     public Text format(TextFormat format) {
         this.format = format;
-        this.component.setColor(format.getColor().getHandle());
+        this.component.setColor(format.getColor().toHandle());
 
-        if (format.getStyle().getHandle() != null) {
-            switch (format.getStyle().getHandle()) {
+        if (format.getStyle().toHandle() != null) {
+            switch (format.getStyle().toHandle()) {
                 case MAGIC:
                     this.component.setObfuscated(true);
 

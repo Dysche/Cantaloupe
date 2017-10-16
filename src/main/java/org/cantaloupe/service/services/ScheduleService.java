@@ -88,6 +88,10 @@ public class ScheduleService implements IService {
         this.trySetTask("cantaloupe", name, this.scheduler.scheduleSyncRepeatingTask(Cantaloupe.getInstance(), runnable, 0L, period));
     }
 
+    public void repeat(String name, Runnable runnable) {
+        this.trySetTask("cantaloupe", name, this.scheduler.scheduleSyncRepeatingTask(Cantaloupe.getInstance(), runnable, 0L, 0L));
+    }
+
     public void cancel(CantaloupePlugin plugin, String name) {
         if (this.services.containsKey(plugin.getID())) {
             if (this.services.get(plugin.getID()).containsKey(name)) {

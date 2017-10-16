@@ -9,22 +9,43 @@ package org.cantaloupe.player;
 public abstract class PlayerWrapper {
     private Player player = null;
 
-    protected PlayerWrapper(Player player) {
+    public PlayerWrapper(Player player) {
         this.player = player;
     }
 
     /**
      * This is called once the wrapper gets loaded.
      */
-    public void onLoad() {
+    protected void onLoad() {
 
     }
 
     /**
+     * This is called once the wrapper gets post-loaded.
+     */
+    protected void onPostLoad() {
+
+    }
+    
+    /**
      * This is called once the wrapper gets unloaded.
      */
-    public void onUnload() {
+    protected void onUnload() {
 
+    }
+
+    /**
+     * This is called once the player joins.
+     */
+    protected void onJoin() {
+        
+    }
+
+    /**
+     * This is called once the player leaves.
+     */
+    protected void onLeave() {
+        
     }
 
     /**

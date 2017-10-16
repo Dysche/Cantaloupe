@@ -24,7 +24,7 @@ public class Page {
     private Menu                    menu      = null;
     private Inventory               inventory = null;
 
-    private Page(String ID, Text name, int size) {
+    protected Page(String ID, Text name, int size) {
         this.ID = ID;
         this.name = name;
         this.size = size;
@@ -65,7 +65,7 @@ public class Page {
      * @return The page
      */
     public static Page of(String ID, int size) {
-        return new Page(ID, Text.of("Page"), 54);
+        return new Page(ID, Text.of("Page"), size);
     }
 
     /**
@@ -80,7 +80,7 @@ public class Page {
      * @return The page
      */
     public static Page of(String ID, Text name, int size) {
-        return new Page(ID, name, 54);
+        return new Page(ID, name, size);
     }
 
     /**
@@ -165,6 +165,7 @@ public class Page {
      * Clears the page.
      */
     public void clear() {
+        this.buttons.clear();
         this.inventory.clear();
     }
 

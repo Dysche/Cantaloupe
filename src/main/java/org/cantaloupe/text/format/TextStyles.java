@@ -17,7 +17,7 @@ public class TextStyles {
         };
 
         for (TextStyle s : styles) {
-            if (s.getHandle() == color) {
+            if (s.toHandle() == color) {
                 return s;
             }
         }

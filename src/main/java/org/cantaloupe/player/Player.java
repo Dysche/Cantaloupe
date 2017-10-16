@@ -86,6 +86,9 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
     }
 
     public void onJoin() {
+        // Wrappers
+        this.wrappers.forEach((wrapperClass, wrapper) -> wrapper.onJoin());
+
         // Tick Player
         this.getWorld().tickPlayer(this);
 
@@ -97,7 +100,7 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         // Services
         this.packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
-        // Packet
+        // Protocol
         PacketAccessor.addFor(this);
 
         // Wrappers
@@ -107,7 +110,18 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         this.getInjector().accept(Scopes.LOAD, this);
     }
 
+    public void onPostLoad() {
+        // Wrappers
+        this.wrappers.forEach((wrapperClass, wrapper) -> wrapper.onPostLoad());
+
+        // Injector
+        this.getInjector().accept(Scopes.POST_LOAD, this);
+    }
+    
     public void onLeave() {
+        // Wrappers
+        this.wrappers.forEach((wrapperClass, wrapper) -> wrapper.onLeave());
+
         // Injector
         this.getInjector().accept(Scopes.LEAVE, this);
 
@@ -116,11 +130,6 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
 
         // Tick Player
         this.getWorld().tickPlayer(this);
-
-        // Seat
-        if (this.isSitting()) {
-            this.unsit();
-        }
     }
 
     public void onUnload() {
@@ -141,7 +150,12 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         // Services
         this.packetService = null;
 
-        // Packet
+        // Seat
+        if (this.isSitting()) {
+            this.unsit();
+        }
+
+        // Protocol
         PacketAccessor.removeFor(this);
     }
 
@@ -411,9 +425,9 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      *            The name of the group
      * @return True if it is, false if not
      */
-    public boolean isInGroup(String name) {
+    public boolean isInGroup(String ID) {
         for (Group group : this.groups) {
-            if (group.getName().equals(name)) {
+            if (group.getID().equals(ID)) {
                 return true;
             }
         }
@@ -438,12 +452,12 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      * @param name
      *            The name of the group
      */
-    public void joinGroup(String name) {
-        if (this.isInGroup(name)) {
+    public void joinGroup(String ID) {
+        if (this.isInGroup(ID)) {
             return;
         }
 
-        Optional<Group> groupOpt = GroupManager.getGroup(name);
+        Optional<Group> groupOpt = GroupManager.getGroup(ID);
         if (groupOpt.isPresent()) {
             Group group = groupOpt.get();
 
@@ -475,8 +489,8 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      * @param name
      *            The name of the group
      */
-    public void leaveGroup(String name) {
-        Optional<Group> groupOpt = GroupManager.getGroup(name);
+    public void leaveGroup(String ID) {
+        Optional<Group> groupOpt = GroupManager.getGroup(ID);
 
         if (groupOpt.isPresent()) {
             Group group = groupOpt.get();
@@ -633,8 +647,11 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      *            The menu
      */
     public void openMenu(Menu menu) {
-        this.currentMenu = menu;
-        this.currentMenu.open();
+        if (menu.getLandingPage() != null) {
+            menu.showLandingPage();
+
+            this.currentMenu = menu;
+        }
     }
 
     /**

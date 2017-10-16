@@ -78,6 +78,24 @@ public class Collection {
     }
 
     /**
+     * Updates an entry in the collection.
+     * 
+     * @param key
+     *            The key of the entry
+     * @param fieldKey
+     *            The key of the field
+     * @param value
+     *            The value of the field
+     */
+    @SuppressWarnings("unchecked")
+    public void update(String key, String fieldKey, Object value) {
+        Document query = new Document();
+        query.append("{documentKey}", key);
+
+        this.handle.updateOne(query, new Document("$set", new Document(fieldKey, value instanceof DataContainer ? DatabaseUtils.containerToDocument(key, (DataContainer<String, Object>) value) : value)));
+    }
+
+    /**
      * Deletes an entry from the collection.
      * 
      * @param key
@@ -115,6 +133,30 @@ public class Collection {
 
         Document query = new Document();
         query.append("{documentKey}", key);
+
+        FindIterable<Document> iterable = this.handle.find(query);
+        iterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                results.add(DatabaseUtils.documentToContainer(document));
+            }
+        });
+
+        return results;
+    }
+
+    /**
+     * Returns one or more entries from the collection.
+     * 
+     * @param query
+     *            The query
+     * @return A list of entries
+     */
+    public List<DataContainer<String, Object>> retrieve(String key, Object value) {
+        ArrayList<DataContainer<String, Object>> results = new ArrayList<DataContainer<String, Object>>();
+
+        Document query = new Document();
+        query.append(key, value);
 
         FindIterable<Document> iterable = this.handle.find(query);
         iterable.forEach(new Block<Document>() {

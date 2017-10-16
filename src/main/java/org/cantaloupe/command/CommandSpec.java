@@ -22,15 +22,17 @@ public class CommandSpec {
     private final Optional<Text>       usage;
     private final Optional<Text>       description;
     private final CommandElement       args;
+    private final boolean              requiresArguments;
     private final ICommandExecutor     executor;
     private final Map<ErrorType, Text> errors;
     private final List<CommandChild>   children;
 
-    private CommandSpec(String permission, Text usage, Text description, CommandElement args, ICommandExecutor executor, Map<ErrorType, Text> errors, Map<CommandSpec, List<String>> children) {
+    private CommandSpec(String permission, Text usage, Text description, CommandElement args, boolean requiresArguments, ICommandExecutor executor, Map<ErrorType, Text> errors, Map<CommandSpec, List<String>> children) {
         this.permission = permission;
         this.usage = Optional.ofNullable(usage);
         this.description = Optional.ofNullable(description);
         this.args = args;
+        this.requiresArguments = requiresArguments;
         this.executor = executor;
         this.errors = errors;
 
@@ -86,6 +88,10 @@ public class CommandSpec {
         return this.args;
     }
 
+    public boolean requiresArguments() {
+        return this.requiresArguments;
+    }
+
     protected ICommandExecutor getExecutor() {
         return this.executor;
     }
@@ -105,14 +111,15 @@ public class CommandSpec {
      *
      */
     public static final class Builder {
-        private static final CommandElement    DEFAULT_ARG = GeneralArguments.none();
-        private String                         permission  = null;
-        private Text                           usage       = null;
-        private Text                           description = null;
-        private CommandElement                 args        = DEFAULT_ARG;
-        private ICommandExecutor               executor    = null;
-        private Map<ErrorType, Text>           errors      = null;
-        private Map<CommandSpec, List<String>> children    = null;
+        private static final CommandElement    DEFAULT_ARG       = GeneralArguments.none();
+        private String                         permission        = null;
+        private Text                           usage             = null;
+        private Text                           description       = null;
+        private CommandElement                 args              = DEFAULT_ARG;
+        private boolean                        requiresArguments = true;
+        private ICommandExecutor               executor          = null;
+        private Map<ErrorType, Text>           errors            = null;
+        private Map<CommandSpec, List<String>> children          = null;
 
         /**
          * Sets the permission node of the builder.
@@ -175,6 +182,19 @@ public class CommandSpec {
          */
         public Builder arguments(CommandElement... args) {
             this.args = GeneralArguments.seq(args);
+
+            return this;
+        }
+
+        /**
+         * Sets whether or not the command requires arguments to execute.
+         * 
+         * @param requiresArguments
+         *            True if it does, false if not
+         * @return The builder
+         */
+        public Builder requiresArguments(boolean requiresArguments) {
+            this.requiresArguments = requiresArguments;
 
             return this;
         }
@@ -255,7 +275,7 @@ public class CommandSpec {
          * @return The command spec
          */
         public CommandSpec build() {
-            return new CommandSpec(this.permission, this.usage, this.description, this.args, this.executor, this.errors, this.children);
+            return new CommandSpec(this.permission, this.usage, this.description, this.args, this.requiresArguments, this.executor, this.errors, this.children);
         }
     }
 

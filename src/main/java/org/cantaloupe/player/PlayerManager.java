@@ -78,6 +78,10 @@ public class PlayerManager implements IInjectable<Player> {
 
             player.onLoad();
         });
+
+        this.players.valueSet().forEach(player -> {
+            player.onPostLoad();
+        });
     }
 
     /**
@@ -399,6 +403,7 @@ public class PlayerManager implements IInjectable<Player> {
         public static final Scope JOIN         = Scope.of("player", "join");
         public static final Scope LEAVE        = Scope.of("player", "leave");
         public static final Scope LOAD         = Scope.of("player", "load");
+        public static final Scope POST_LOAD    = Scope.of("player", "post_load");
         public static final Scope UNLOAD       = Scope.of("player", "unload");
         public static final Scope FIRST_JOIN   = Scope.of("player", "first_join");
 

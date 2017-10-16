@@ -104,6 +104,19 @@ public class ScreenService implements IService {
         this.actionBar(null, players);
     }
 
+    // Tab
+    public void tabHeader(Text header, Player... players) {
+        this.sendPlayerListHeaderFooterPacket(header, null, players);
+    }
+
+    public void tabFooter(Text footer, Player... players) {
+        this.sendPlayerListHeaderFooterPacket(null, footer, players);
+    }
+
+    public void tabHeaderFooter(Text header, Text footer, Player... players) {
+        this.sendPlayerListHeaderFooterPacket(header, footer, players);
+    }
+
     private void sendTitlePacket(Text titleText, Text subText, int fadeIn, int duration, int fadeOut, Player... players) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
@@ -189,6 +202,35 @@ public class ScreenService implements IService {
                 packetService.sendPacket(player, packet);
             }
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendPlayerListHeaderFooterPacket(Text header, Text footer, Player... players) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+        PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+
+        try {
+            Object headerComponent = null;
+            Object footerComponent = null;
+            Object packet = nmsService.NMS_PACKET_OUT_PLAYERLISTHEADERFOOTER_CLASS.newInstance();
+
+            if (header != null) {
+                headerComponent = ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, "{\"text\":\"" + header.toLegacy() + "\"}");
+
+                ReflectionHelper.setDeclaredField("a", packet, headerComponent);
+            }
+
+            if (footer != null) {
+                footerComponent = ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, "{\"text\":\"" + footer.toLegacy() + "\"}");
+
+                ReflectionHelper.setDeclaredField("b", packet, footerComponent);
+            }
+
+            for (Player player : players) {
+                packetService.sendPacket(player, packet);
+            }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | NoSuchFieldException e) {
             e.printStackTrace();
         }
     }

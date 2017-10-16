@@ -100,11 +100,11 @@ public abstract class Group implements IPermittable, IPermissionHolder {
     public abstract boolean showPrefix();
 
     /**
-     * Gets the name of the group.
+     * Gets the ID of the group.
      * 
-     * @return The name
+     * @return The ID
      */
-    public abstract String getName();
+    public abstract String getID();
 
     /**
      * Gets the prefix of the group.

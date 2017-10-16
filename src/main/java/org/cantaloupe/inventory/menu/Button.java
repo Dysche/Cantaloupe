@@ -13,13 +13,13 @@ import org.cantaloupe.service.services.ScheduleService;
  *
  */
 public class Button {
-    private int                       slot          = -1;
-    private ItemStack                 icon          = null;
-    private boolean                   canMove       = false;
-    private BiConsumer<Button, Page>  clickConsumer = null;
-    private BiConsumer<Integer, Page> moveConsumer  = null;
+    private int                      slot          = -1;
+    private ItemStack                icon          = null;
+    private boolean                  canMove       = false, canMoveOn = false;
+    private BiConsumer<Button, Page> clickConsumer = null;
+    private BiConsumer<Button, Page> moveConsumer  = null;
 
-    private Page                      page          = null;
+    private Page                     page          = null;
 
     private Button(int slot, ItemStack icon) {
         this.slot = slot;
@@ -60,7 +60,7 @@ public class Button {
      */
     public void onMove() {
         if (this.moveConsumer != null) {
-            this.moveConsumer.accept(this.slot, this.page);
+            this.moveConsumer.accept(this, this.page);
         }
     }
 
@@ -129,7 +129,7 @@ public class Button {
      *            The consumer
      * @return The button
      */
-    public Button setMoveConsumer(BiConsumer<Integer, Page> consumer) {
+    public Button setMoveConsumer(BiConsumer<Button, Page> consumer) {
         this.moveConsumer = consumer;
 
         return this;
@@ -139,11 +139,24 @@ public class Button {
      * Sets whether or not the button can be moved.
      * 
      * @param canMove
-     *            Whether or not the button cam be moved.
+     *            Whether or not the button can be moved
      * @return The button
      */
     public Button setCanMove(boolean canMove) {
         this.canMove = canMove;
+
+        return this;
+    }
+
+    /**
+     * Sets whether or not the button can be moved on another button.
+     * 
+     * @param canMoveOn
+     *            Whether or not the button can be moved on another button
+     * @return The button
+     */
+    public Button setCanMoveOn(boolean canMoveOn) {
+        this.canMoveOn = canMoveOn;
 
         return this;
     }
@@ -155,10 +168,19 @@ public class Button {
     /**
      * Checks if the button can move.
      * 
-     * @return True if it can, false if not.
+     * @return True if it can, false if not
      */
     public boolean canMove() {
         return this.canMove;
+    }
+
+    /**
+     * Checks if the button can move on another button.
+     * 
+     * @return True if it can, false if not
+     */
+    public boolean canMoveOn() {
+        return this.canMoveOn;
     }
 
     /**

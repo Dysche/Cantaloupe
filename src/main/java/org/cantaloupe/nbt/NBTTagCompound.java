@@ -590,12 +590,14 @@ public class NBTTagCompound {
      * @param key
      *            The key of the value
      */
-    public void remove(String key) {
+    public NBTTagCompound remove(String key) {
         try {
             ReflectionHelper.invokeMethod("remove", this.handle, key);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+        
+        return this;
     }
 
     /**

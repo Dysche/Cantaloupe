@@ -24,17 +24,17 @@ public class GroupManager {
     public static void registerGroup(Group group) {
         group.initialize();
 
-        registeredGroups.put(group.getName(), group);
+        registeredGroups.put(group.getID(), group);
     }
 
     /**
      * Unregisters a group from the group manager.
      * 
-     * @param name
-     *            The name of a group
+     * @param ID
+     *            The ID of a group
      */
-    public static void unregisterGroup(String name) {
-        registeredGroups.remove(name);
+    public static void unregisterGroup(String ID) {
+        registeredGroups.remove(ID);
     }
 
     /**
@@ -44,19 +44,19 @@ public class GroupManager {
      *            The group
      */
     public static void unregisterGroup(Group group) {
-        registeredGroups.remove(group.getName());
+        registeredGroups.remove(group.getID());
     }
 
     /**
      * Gets a group from the group manager.
      * 
-     * @param name
-     *            The name of the group
+     * @param ID
+     *            The ID of the group
      * @return An optional containing the group if it's present, an empty
      *         optional if not
      */
-    public static Optional<Group> getGroup(String name) {
-        return Optional.ofNullable(registeredGroups.get(name));
+    public static Optional<Group> getGroup(String ID) {
+        return Optional.ofNullable(registeredGroups.get(ID));
     }
 
     /**

@@ -9,6 +9,7 @@ import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.entity.FakePlayer;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.services.ScheduleService;
+import org.cantaloupe.skin.Skin;
 import org.cantaloupe.text.Text;
 import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.world.World;
@@ -25,16 +26,18 @@ public class PlayerStatue extends WorldObject {
     private UUID               uuid         = null;
     private Text               name         = null;
     private boolean            keepInTab    = false;
+    private Skin               skin         = null;
 
     private final List<Player> players;
 
-    private PlayerStatue(ImmutableLocation location, BlockFace blockFace, float headRotation, UUID uuid, Text name, boolean keepInTab) {
+    private PlayerStatue(ImmutableLocation location, BlockFace blockFace, float headRotation, UUID uuid, Text name, boolean keepInTab, Skin skin) {
         this.location = location;
         this.blockFace = blockFace;
         this.headRotation = headRotation;
         this.uuid = uuid;
         this.name = name;
         this.keepInTab = keepInTab;
+        this.skin = skin;
 
         this.players = new ArrayList<Player>();
     }
@@ -52,12 +55,7 @@ public class PlayerStatue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakePlayer.builder()
-                .location(this.location.add(0.5, 0, 0.5))
-                .facing(this.blockFace)
-                .uuid(this.uuid)
-                .name(this.name.toLegacy())
-                .build();
+        this.entity = FakePlayer.builder().location(this.location.add(0.5, 0, 0.5)).facing(this.blockFace).uuid(this.uuid).name(this.name.toLegacy()).skin(this.skin).build();
     }
 
     public void placeFor(Player player) {
@@ -65,7 +63,7 @@ public class PlayerStatue extends WorldObject {
             this.entity.addToTab(player);
 
             if (!this.keepInTab) {
-                Cantaloupe.getServiceManager().provide(ScheduleService.class).delay(this.uuid.toString() + ":removeTabTask", new Runnable() {
+                Cantaloupe.getServiceManager().provide(ScheduleService.class).delay(player.getUUID().toString() + ":removeTabTask", new Runnable() {
                     @Override
                     public void run() {
                         entity.removeFromTab(player);
@@ -102,6 +100,14 @@ public class PlayerStatue extends WorldObject {
         }
     }
 
+    public void addToTab() {
+        this.entity.addToTab(this.players);
+    }
+
+    public void removeFromTab() {
+        this.entity.removeFromTab(this.players);
+    }
+
     public void setLocation(ImmutableLocation location) {
         this.entity.setLocation(this.players, ImmutableLocation.of(location.getWorld(), new Vector3d(location.getPosition().x + 0.5, location.getPosition().y, location.getPosition().z + 0.5), location.getRotation()));
         this.location = location;
@@ -129,14 +135,6 @@ public class PlayerStatue extends WorldObject {
     public void setHeadRotation(float headRotation) {
         this.entity.setHeadRotation(this.players, headRotation);
         this.headRotation = headRotation;
-    }
-
-    public void addToTab() {
-        this.entity.addToTab(this.players);
-    }
-
-    public void removeFromTab() {
-        this.entity.removeFromTab(this.players);
     }
 
     protected void onPlaced() {
@@ -189,6 +187,10 @@ public class PlayerStatue extends WorldObject {
         return this.name;
     }
 
+    public Skin getSkin() {
+        return this.skin;
+    }
+
     public FakePlayer getEntity() {
         return this.entity;
     }
@@ -207,6 +209,7 @@ public class PlayerStatue extends WorldObject {
         private UUID              uuid         = null;
         private Text              name         = null;
         private boolean           keepInTab    = false;
+        private Skin              skin         = null;
 
         private Builder() {
 
@@ -272,6 +275,12 @@ public class PlayerStatue extends WorldObject {
             return this;
         }
 
+        public Builder skin(Skin skin) {
+            this.skin = skin;
+
+            return this;
+        }
+
         public PlayerStatue build() {
             if (this.location == null) {
                 if (this.rotation != null) {
@@ -281,7 +290,7 @@ public class PlayerStatue extends WorldObject {
                 }
             }
 
-            PlayerStatue statue = new PlayerStatue(this.location, this.blockFace, this.headRotation, this.uuid, this.name, this.keepInTab);
+            PlayerStatue statue = new PlayerStatue(this.location, this.blockFace, this.headRotation, this.uuid, this.name, this.keepInTab, this.skin);
             statue.create();
 
             return statue;

@@ -2,9 +2,12 @@ package org.cantaloupe.inventory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.nbt.NBTTagCompound;
@@ -20,6 +23,7 @@ import org.cantaloupe.util.ReflectionHelper;
  */
 public class ItemStack {
     private org.bukkit.inventory.ItemStack handle;
+    private boolean                        isGlowing = false, isDurabilityHidden = false;
 
     private ItemStack(org.bukkit.inventory.ItemStack handle) {
         this.handle = handle;
@@ -167,6 +171,17 @@ public class ItemStack {
      *            The lore
      * @return The itemstack
      */
+    public ItemStack setLore(Text... lore) {
+        return this.setLore(Arrays.asList(lore));
+    }
+
+    /**
+     * Sets the lore of the itemstack.
+     * 
+     * @param lore
+     *            The lore
+     * @return The itemstack
+     */
     public ItemStack setLore(List<Text> lore) {
         List<String> loreTmp = new ArrayList<String>();
 
@@ -258,6 +273,68 @@ public class ItemStack {
     }
 
     /**
+     * Sets whether or not the item has the enchanted effect.
+     * 
+     * @param isGlowing
+     *            Whether or not it has the effect
+     * @return The itemstack
+     */
+    public ItemStack setGlowing(boolean isGlowing) {
+        if (isGlowing) {
+            if (!this.isGlowing) {
+                ItemMeta meta = this.getItemMeta();
+                meta.addEnchant(Enchantment.WATER_WORKER, 1, true);
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+                this.setItemMeta(meta);
+            }
+        } else {
+            if (this.isGlowing) {
+                ItemMeta meta = this.getItemMeta();
+                meta.getEnchants().keySet().forEach(meta::removeEnchant);
+                meta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+                this.setItemMeta(meta);
+            }
+        }
+
+        this.isGlowing = isGlowing;
+
+        return this;
+    }
+
+    /**
+     * Sets whether or not the durability of the item should be hidden.
+     * 
+     * @param hideDurability
+     *            Whether or not the durability is hidden
+     * @return The itemstack
+     */
+    public ItemStack setHideDurability(boolean hideDurability) {
+        if (hideDurability) {
+            if (!this.isDurabilityHidden) {
+                ItemMeta meta = this.getItemMeta();
+                meta.setUnbreakable(true);
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+
+                this.setItemMeta(meta);
+            }
+        } else {
+            if (this.isDurabilityHidden) {
+                ItemMeta meta = this.getItemMeta();
+                meta.setUnbreakable(false);
+                meta.removeItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+
+                this.setItemMeta(meta);
+            }
+        }
+
+        this.isDurabilityHidden = hideDurability;
+
+        return this;
+    }
+
+    /**
      * Checks if the itemstack has a tag.
      * 
      * @return True if it does, false if not.
@@ -281,6 +358,14 @@ public class ItemStack {
      */
     public boolean isEmpty() {
         return this.handle == null;
+    }
+
+    public boolean isGlowing() {
+        return this.isGlowing;
+    }
+
+    public boolean isDurabilityHidden() {
+        return this.isDurabilityHidden;
     }
 
     /**
@@ -309,7 +394,7 @@ public class ItemStack {
      * @return The display name
      */
     public Text getDisplayName() {
-        return Text.fromLegacy(this.handle.getItemMeta().getDisplayName());
+        return this.handle.getItemMeta().getDisplayName() != null ? Text.fromLegacy(this.handle.getItemMeta().getDisplayName()) : null;
     }
 
     /**
@@ -397,9 +482,9 @@ public class ItemStack {
 
     @Override
     public boolean equals(Object other) {
-        if(this.handle == null && other == null) {
+        if (this.handle == null && other == null) {
             return true;
-        } else if(this.handle == null || other == null) {
+        } else if (this.handle == null || other == null) {
             return false;
         }
 
@@ -410,5 +495,10 @@ public class ItemStack {
         }
 
         return false;
+    }
+
+    @Override
+    public ItemStack clone() {
+        return ItemStack.of(this.handle.clone());
     }
 }

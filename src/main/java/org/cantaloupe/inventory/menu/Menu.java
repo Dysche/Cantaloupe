@@ -38,9 +38,7 @@ public class Menu {
      * Opens the menu.
      */
     public void open() {
-        if (this.getPage("landing") != null) {
-            this.showLandingPage();
-        }
+        this.holder.openMenu(this);
     }
 
     /**
@@ -116,7 +114,7 @@ public class Menu {
         page.setMenu(this);
         page.setHolder(this.holder);
         page.build();
-
+        
         this.pages.put("landing", page);
     }
 
@@ -141,7 +139,16 @@ public class Menu {
     }
 
     /**
-     * Gets the page currently opened on the page.
+     * Gets the landing page of the menu.
+     * 
+     * @return The page
+     */
+    public Page getLandingPage() {
+        return this.pages.get("landing");
+    }
+    
+    /**
+     * Gets the page currently opened on the menu.
      * 
      * @return The page
      */

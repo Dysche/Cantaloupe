@@ -4,12 +4,20 @@ import org.bson.Document;
 import org.cantaloupe.data.DataContainer;
 
 public class DatabaseUtils {
+    @SuppressWarnings("unchecked")
     public static Document containerToDocument(String documentKey, DataContainer<String, Object> container) {
         Document document = new Document();
-        document.append("{documentKey}", documentKey);
+
+        if (documentKey != null) {
+            document.append("{documentKey}", documentKey);
+        }
 
         container.forEach((key, value) -> {
-            document.append(key, value);
+            if (value instanceof DataContainer) {
+                document.append(key, containerToDocument(null, (DataContainer<String, Object>) value));
+            } else {
+                document.append(key, value);
+            }
         });
 
         return document;
@@ -19,9 +27,13 @@ public class DatabaseUtils {
         DataContainer<String, Object> container = DataContainer.of();
 
         document.forEach((key, value) -> {
-            container.put(key, value);
+            if (value instanceof Document) {
+                container.put(key, documentToContainer((Document) value));
+            } else {
+                container.put(key, value);
+            }
         });
-        
+
         container.remove("{documentKey}");
 
         return container;

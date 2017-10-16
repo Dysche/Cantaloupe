@@ -4,10 +4,10 @@ import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.SkullType;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.cantaloupe.nbt.NBTTagCompound;
 import org.cantaloupe.nbt.NBTTagList;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.skin.Skin;
 
 /**
  * A class used to create a skull.
@@ -22,27 +22,9 @@ public class Skull {
         this.handle = ItemStack.of(Material.SKULL_ITEM, (byte) type.ordinal());
     }
 
-    private Skull(Object texture) {
+    private Skull(Skin skin) {
         this.handle = ItemStack.of(Material.SKULL_ITEM, (byte) 3);
-        this.injectNBT((String) texture);
-    }
-
-    private Skull(UUID uuid) {
-        this.handle = ItemStack.of(Material.SKULL_ITEM, (byte) 3);
-
-        SkullMeta meta = (SkullMeta) this.handle.getItemMeta();
-        meta.setOwner(uuid.toString());
-
-        this.handle.setItemMeta(meta);
-    }
-
-    private Skull(String name) {
-        this.handle = ItemStack.of(Material.SKULL_ITEM, (byte) 3);
-
-        SkullMeta meta = (SkullMeta) this.handle.getItemMeta();
-        meta.setOwner(name);
-
-        this.handle.setItemMeta(meta);
+        this.injectTextureNBT(skin.getTexture());
     }
 
     /**
@@ -53,18 +35,18 @@ public class Skull {
      * @return The skull
      */
     public static Skull of(Player player) {
-        return new Skull(player.getUUID());
+        return new Skull(Skin.of(player));
     }
 
     /**
-     * Creates and returns a new skull from a player UUID.
+     * Creates and returns a new skull from a UUID.
      * 
      * @param uuid
      *            The uuid
      * @return The skull
      */
     public static Skull of(UUID uuid) {
-        return new Skull(uuid);
+        return new Skull(Skin.of(uuid));
     }
 
     /**
@@ -75,21 +57,10 @@ public class Skull {
      * @return The skull
      */
     public static Skull of(String name) {
-        return new Skull(name);
+        return new Skull(Skin.of(name));
     }
 
-    /**
-     * Creates and returns a new skull from a texture.
-     * 
-     * @param texture
-     *            The texture
-     * @return The skull
-     */
-    public static Skull fromTexture(String texture) {
-        return new Skull((Object) texture);
-    }
-
-    private void injectNBT(String texture) {
+    private void injectTextureNBT(String texture) {
         NBTTagCompound tag = this.handle.getTag();
 
         NBTTagCompound skullOwner = tag.getCompound("SkullOwner");

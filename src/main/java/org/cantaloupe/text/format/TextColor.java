@@ -19,7 +19,7 @@ public class TextColor {
         return this.ID;
     }
 
-    public ChatColor getHandle() {
+    public ChatColor toHandle() {
         return this.handle;
     }
 }

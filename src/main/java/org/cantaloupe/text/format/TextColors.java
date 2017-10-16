@@ -27,7 +27,7 @@ public class TextColors {
         };
 
         for (TextColor c : colors) {
-            if (c.getHandle() == color) {
+            if (c.toHandle() == color) {
                 return c;
             }
         }

@@ -284,6 +284,11 @@ public class MutableColorRGB implements ColorRGB {
     public ImmutableColorRGB toImmutable() {
         return ImmutableColorRGB.of(this);
     }
+    
+    @Override
+    public String toString() {
+        return "[" + this.getR() + ", " + this.getG() + ", " + this.getB() + "]";
+    }
 
     @Override
     public float getR() {

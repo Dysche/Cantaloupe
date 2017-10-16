@@ -39,6 +39,7 @@ public class PlayerListener implements Listener {
         Player player = Player.of(event.getPlayer());
         Cantaloupe.getPlayerManager().addPlayer(player);
         player.onLoad();
+        player.onPostLoad();
         player.onJoin();
 
         if (!event.getPlayer().hasPlayedBefore()) {
@@ -94,12 +95,14 @@ public class PlayerListener implements Listener {
                 Page page = player.getCurrentMenu().getCurrentPage();
 
                 for (Button button : page.getButtons()) {
-                    if (button.canMove()) {
+                    if (button.canMove() || button.canMoveOn()) {
                         if (button.getIcon().equals(event.getCursor())) {
                             if (!page.isButton(event.getSlot())) {
-                                if (button.getSlot() != event.getSlot() && event.getSlot() != -999) {
-                                    page.moveButton(button, event.getSlot());
-                                    button.onMove();
+                                if (button.canMove()) {
+                                    if (button.getSlot() != event.getSlot() && event.getSlot() != -999) {
+                                        page.moveButton(button, event.getSlot());
+                                        button.onMove();
+                                    }
                                 }
                             } else {
                                 if (button != page.getButton(event.getSlot())) {
