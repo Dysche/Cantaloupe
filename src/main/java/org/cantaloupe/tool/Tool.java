@@ -45,7 +45,7 @@ public abstract class Tool {
         return this.ID;
     }
 
-    public ItemStack getItem() {
+    public ItemStack getStack() {
         return this.itemStack;
     }
 }

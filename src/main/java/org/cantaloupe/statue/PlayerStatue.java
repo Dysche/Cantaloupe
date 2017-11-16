@@ -19,26 +19,25 @@ import org.joml.Vector2f;
 import org.joml.Vector3d;
 
 public class PlayerStatue extends WorldObject {
-    private ImmutableLocation  location     = null;
-    private BlockFace          blockFace    = null;
-    private float              headRotation = 0f;
-    private FakePlayer         entity       = null;
-    private UUID               uuid         = null;
-    private Text               name         = null;
-    private boolean            keepInTab    = false;
-    private Skin               skin         = null;
+    private ImmutableLocation  location    = null;
+    private BlockFace          blockFace   = null;
+    private UUID               uuid        = null;
+    private Text               displayName = null, tabListName = null;
+    private boolean            keepInTab   = false;
+    private Skin               skin        = null;
+
+    private FakePlayer         entity      = null;
 
     private final List<Player> players;
 
-    private PlayerStatue(ImmutableLocation location, BlockFace blockFace, float headRotation, UUID uuid, Text name, boolean keepInTab, Skin skin) {
+    private PlayerStatue(ImmutableLocation location, BlockFace blockFace, Text displayName, boolean keepInTab, Skin skin) {
         this.location = location;
         this.blockFace = blockFace;
-        this.headRotation = headRotation;
-        this.uuid = uuid;
-        this.name = name;
+        this.displayName = displayName;
         this.keepInTab = keepInTab;
         this.skin = skin;
 
+        this.uuid = UUID.randomUUID();
         this.players = new ArrayList<Player>();
     }
 
@@ -55,7 +54,7 @@ public class PlayerStatue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakePlayer.builder().location(this.location.add(0.5, 0, 0.5)).facing(this.blockFace).uuid(this.uuid).name(this.name.toLegacy()).skin(this.skin).build();
+        this.entity = FakePlayer.builder().location(this.location.add(0.5, 0, 0.5)).facing(this.blockFace).uuid(this.uuid).displayName(this.displayName).skin(this.skin).build();
     }
 
     public void placeFor(Player player) {
@@ -63,15 +62,19 @@ public class PlayerStatue extends WorldObject {
             this.entity.addToTab(player);
 
             if (!this.keepInTab) {
-                Cantaloupe.getServiceManager().provide(ScheduleService.class).delay(player.getUUID().toString() + ":removeTabTask", new Runnable() {
+                this.entity.setTabListName(Text.fromLegacy("&8[NPC]" + this.uuid.toString().substring(0, 16).replaceAll("-", "")), player);
+
+                Cantaloupe.getServiceManager().provide(ScheduleService.class).delay(this.uuid.toString() + ":removeTabTask", new Runnable() {
                     @Override
                     public void run() {
                         entity.removeFromTab(player);
                     }
-                });
+                }, 40);
             }
 
             this.entity.spawn(player);
+            this.entity.setSkinFeaturesEnabled(true, player);
+            
             this.players.add(player);
         }
     }
@@ -132,9 +135,9 @@ public class PlayerStatue extends WorldObject {
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), new Vector2f(blockFace != BlockFace.UP && blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(blockFace) : 0, blockFace == BlockFace.UP ? 90 : blockFace == BlockFace.DOWN ? -90 : 0));
     }
 
-    public void setHeadRotation(float headRotation) {
-        this.entity.setHeadRotation(this.players, headRotation);
-        this.headRotation = headRotation;
+    public void setTabListName(Text tabListName) {
+        this.entity.setTabListName(this.players, tabListName);
+        this.tabListName = tabListName;
     }
 
     protected void onPlaced() {
@@ -175,16 +178,16 @@ public class PlayerStatue extends WorldObject {
         return this.blockFace;
     }
 
-    public float getHeadRotation() {
-        return this.headRotation;
-    }
-
     public UUID getPlayerUUID() {
         return this.uuid;
     }
 
-    public Text getName() {
-        return this.name;
+    public Text getDisplayName() {
+        return this.displayName;
+    }
+
+    public Text getTabListName() {
+        return this.tabListName;
     }
 
     public Skin getSkin() {
@@ -200,16 +203,14 @@ public class PlayerStatue extends WorldObject {
     }
 
     public static final class Builder {
-        private ImmutableLocation location     = null;
-        private BlockFace         blockFace    = null;
-        private World             world        = null;
-        private Vector3d          position     = null;
-        private Vector2f          rotation     = null;
-        private float             headRotation = -1f;
-        private UUID              uuid         = null;
-        private Text              name         = null;
-        private boolean           keepInTab    = false;
-        private Skin              skin         = null;
+        private ImmutableLocation location    = null;
+        private BlockFace         blockFace   = null;
+        private World             world       = null;
+        private Vector3d          position    = null;
+        private Vector2f          rotation    = null;
+        private Text              displayName = null;
+        private boolean           keepInTab   = false;
+        private Skin              skin        = null;
 
         private Builder() {
 
@@ -245,26 +246,8 @@ public class PlayerStatue extends WorldObject {
             return this;
         }
 
-        public Builder headRotation(float headRotation) {
-            this.headRotation = headRotation;
-
-            return this;
-        }
-
-        public Builder uuid(String uuid) {
-            this.uuid = UUID.fromString(uuid);
-
-            return this;
-        }
-
-        public Builder uuid(UUID uuid) {
-            this.uuid = uuid;
-
-            return this;
-        }
-
-        public Builder name(Text name) {
-            this.name = name;
+        public Builder displayName(Text displayName) {
+            this.displayName = displayName;
 
             return this;
         }
@@ -290,7 +273,7 @@ public class PlayerStatue extends WorldObject {
                 }
             }
 
-            PlayerStatue statue = new PlayerStatue(this.location, this.blockFace, this.headRotation, this.uuid, this.name, this.keepInTab, this.skin);
+            PlayerStatue statue = new PlayerStatue(this.location, this.blockFace, this.displayName, this.keepInTab, this.skin);
             statue.create();
 
             return statue;

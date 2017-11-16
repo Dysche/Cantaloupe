@@ -171,6 +171,7 @@ public class PlayerListener implements Listener {
 
             if (player.getCurrentMenu() != null) {
                 if (!player.getCurrentMenu().isDirty()) {
+                    player.getCurrentMenu().onClose();
                     player.resetMenu();
                 }
             }

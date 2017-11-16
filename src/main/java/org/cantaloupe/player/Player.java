@@ -25,6 +25,7 @@ import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.player.PlayerManager.Scopes;
 import org.cantaloupe.protocol.PacketAccessor;
 import org.cantaloupe.scoreboard.Scoreboard;
+import org.cantaloupe.screen.SignInput;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.text.Text;
@@ -56,6 +57,7 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
     private Menu                                                               currentMenu       = null;
     private Scoreboard                                                         currentScoreboard = null;
     private Seat                                                               currentSeat       = null;
+    private SignInput                                                          currentSignInput  = null;
 
     private PacketService                                                      packetService     = null;
     private boolean                                                            dirty             = false;
@@ -72,6 +74,7 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         this.allowables = new ArrayList<Allowable>();
 
         this.inventory = PlayerInventory.of(handle.getInventory());
+        this.currentScoreboard = Scoreboard.of();
     }
 
     /**
@@ -108,6 +111,11 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
 
         // Injector
         this.getInjector().accept(Scopes.LOAD, this);
+
+        // Default
+        for (Allowable allowable : Allowable.values()) {
+            this.allow(allowable);
+        }
     }
 
     public void onPostLoad() {
@@ -117,7 +125,7 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         // Injector
         this.getInjector().accept(Scopes.POST_LOAD, this);
     }
-    
+
     public void onLeave() {
         // Wrappers
         this.wrappers.forEach((wrapperClass, wrapper) -> wrapper.onLeave());
@@ -222,6 +230,18 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      */
     public boolean hasWrapper(Class<? extends PlayerWrapper> wrapperClass) {
         return this.wrappers.containsKey(wrapperClass);
+    }
+
+    /**
+     * Kicks the player.
+     * 
+     * @param reason
+     *            The reason
+     */
+    public void kick(Text reason) {
+        this.toHandle().kickPlayer(reason.toLegacy());
+
+        this.dirty = true;
     }
 
     /**
@@ -542,7 +562,7 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
             this.unsit();
         }
 
-        this.currentSeat = Seat.of(location, blockFace != null ? blockFace.getOppositeFace() : blockFace);
+        this.currentSeat = Seat.of(location, blockFace);
         this.currentSeat.place();
         this.currentSeat.seatPlayer(this);
     }
@@ -804,6 +824,10 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
         this.currentScoreboard = scoreboard;
     }
 
+    public void setSignInput(SignInput signInput) {
+        this.currentSignInput = signInput;
+    }
+
     /**
      * Checks if the player is sitting.
      * 
@@ -1026,6 +1050,10 @@ public class Player implements IPermittable, IPermissionHolder, IInjectable<Play
      */
     public Seat getCurrentSeat() {
         return this.currentSeat;
+    }
+
+    public SignInput getCurrentSignInput() {
+        return this.currentSignInput;
     }
 
     /**

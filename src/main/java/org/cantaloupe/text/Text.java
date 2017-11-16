@@ -29,8 +29,8 @@ public class Text {
     private TextFormat               format          = null;
 
     private static final String      NEW_LINE_STRING = "\n";
-    public static final Text         NEW_LINE        = Text.of(NEW_LINE_STRING);
-
+    public static final Text         NEW_LINE        = Text.fromLegacy(NEW_LINE_STRING);
+    
     private Text(TextFormat format) {
         this.component = new TextComponent();
         this.component.setText("");

@@ -16,7 +16,10 @@ import org.cantaloupe.data.DataContainer;
 import org.cantaloupe.inject.IInjectable;
 import org.cantaloupe.inject.Injector;
 import org.cantaloupe.inject.Scope;
+import org.cantaloupe.permission.group.Group;
+import org.cantaloupe.permission.group.GroupManager;
 import org.cantaloupe.text.Text;
+import org.cantaloupe.world.location.Location;
 
 /**
  * A class used to manage players.
@@ -172,7 +175,7 @@ public class PlayerManager implements IInjectable<Player> {
      *            The uuid of the player
      */
     public void removePlayer(UUID uuid) {
-        Optional<Player> player = this.getPlayer(uuid);
+        Optional<Player> player = this.tryGetPlayer(uuid);
         if (player.isPresent()) {
             player.get().onUnload();
         }
@@ -319,7 +322,7 @@ public class PlayerManager implements IInjectable<Player> {
      * @return An optional containing the player if it's present, an empty
      *         optional if not
      */
-    public Optional<Player> getPlayer(UUID uuid) {
+    public Optional<Player> tryGetPlayer(UUID uuid) {
         return Optional.ofNullable(this.players.get(uuid));
     }
 
@@ -341,6 +344,95 @@ public class PlayerManager implements IInjectable<Player> {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Gets a list of players from the player manager with a permission set.
+     * 
+     * @param permissionNode
+     *            The permission node
+     * 
+     * @return The list of players
+     */
+    public List<Player> getPlayersWithPermission(String permissionNode) {
+        List<Player> players = new ArrayList<Player>();
+
+        for (Player player : this.getPlayers()) {
+            if (player.hasPermission(permissionNode)) {
+                players.add(player);
+            }
+        }
+
+        return players;
+    }
+
+    /**
+     * Gets a list of players from the player manager by group.
+     * 
+     * @param groupID
+     *            The ID of a group
+     * 
+     * @return The list of players
+     */
+    public List<Player> getPlayersByGroup(String groupID) {
+        Optional<Group> groupOpt = GroupManager.getGroup(groupID);
+
+        if (groupOpt.isPresent()) {
+            return this.getPlayersByGroup(groupOpt.get());
+        }
+
+        return new ArrayList<Player>();
+    }
+
+    /**
+     * Gets a list of players from the player manager by group.
+     * 
+     * @param group
+     *            The group
+     * 
+     * @return The list of players
+     */
+    public List<Player> getPlayersByGroup(Group group) {
+        List<Player> players = new ArrayList<Player>();
+
+        for (Player player : this.getPlayers()) {
+            if (player.isInGroup(group)) {
+                players.add(player);
+            }
+        }
+
+        return players;
+    }
+
+    /**
+     * Gets a list of players from the player manager in range.
+     * 
+     * @param location
+     *            The location
+     * @param range
+     *            The range
+     * 
+     * @return The collection of players
+     */
+    public Collection<Player> getPlayersInRange(Location location, double range) {
+        List<Player> players = new ArrayList<Player>();
+
+        for (Player player : this.getPlayers()) {
+            if (player.getLocation().distance(location) <= range) {
+                players.add(player);
+            }
+        }
+
+        return players;
+    }
+
+    /**
+     * Gets a collection of players from the player manager.
+     * 
+     * @return The collection of players
+     */
+    public Collection<Player> getPlayers() {
+        return this.players.valueSet();
     }
 
     /**
@@ -377,15 +469,6 @@ public class PlayerManager implements IInjectable<Player> {
      */
     public int getPlayerCount() {
         return this.players.size();
-    }
-
-    /**
-     * Gets a collection of players from the player manager.
-     * 
-     * @return The collection of players
-     */
-    public Collection<Player> getPlayers() {
-        return this.players.valueSet();
     }
 
     @Override

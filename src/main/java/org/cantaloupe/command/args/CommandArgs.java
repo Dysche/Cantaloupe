@@ -43,7 +43,7 @@ public final class CommandArgs {
                 return null;
             }
 
-            throw createError(error == null ? t("Not enough arguments") : error);
+            throw error == null ? createError(t("Not enough arguments")) : new ArgumentParseException(error, null, 0);
         }
 
         return this.args.get(this.index + 1).getValue();
@@ -62,7 +62,7 @@ public final class CommandArgs {
                 return null;
             }
 
-            throw createError(error == null ? t("Not enough arguments") : error);
+            throw error == null ? createError(t("Not enough arguments")) : new ArgumentParseException(error, null, 0);
         }
 
         return this.args.get(++this.index).getValue();

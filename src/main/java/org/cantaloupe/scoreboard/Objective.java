@@ -2,6 +2,7 @@ package org.cantaloupe.scoreboard;
 
 import org.bukkit.scoreboard.Score;
 import org.cantaloupe.data.DataContainer;
+import org.cantaloupe.scoreboard.entry.LineEntry;
 import org.cantaloupe.scoreboard.entry.SpaceEntry;
 import org.cantaloupe.text.Text;
 
@@ -15,6 +16,7 @@ public class Objective {
     private final org.bukkit.scoreboard.Objective handle;
     private final DataContainer<Integer, Entry>   entries;
     private int                                   spaceCount = 0;
+    private int                                   lineCount  = 0;
 
     protected Objective(org.bukkit.scoreboard.Objective handle) {
         this.handle = handle;
@@ -71,6 +73,8 @@ public class Objective {
 
         if (entry instanceof SpaceEntry) {
             this.spaceCount++;
+        } else if (entry instanceof LineEntry) {
+            this.lineCount++;
         }
 
         Score score = this.handle.getScore(entry.getText());
@@ -148,6 +152,15 @@ public class Objective {
      */
     public int getSpaceCount() {
         return this.spaceCount;
+    }
+
+    /**
+     * Gets the line count of the objective.
+     * 
+     * @return The line count
+     */
+    public int getLineCount() {
+        return this.lineCount;
     }
 
     /**

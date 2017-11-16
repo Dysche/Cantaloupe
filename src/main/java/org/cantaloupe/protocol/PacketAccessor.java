@@ -1,5 +1,9 @@
 package org.cantaloupe.protocol;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.entity.FakeEntity;
@@ -8,10 +12,12 @@ import org.cantaloupe.events.PlayerAttackFakeEntityEvent;
 import org.cantaloupe.events.PlayerInteractAtFakeEntityEvent;
 import org.cantaloupe.events.PlayerInteractFakeEntityEvent;
 import org.cantaloupe.events.PlayerSteerEvent;
+import org.cantaloupe.events.SignInputEvent;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.util.ReflectionHelper;
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
@@ -30,8 +36,10 @@ public class PacketAccessor {
                     handleUseEntityPacket(player, packet);
                 } else if (packet.getClass() == service.NMS_PACKET_IN_STEERVEHICLE_CLASS) {
                     handleSteerVehiclePacket(player, packet);
+                } else if (packet.getClass() == service.NMS_PACKET_IN_UPDATESIGN_CLASS) {
+                    handleUpdateSignPacket(player, packet);
                 }
-                
+
                 super.channelRead(context, packet);
             }
 
@@ -104,10 +112,38 @@ public class PacketAccessor {
             float forward = (float) ReflectionHelper.getDeclaredField("b", packet);
             float side = (float) ReflectionHelper.getDeclaredField("a", packet);
 
-            PlayerSteerEvent event = new PlayerSteerEvent(player, shift, space, forward, side);
-            Bukkit.getServer().getPluginManager().callEvent(event);
+            Bukkit.getServer().getPluginManager().callEvent(new PlayerSteerEvent(player, shift, space, forward, side));
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void handleUpdateSignPacket(Player player, Object packet) {
+        if (player.getCurrentSignInput() != null) {
+            NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
+
+            try {
+                List<String> lines = new ArrayList<String>();
+
+                Vector3i blockPosition = service.getBlockPositionFromHandle(ReflectionHelper.getDeclaredField("a", packet));
+                Object[] components = (Object[]) ReflectionHelper.getDeclaredField("b", packet);
+
+                for (Object object : components) {
+                    if (object instanceof String) {
+                        lines.add((String) object);
+                    } else {
+                        lines.add((String) ReflectionHelper.invokeDeclaredMethod("e", object));
+                    }
+                }
+
+                if (player.getCurrentSignInput().getPosition().equals(blockPosition)) {
+                    player.getCurrentSignInput().onInput(lines);
+
+                    Bukkit.getServer().getPluginManager().callEvent(new SignInputEvent(player, lines));
+                }
+            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
         }
     }
 

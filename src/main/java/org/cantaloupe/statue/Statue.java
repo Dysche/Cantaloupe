@@ -193,7 +193,7 @@ public class Statue extends WorldObject {
         private World             world        = null;
         private Vector3d          position     = null;
         private Vector2f          rotation     = null;
-        private float             headRotation = -1f;
+        private float             headRotation = Float.MIN_VALUE;
         private EntityType        entityType   = null;
         private Text              displayName  = null;
         private boolean           invisible    = false;

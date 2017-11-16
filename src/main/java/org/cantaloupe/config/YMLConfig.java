@@ -68,6 +68,14 @@ public class YMLConfig {
      *             If the file doesn't exist
      */
     public void save() throws IOException {
+        if (!this.file.exists()) {
+            if (this.file.getParentFile() != null) {
+                this.file.getParentFile().mkdirs();
+            }
+
+            this.file.createNewFile();
+        }
+
         this.object.save(this.file);
     }
 
@@ -91,6 +99,15 @@ public class YMLConfig {
      */
     public void put(String key, Object value) {
         this.object.set(key, value);
+    }
+
+    /**
+     * Checks if the configuration file exists.
+     * 
+     * @return True if it does, false if not
+     */
+    public boolean exists() {
+        return this.file.exists();
     }
 
     /**

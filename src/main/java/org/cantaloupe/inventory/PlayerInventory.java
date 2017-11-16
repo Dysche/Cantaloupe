@@ -24,13 +24,13 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
     }
 
     public PlayerInventory addTool(Tool tool) {
-        this.addItem(tool.getItem());
+        this.addItem(tool.getStack());
 
         return this;
     }
 
     public PlayerInventory setTool(int index, Tool tool) {
-        this.setItem(index, tool.getItem());
+        this.setItem(index, tool.getStack());
 
         return this;
     }
@@ -46,13 +46,13 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
     }
 
     public PlayerInventory setItemInMainHand(ItemStack itemStack) {
-        this.handle.setItemInMainHand(itemStack.toHandle());
+        this.handle.setItemInMainHand(itemStack != null ? itemStack.toHandle() : null);
 
         return this;
     }
 
     public PlayerInventory setItemInOffHand(ItemStack itemStack) {
-        this.handle.setItemInOffHand(itemStack.toHandle());
+        this.handle.setItemInOffHand(itemStack != null ? itemStack.toHandle() : null);
 
         return this;
     }
@@ -74,8 +74,8 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
     public PlayerInventory setExtraContents(Collection<ItemStack> itemStacks) {
         List<org.bukkit.inventory.ItemStack> itemHandles = new ArrayList<org.bukkit.inventory.ItemStack>();
 
-        for (ItemStack stack : itemStacks) {
-            itemHandles.add(stack.toHandle());
+        for (ItemStack itemStack : itemStacks) {
+            itemHandles.add(itemStack != null ? itemStack.toHandle() : null);
         }
 
         this.handle.setExtraContents(itemHandles.toArray(new org.bukkit.inventory.ItemStack[0]));
@@ -94,8 +94,8 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
     public PlayerInventory setArmorContents(Collection<ItemStack> itemStacks) {
         List<org.bukkit.inventory.ItemStack> itemHandles = new ArrayList<org.bukkit.inventory.ItemStack>();
 
-        for (ItemStack stack : itemStacks) {
-            itemHandles.add(stack.toHandle());
+        for (ItemStack itemStack : itemStacks) {
+            itemHandles.add(itemStack != null ? itemStack.toHandle() : null);
         }
 
         this.handle.setStorageContents(itemHandles.toArray(new org.bukkit.inventory.ItemStack[0]));
@@ -104,25 +104,25 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
     }
 
     public PlayerInventory setHelmet(ItemStack itemStack) {
-        this.handle.setHelmet(itemStack.toHandle());
+        this.handle.setHelmet(itemStack != null ? itemStack.toHandle() : null);
 
         return this;
     }
 
     public PlayerInventory setChestplate(ItemStack itemStack) {
-        this.handle.setChestplate(itemStack.toHandle());
+        this.handle.setChestplate(itemStack != null ? itemStack.toHandle() : null);
 
         return this;
     }
 
     public PlayerInventory setLeggings(ItemStack itemStack) {
-        this.handle.setLeggings(itemStack.toHandle());
+        this.handle.setLeggings(itemStack != null ? itemStack.toHandle() : null);
 
         return this;
     }
 
     public PlayerInventory setBoots(ItemStack itemStack) {
-        this.handle.setBoots(itemStack.toHandle());
+        this.handle.setBoots(itemStack != null ? itemStack.toHandle() : null);
 
         return this;
     }
@@ -152,11 +152,11 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
     }
 
     public ItemStack getItemInMainHand() {
-        return ItemStack.of(this.handle.getItemInMainHand());
+        return this.handle.getItemInMainHand() != null ? ItemStack.of(this.handle.getItemInMainHand()) : null;
     }
 
     public ItemStack getItemInOffHand() {
-        return ItemStack.of(this.handle.getItemInOffHand());
+        return this.handle.getItemInOffHand() != null ? ItemStack.of(this.handle.getItemInOffHand()) : null;
     }
 
     public int getHeldItemSlot() {
@@ -168,7 +168,7 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
         ItemStack[] items = new ItemStack[itemHandles.length];
 
         for (int i = 0; i < itemHandles.length; i++) {
-            items[i] = ItemStack.of(itemHandles[i]);
+            items[i] = itemHandles[i] != null ? ItemStack.of(itemHandles[i]) : null;
         }
 
         return Arrays.asList(items);
@@ -179,26 +179,26 @@ public class PlayerInventory implements IInventory<org.bukkit.inventory.PlayerIn
         ItemStack[] items = new ItemStack[itemHandles.length];
 
         for (int i = 0; i < itemHandles.length; i++) {
-            items[i] = ItemStack.of(itemHandles[i]);
+            items[i] = itemHandles[i] != null ? ItemStack.of(itemHandles[i]) : null;
         }
 
         return Arrays.asList(items);
     }
 
     public ItemStack getBoots() {
-        return ItemStack.of(this.handle.getBoots());
+        return this.handle.getBoots() != null ? ItemStack.of(this.handle.getBoots()) : null;
     }
 
     public ItemStack getLeggings() {
-        return ItemStack.of(this.handle.getLeggings());
+        return this.handle.getLeggings() != null ? ItemStack.of(this.handle.getLeggings()) : null;
     }
 
     public ItemStack getChestplate() {
-        return ItemStack.of(this.handle.getChestplate());
+        return this.handle.getChestplate() != null ? ItemStack.of(this.handle.getChestplate()) : null;
     }
 
     public ItemStack getHelmet() {
-        return ItemStack.of(this.handle.getHelmet());
+        return this.handle.getHelmet() != null ? ItemStack.of(this.handle.getHelmet()) : null;
     }
 
     @Override

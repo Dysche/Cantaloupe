@@ -1,16 +1,14 @@
 package org.cantaloupe.events;
 
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.cantaloupe.player.Player;
 
-public class PlayerSteerEvent extends Event implements Cancellable {
-    private static final HandlerList handlers  = new HandlerList();
+public class PlayerSteerEvent extends Event {
+    private static final HandlerList handlers = new HandlerList();
     private final Player             player;
     private final boolean            shift, space;
     private final float              forward, side;
-    private boolean                  cancelled = false;
 
     public PlayerSteerEvent(Player player, boolean shift, boolean space, float forward, float side) {
         this.player = player;
@@ -18,14 +16,6 @@ public class PlayerSteerEvent extends Event implements Cancellable {
         this.space = space;
         this.forward = forward;
         this.side = side;
-    }
-
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
-
-    public void setCancelled(boolean cancel) {
-        this.cancelled = cancel;
     }
 
     /**

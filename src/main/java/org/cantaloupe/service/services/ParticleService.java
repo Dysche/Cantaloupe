@@ -398,7 +398,14 @@ public class ParticleService implements IService {
         BLOCK_DUST("blockdust", 38, 7, ParticleProperty.DIRECTIONAL, ParticleProperty.REQUIRES_DATA),
         WATER_DROP("droplet", 39, 8),
         ITEM_TAKE("take", 40, 8),
-        MOB_APPEARANCE("mobappearance", 41, 8);
+        MOB_APPEARANCE("mobappearance", 41, 8),
+        DRAGON_BREATH("dragonbreath", 42, 9),
+        END_ROD("endRod", 43, 9),
+        DAMAGE_INDICATOR("damageIndicator", 44, 9),
+        SWEEP_ATTACK("sweepAttack", 45, 9),
+        FALLING_DUST("fallingdust", 46, 10, ParticleProperty.REQUIRES_WATER),
+        TOTEM("totem", 47, 11),
+        SPIT("spit", 48, 11);
 
         // Enum Body
         private final String                 type;

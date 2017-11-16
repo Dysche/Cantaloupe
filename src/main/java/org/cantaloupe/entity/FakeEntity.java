@@ -39,7 +39,7 @@ public class FakeEntity {
     protected FakeEntity(EntityType type, ImmutableLocation location, BlockFace blockFace, float headRotation, String customName, boolean customNameVisible, boolean invisible, boolean create) {
         this.type = type;
         this.location = location;
-        this.blockFace = blockFace;
+        this.blockFace = blockFace != null ? blockFace.getOppositeFace() : null;
 
         if (create) {
             this.create(headRotation, customName, customNameVisible, invisible);
@@ -63,8 +63,8 @@ public class FakeEntity {
 
             ReflectionHelper.invokeMethod("setPositionRotation", entity, new Class<?>[] {
                     double.class, double.class, double.class, float.class, float.class
-            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, this.blockFace != null ? (this.blockFace != BlockFace.UP && this.blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(this.blockFace) : 0) : 0,
-                    this.blockFace != null ? (this.blockFace == BlockFace.UP ? 90 : this.blockFace == BlockFace.DOWN ? -90 : 0) : this.location.getPitch());
+            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, this.blockFace != null ? (this.blockFace != BlockFace.UP && this.blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(this.blockFace) : 0f) : 0f,
+                    this.blockFace != null ? (this.blockFace == BlockFace.UP ? 90f : this.blockFace == BlockFace.DOWN ? -90f : 0f) : this.location.getPitch());
 
             if (customName != null) {
                 ReflectionHelper.invokeMethod("setCustomName", entity, customName);
@@ -78,7 +78,7 @@ public class FakeEntity {
                     boolean.class
             }, invisible);
 
-            if (headRotation != -1f) {
+            if (headRotation != Float.MIN_VALUE) {
                 ReflectionHelper.invokeMethod("h", entity, new Class<?>[] {
                         float.class
                 }, headRotation);
@@ -200,6 +200,27 @@ public class FakeEntity {
             Object packet = nmsService.NMS_PACKET_OUT_DESTROYENTITY_CLASS.getConstructor(int[].class).newInstance(new int[] {
                     this.getEntityID()
             });
+
+            for (Player player : players) {
+                packetService.sendPacket(player, packet);
+            }
+        } catch (IllegalArgumentException | SecurityException | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void animate(Collection<Player> players, int animation) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+        PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+
+        try {
+            Object packet = null;
+
+            if (nmsService.getIntVersion() < 7) {
+                packet = nmsService.NMS_PACKET_OUT_ANIMATION_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS, byte.class).newInstance(this.handle, (byte) animation);
+            } else {
+                packet = nmsService.NMS_PACKET_OUT_ANIMATION_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS, int.class).newInstance(this.handle, animation);
+            }
 
             for (Player player : players) {
                 packetService.sendPacket(player, packet);
@@ -452,7 +473,9 @@ public class FakeEntity {
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
-            ReflectionHelper.invokeMethod("setCustomNameVisible", this.handle, visible);
+            ReflectionHelper.invokeMethod("setCustomNameVisible", this.handle, new Class<?>[] {
+                    boolean.class
+            }, visible);
 
             DataWatcher dataWatcher = DataWatcher.of(null);
             dataWatcher.register(DataWatcherObject.<Boolean>of(3, DataWatcherRegistry.BOOLEAN), visible);
@@ -816,8 +839,10 @@ public class FakeEntity {
      * @return The head rotation
      */
     public float getHeadRotation() {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
         try {
-            return (float) ReflectionHelper.invokeMethod("getHeadRotation", this.handle);
+            return (float) ReflectionHelper.invokeMethod("getHeadRotation", this.handle, nmsService.NMS_ENTITY_CLASS);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
@@ -831,8 +856,10 @@ public class FakeEntity {
      * @return The name
      */
     public String getName() {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
         try {
-            return (String) ReflectionHelper.invokeMethod("getName", this.handle);
+            return (String) ReflectionHelper.invokeMethod("getName", this.handle, nmsService.NMS_ENTITY_CLASS);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
@@ -845,9 +872,11 @@ public class FakeEntity {
      * 
      * @return The custom name
      */
-    public Text getCustomName() {
+    public String getCustomName() {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
         try {
-            return Text.fromLegacy((String) ReflectionHelper.invokeMethod("getCustomName", this.handle));
+            return (String) ReflectionHelper.invokeMethod("getCustomName", this.handle, nmsService.NMS_ENTITY_CLASS);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
@@ -861,8 +890,10 @@ public class FakeEntity {
      * @return True if it is, false if not
      */
     public boolean isCustomNameVisible() {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
         try {
-            return (boolean) ReflectionHelper.invokeMethod("getCustomNameVisible", this.handle);
+            return (boolean) ReflectionHelper.invokeMethod("getCustomNameVisible", this.handle, nmsService.NMS_ENTITY_CLASS);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
@@ -876,8 +907,10 @@ public class FakeEntity {
      * @return True if it is, false if not
      */
     public boolean hasCustomName() {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
         try {
-            return (boolean) ReflectionHelper.invokeMethod("hasCustomName", this.handle);
+            return (boolean) ReflectionHelper.invokeMethod("hasCustomName", this.handle, nmsService.NMS_ENTITY_CLASS);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
@@ -918,7 +951,7 @@ public class FakeEntity {
         protected Vector3d          position          = null;
         protected Vector2f          rotation          = null;
         protected BlockFace         blockFace         = null;
-        protected float             headRotation      = -1f;
+        protected float             headRotation      = Float.MIN_VALUE;
         protected EntityType        type              = null;
         protected Text              customName        = null;
         protected boolean           customNameVisible = false, invisible = false;

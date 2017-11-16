@@ -60,6 +60,17 @@ public class Skull {
         return new Skull(Skin.of(name));
     }
 
+    /**
+     * Creates and returns a new skull from a skin.
+     * 
+     * @param skin
+     *            The skin
+     * @return The skull
+     */
+    public static Skull of(Skin skin) {
+        return new Skull(skin);
+    }
+    
     private void injectTextureNBT(String texture) {
         NBTTagCompound tag = this.handle.getTag();
 

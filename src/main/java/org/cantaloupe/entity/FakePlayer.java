@@ -11,10 +11,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.BlockFace;
 import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
+import org.cantaloupe.protocol.datawatcher.DataWatcher;
+import org.cantaloupe.protocol.datawatcher.DataWatcherObject;
+import org.cantaloupe.protocol.datawatcher.DataWatcherRegistry;
 import org.cantaloupe.service.services.NMSService;
 import org.cantaloupe.service.services.PacketService;
 import org.cantaloupe.skin.Skin;
 import org.cantaloupe.text.Text;
+import org.cantaloupe.util.BitFlags;
+import org.cantaloupe.util.MathUtils;
 import org.cantaloupe.util.ReflectionHelper;
 import org.cantaloupe.world.World;
 import org.cantaloupe.world.location.ImmutableLocation;
@@ -32,24 +37,24 @@ import com.mojang.authlib.properties.Property;
  */
 public class FakePlayer extends FakeEntity {
     private UUID        uuid;
-    private String      name;
+    private Text        displayName;
     private Skin        skin;
     private GameProfile gameProfile = null;
 
-    private FakePlayer(ImmutableLocation location, BlockFace blockFace, float headRotation, UUID uuid, String name, boolean invisible, Skin skin) {
-        super(EntityType.PLAYER, location, blockFace, headRotation, null, false, invisible, false);
+    private FakePlayer(ImmutableLocation location, BlockFace blockFace, UUID uuid, Text displayName, boolean invisible, Skin skin) {
+        super(EntityType.PLAYER, location, blockFace, Float.MIN_VALUE, null, false, invisible, false);
 
         this.uuid = uuid;
-        this.name = name;
+        this.displayName = displayName;
         this.skin = skin;
 
-        this.gameProfile = new GameProfile(uuid, name);
+        this.gameProfile = new GameProfile(uuid, displayName.toLegacy());
 
-        if (skin != null) {
+        if (skin != null && skin.getSignature() != null) {
             this.gameProfile.getProperties().put("textures", new Property("textures", skin.getTexture(), skin.getSignature()));
         }
 
-        this.create(headRotation, invisible);
+        this.create(invisible);
     }
 
     /**
@@ -61,7 +66,7 @@ public class FakePlayer extends FakeEntity {
         return new Builder();
     }
 
-    private void create(float headRotation, boolean invisible) {
+    private void create(boolean invisible) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
         try {
@@ -72,20 +77,17 @@ public class FakePlayer extends FakeEntity {
 
             ReflectionHelper.invokeMethod("setPositionRotation", entity, new Class<?>[] {
                     double.class, double.class, double.class, float.class, float.class
-            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, this.location.getYaw(), this.location.getPitch());
+            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, this.blockFace != null ? (this.blockFace != BlockFace.UP && this.blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(this.blockFace) : 0f) : 0f,
+                    this.blockFace != null ? (this.blockFace == BlockFace.UP ? 90f : this.blockFace == BlockFace.DOWN ? -90f : 0f) : this.location.getPitch());
 
             ReflectionHelper.invokeMethod("setInvisible", entity, new Class<?>[] {
                     boolean.class
             }, invisible);
 
-            if (headRotation != -1f) {
-                ReflectionHelper.invokeMethod("h", entity, new Class<?>[] {
-                        float.class
-                }, headRotation);
-            }
+            ReflectionHelper.setField("displayName", entity, "");
 
             this.handle = entity;
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | NoSuchFieldException e) {
             e.printStackTrace();
         }
 
@@ -103,11 +105,13 @@ public class FakePlayer extends FakeEntity {
             for (Player player : players) {
                 packetService.sendPacket(player, packet);
             }
-        } catch (IllegalArgumentException | SecurityException | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+        } catch (IllegalArgumentException | SecurityException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
 
         this.updatePassenger(players, this.getPassenger());
+        this.setHeadRotation(players,
+                new Vector2f(this.blockFace != null ? (this.blockFace != BlockFace.UP && this.blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(this.blockFace) : 0f) : 0f, this.blockFace != null ? (this.blockFace == BlockFace.UP ? -90f : this.blockFace == BlockFace.DOWN ? 90f : 0f) : this.location.getPitch()));
     }
 
     @Override
@@ -149,7 +153,7 @@ public class FakePlayer extends FakeEntity {
             Object packet = null;
 
             if (nmsService.getIntVersion() < 7) {
-                packet = nmsService.NMS_PACKET_OUT_PLAYERINFO_CLASS.getConstructor(String.class, boolean.class, int.class).newInstance(this.name, true, 0);
+                packet = nmsService.NMS_PACKET_OUT_PLAYERINFO_CLASS.getConstructor(String.class, boolean.class, int.class).newInstance(this.gameProfile.getName(), true, 0);
             } else {
                 Class<?> arrayClass = Class.forName("[L" + nmsService.NMS_ENTITY_PLAYER_CLASS.getName() + ";");
                 Object array = Array.newInstance(nmsService.NMS_ENTITY_PLAYER_CLASS, 1);
@@ -162,7 +166,7 @@ public class FakePlayer extends FakeEntity {
             for (Player player : players) {
                 packetService.sendPacket(player, packet);
             }
-        } catch (IllegalArgumentException | SecurityException | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
+        } catch (IllegalArgumentException | SecurityException | IllegalAccessException | NoSuchFieldException | InstantiationException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -201,7 +205,7 @@ public class FakePlayer extends FakeEntity {
             Object packet = null;
 
             if (nmsService.getIntVersion() < 7) {
-                packet = nmsService.NMS_PACKET_OUT_PLAYERINFO_CLASS.getConstructor(String.class, boolean.class, int.class).newInstance(this.name, false, 0);
+                packet = nmsService.NMS_PACKET_OUT_PLAYERINFO_CLASS.getConstructor(String.class, boolean.class, int.class).newInstance(this.gameProfile.getName(), false, 0);
             } else {
                 Class<?> arrayClass = Class.forName("[L" + nmsService.NMS_ENTITY_PLAYER_CLASS.getName() + ";");
                 Object array = Array.newInstance(nmsService.NMS_ENTITY_PLAYER_CLASS, 1);
@@ -219,16 +223,109 @@ public class FakePlayer extends FakeEntity {
         }
     }
 
-    @Override
-    public void setPosition(Collection<Player> players, Vector3d position) {
+    /**
+     * Sets whether or not skin features are enabled for an array of players.
+     * 
+     * @param enabled
+     *            Whether or not skin features are enabled
+     * @param players
+     *            The collection of players
+     */
+    public void setSkinFeaturesEnabled(boolean enabled, Player... players) {
+        this.setSkinFeaturesEnabled((Collection<Player>) Arrays.asList(players), enabled);
+    }
+
+    /**
+     * Sets whether or not skin features are enabled for an array of players.
+     * 
+     * @param enabled
+     *            Whether or not skin features are enabled
+     * @param players
+     *            The collection of players
+     */
+    public void setSkinFeaturesEnabled(List<Player> players, boolean enabled) {
+        this.setSkinFeaturesEnabled((Collection<Player>) players, enabled);
+    }
+
+    /**
+     * Sets whether or not skin features are enabled for an array of players.
+     * 
+     * @param enabled
+     *            Whether or not skin features are enabled
+     * @param players
+     *            The collection of players
+     */
+    public void setSkinFeaturesEnabled(Collection<Player> players, boolean enabled) {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+        PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
+
+        byte flags = 0;
+
+        if (enabled) {
+            flags = BitFlags.setFlag(flags, (byte) 0x01);
+            flags = BitFlags.setFlag(flags, (byte) 0x02);
+            flags = BitFlags.setFlag(flags, (byte) 0x04);
+            flags = BitFlags.setFlag(flags, (byte) 0x08);
+            flags = BitFlags.setFlag(flags, (byte) 0x10);
+            flags = BitFlags.setFlag(flags, (byte) 0x20);
+            flags = BitFlags.setFlag(flags, (byte) 0x40);
+        }
+
+        try {
+            DataWatcher dataWatcher = DataWatcher.of(null);
+            dataWatcher.register(DataWatcherObject.<Byte>of(13, DataWatcherRegistry.BYTE), flags);
+
+            Object packet = nmsService.NMS_PACKET_OUT_ENTITYMETA_CLASS.getConstructor(int.class, nmsService.NMS_DATAWATCHER_CLASS, boolean.class).newInstance(this.getEntityID(), dataWatcher.toNMS(), true);
+            for (Player player : players) {
+                packetService.sendPacket(player, packet);
+            }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Updates the tab list name for an array of players.
+     * 
+     * @param players
+     *            The array of players
+     */
+    public void setTabListName(Text tabListName, Player... players) {
+        this.setTabListName((Collection<Player>) Arrays.asList(players), tabListName);
+    }
+
+    /**
+     * Updates the tab list name for a list of players.
+     * 
+     * @param players
+     *            The list of players
+     */
+    public void setTabListName(List<Player> players, Text tabListName) {
+        this.setTabListName((Collection<Player>) players, tabListName);
+    }
+
+    /**
+     * Updates the tab list name for a collection of players.
+     * 
+     * @param players
+     *            The collection of players
+     */
+    public void setTabListName(Collection<Player> players, Text tabListName) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
-            ReflectionHelper.invokeMethod("setPosition", this.handle, new Class<?>[] {
-                    double.class, double.class, double.class
-            }, position.x, position.y, position.z);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            String newName = null;
+            String currentName = (String) ReflectionHelper.invokeDeclaredMethod("getName", this.handle, nmsService.NMS_ENTITY_CLASS);
+
+            if (tabListName == null) {
+                newName = currentName;
+            } else {
+                newName = tabListName.toLegacy();
+            }
+
+            ReflectionHelper.setDeclaredField("listName", this.handle, newName.equals(currentName) ? null : ReflectionHelper.invokeStaticMethod("a", nmsService.NMS_CHATSERIALIZER_CLASS, "{\"text\":\"" + newName + "\"}"));
+        } catch (IllegalArgumentException | SecurityException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
         }
 
@@ -236,65 +333,90 @@ public class FakePlayer extends FakeEntity {
             Object packet = null;
 
             if (nmsService.getIntVersion() < 7) {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.newInstance();
-
-                ReflectionHelper.setDeclaredField("a", packet, this.getEntityID());
-                ReflectionHelper.setDeclaredField("b", packet, this.getFixPosition(position.x));
-                ReflectionHelper.setDeclaredField("c", packet, this.getFixPosition(position.y));
-                ReflectionHelper.setDeclaredField("d", packet, this.getFixPosition(position.z));
-                ReflectionHelper.setDeclaredField("e", packet, this.getFixRotation(this.location.getYaw()));
-                ReflectionHelper.setDeclaredField("f", packet, this.getFixRotation(this.location.getPitch()));
+                packet = nmsService.NMS_PACKET_OUT_PLAYERINFO_CLASS.getConstructor(String.class, boolean.class, int.class).newInstance(this.gameProfile.getName(), false, 3);
             } else {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
+                Class<?> arrayClass = Class.forName("[L" + nmsService.NMS_ENTITY_PLAYER_CLASS.getName() + ";");
+                Object array = Array.newInstance(nmsService.NMS_ENTITY_PLAYER_CLASS, 1);
+
+                Array.set(array, 0, this.handle);
+
+                packet = nmsService.NMS_PACKET_OUT_PLAYERINFO_CLASS.getConstructor(nmsService.NMS_ENUM_PLAYERINFOACTION_CLASS, arrayClass).newInstance(ReflectionHelper.getStaticField("UPDATE_DISPLAY_NAME", nmsService.NMS_ENUM_PLAYERINFOACTION_CLASS), array);
             }
 
             for (Player player : players) {
                 packetService.sendPacket(player, packet);
             }
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | SecurityException | NoSuchFieldException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (IllegalArgumentException | SecurityException | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
-        this.location = ImmutableLocation.of(this.location.getWorld(), position);
     }
 
-    @Override
-    public void setLocation(Collection<Player> players, ImmutableLocation location) {
+    @Deprecated
+    public void setHeadRotation(Collection<Player> players, float headRotation) {
+
+    }
+
+    /**
+     * Sets the head rotation of the entity for an array of players
+     * 
+     * @param players
+     *            The array of players
+     * @param headRotation
+     *            The head rotation
+     */
+    public void setHeadRotation(Vector2f rotation, Player... players) {
+        this.setHeadRotation((Collection<Player>) Arrays.asList(players), rotation);
+    }
+
+    /**
+     * Sets the head rotation of the entity for a list of players
+     * 
+     * @param players
+     *            The list of players
+     * @param headRotation
+     *            The head rotation
+     */
+    public void setHeadRotation(List<Player> players, Vector2f rotation) {
+        this.setHeadRotation((Collection<Player>) players, rotation);
+    }
+
+    /**
+     * Sets the head rotation of the entity for a collection of players
+     * 
+     * @param players
+     *            The collection of players
+     * @param headRotation
+     *            The head rotation
+     */
+    public void setHeadRotation(Collection<Player> players, Vector2f rotation) {
         NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
         PacketService packetService = Cantaloupe.getServiceManager().provide(PacketService.class);
 
         try {
             ReflectionHelper.invokeMethod("setPositionRotation", this.handle, new Class<?>[] {
                     double.class, double.class, double.class, float.class, float.class
-            }, location.getPosition().x, location.getPosition().y, location.getPosition().z, location.getYaw(), location.getPitch());
+            }, this.location.getPosition().x, this.location.getPosition().y, this.location.getPosition().z, rotation.x, rotation.y);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
 
         try {
-            Object packet = null;
+            Object lookPacket = nmsService.NMS_PACKET_OUT_ENTITYLOOK_CLASS.getConstructor(int.class, byte.class, byte.class, boolean.class).newInstance(this.getEntityID(), this.getFixRotation(rotation.x), this.getFixRotation(rotation.y), false);
+            Object headPacket = null;
 
             if (nmsService.getIntVersion() < 7) {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.newInstance();
-
-                ReflectionHelper.setDeclaredField("a", packet, this.getEntityID());
-                ReflectionHelper.setDeclaredField("b", packet, this.getFixPosition(location.getPosition().x));
-                ReflectionHelper.setDeclaredField("c", packet, this.getFixPosition(location.getPosition().y));
-                ReflectionHelper.setDeclaredField("d", packet, this.getFixPosition(location.getPosition().z));
-                ReflectionHelper.setDeclaredField("e", packet, this.getFixRotation(location.getYaw()));
-                ReflectionHelper.setDeclaredField("f", packet, this.getFixRotation(location.getPitch()));
+                headPacket = nmsService.NMS_PACKET_OUT_ENTITYHEADROTATION_CLASS.getConstructor(int.class, byte.class).newInstance(this.getEntityID(), this.getFixRotation(rotation.x));
             } else {
-                packet = nmsService.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS).newInstance(this.handle);
+                headPacket = nmsService.NMS_PACKET_OUT_ENTITYHEADROTATION_CLASS.getConstructor(nmsService.NMS_ENTITY_CLASS, byte.class).newInstance(this.handle, this.getFixRotation(rotation.x));
             }
 
             for (Player player : players) {
-                packetService.sendPacket(player, packet);
+                packetService.sendPacket(player, lookPacket);
+                packetService.sendPacket(player, headPacket);
             }
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | SecurityException | NoSuchFieldException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
-
-        this.location = location;
     }
 
     /**
@@ -306,9 +428,25 @@ public class FakePlayer extends FakeEntity {
         return this.uuid;
     }
 
-    @Override
-    public String getName() {
-        return this.name;
+    /**
+     * Gets the display name of the entity.
+     * 
+     * @return The display name
+     */
+    public Text getDisplayName() {
+        return this.displayName;
+    }
+
+    public String getTabListName() {
+        NMSService nmsService = Cantaloupe.getServiceManager().provide(NMSService.class);
+
+        try {
+            return (String) ReflectionHelper.invokeDeclaredMethod("getName", this.handle, nmsService.NMS_ENTITY_CLASS);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     /**
@@ -330,9 +468,9 @@ public class FakePlayer extends FakeEntity {
     }
 
     public static final class Builder extends FakeEntity.Builder {
-        private UUID   uuid = null;
-        private String name = null;
-        private Skin   skin = null;
+        private UUID uuid        = null;
+        private Text displayName = null;
+        private Skin skin        = null;
 
         /**
          * Sets the location of the builder.
@@ -404,17 +542,8 @@ public class FakePlayer extends FakeEntity {
             return this;
         }
 
-        /**
-         * Sets the head rotation of the builder.
-         * 
-         * @param headRotation
-         *            The head rotation
-         * @return The builder
-         */
-        @Override
+        @Deprecated
         public Builder headRotation(float headRotation) {
-            this.headRotation = headRotation;
-
             return this;
         }
 
@@ -439,14 +568,27 @@ public class FakePlayer extends FakeEntity {
         }
 
         /**
-         * Sets the name of the builder.
+         * Sets the display name of the builder.
          * 
-         * @param name
-         *            The name
+         * @param displayName
+         *            The display name
          * @return The builder
          */
-        public Builder name(String name) {
-            this.name = name;
+        public Builder displayName(Text displayName) {
+            this.displayName = displayName;
+
+            return this;
+        }
+
+        /**
+         * Sets the display name of the builder.
+         * 
+         * @param displayName
+         *            The display name
+         * @return The builder
+         */
+        public Builder displayName(String displayName) {
+            this.displayName = Text.fromLegacy(displayName);
 
             return this;
         }
@@ -495,7 +637,11 @@ public class FakePlayer extends FakeEntity {
                 }
             }
 
-            return new FakePlayer(this.location, this.blockFace, this.headRotation, this.uuid, this.name, this.invisible, this.skin);
+            if (this.uuid == null) {
+                this.uuid = UUID.randomUUID();
+            }
+
+            return new FakePlayer(this.location, this.blockFace, this.uuid, this.displayName, this.invisible, this.skin);
         }
     }
 }

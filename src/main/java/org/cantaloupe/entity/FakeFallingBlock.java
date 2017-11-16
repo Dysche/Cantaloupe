@@ -61,7 +61,7 @@ public class FakeFallingBlock extends FakeEntity {
                     boolean.class
             }, invisible);
 
-            if (headRotation != -1f) {
+            if (headRotation != Float.MIN_VALUE) {
                 ReflectionHelper.invokeMethod("h", entity, new Class<?>[] {
                         float.class
                 }, headRotation);

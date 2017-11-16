@@ -352,6 +352,15 @@ public class ItemStack {
     }
 
     /**
+     * Checks if the itemstack has an item meta.
+     * 
+     * @return True if it does, false if not.
+     */
+    public boolean hasMeta() {
+        return this.handle.hasItemMeta();
+    }
+
+    /**
      * Checks if the itemstack is empty.
      * 
      * @return True if it is, false if not.

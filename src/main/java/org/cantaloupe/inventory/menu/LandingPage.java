@@ -10,7 +10,7 @@ import org.cantaloupe.text.Text;
  */
 public class LandingPage extends Page {
     private LandingPage(Text name, int size) {
-        super("landing", name, size);
+        super("landing", name, size, null);
     }
 
     /**

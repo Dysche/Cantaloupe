@@ -26,7 +26,7 @@ public class ArgumentParseException extends CommandException {
     @Override
     public Text getText() {
         Text superText = super.getText();
-
+        
         if (this.source == null || this.source.isEmpty()) {
             return super.getText();
         } else if (superText == null) {

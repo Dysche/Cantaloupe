@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.text.Text;
@@ -19,15 +20,17 @@ public class Page {
     private final String            ID;
     private final Text              name;
     private final int               size;
+    private final InventoryType     type;
     private final ArrayList<Button> buttons;
 
     private Menu                    menu      = null;
     private Inventory               inventory = null;
 
-    protected Page(String ID, Text name, int size) {
+    protected Page(String ID, Text name, int size, InventoryType type) {
         this.ID = ID;
         this.name = name;
         this.size = size;
+        this.type = type;
         this.buttons = new ArrayList<Button>();
     }
 
@@ -39,7 +42,7 @@ public class Page {
      * @return The page
      */
     public static Page of(String ID) {
-        return new Page(ID, Text.of("Page"), 54);
+        return new Page(ID, Text.of("Page"), 54, null);
     }
 
     /**
@@ -52,7 +55,7 @@ public class Page {
      * @return The page
      */
     public static Page of(String ID, Text name) {
-        return new Page(ID, name, 54);
+        return new Page(ID, name, 54, null);
     }
 
     /**
@@ -65,7 +68,20 @@ public class Page {
      * @return The page
      */
     public static Page of(String ID, int size) {
-        return new Page(ID, Text.of("Page"), size);
+        return new Page(ID, Text.of("Page"), size, null);
+    }
+
+    /**
+     * Creates and returns a new page.
+     * 
+     * @param ID
+     *            The ID
+     * @param type
+     *            The inventory type
+     * @return The page
+     */
+    public static Page of(String ID, InventoryType type) {
+        return new Page(ID, Text.of("Page"), 0, type);
     }
 
     /**
@@ -80,7 +96,22 @@ public class Page {
      * @return The page
      */
     public static Page of(String ID, Text name, int size) {
-        return new Page(ID, name, size);
+        return new Page(ID, name, size, null);
+    }
+
+    /**
+     * Creates and returns a new page.
+     * 
+     * @param ID
+     *            The ID
+     * @param name
+     *            The name
+     * @param type
+     *            The inventory type
+     * @return The page
+     */
+    public static Page of(String ID, Text name, InventoryType type) {
+        return new Page(ID, name, 0, type);
     }
 
     /**
@@ -170,7 +201,7 @@ public class Page {
     }
 
     protected Page build() {
-        this.inventory = Bukkit.getServer().createInventory(this.holder.toHandle(), this.size, this.name.toLegacy());
+        this.inventory = (this.type == null ? Bukkit.getServer().createInventory(this.holder.toHandle(), this.size, this.name.toLegacy()) : Bukkit.getServer().createInventory(this.holder.toHandle(), this.type, this.name.toLegacy()));
 
         for (Button button : this.buttons) {
             this.inventory.setItem(button.getSlot(), button.getIcon().toHandle());
@@ -194,6 +225,15 @@ public class Page {
         }
 
         return false;
+    }
+
+    /**
+     * Checks if the page is an input page.
+     * 
+     * @return True if it is, false if not
+     */
+    public boolean isInputPage() {
+        return this.type == InventoryType.ANVIL;
     }
 
     protected void setMenu(Menu menu) {
@@ -247,6 +287,15 @@ public class Page {
      */
     public int getSize() {
         return this.size;
+    }
+
+    /**
+     * Gets the inventory type of the page.
+     * 
+     * @return The inventory type
+     */
+    public InventoryType getInventoryType() {
+        return this.type;
     }
 
     /**

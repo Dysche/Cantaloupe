@@ -1,9 +1,15 @@
 package org.cantaloupe.inventory.menu;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.cantaloupe.player.Player;
+import org.cantaloupe.screen.SignInput;
+import org.cantaloupe.text.Text;
 
 /**
  * A class used to create a menu.
@@ -12,11 +18,13 @@ import org.cantaloupe.player.Player;
  *
  */
 public class Menu {
-    private Player                      holder      = null;
+    private Player                      holder        = null;
     private final HashMap<String, Page> pages;
 
-    private Page                        currentPage = null;
-    private boolean                     isDirty     = false;
+    private Page                        currentPage   = null;
+    private boolean                     isDirty       = false;
+
+    private Consumer<Menu>              closeConsumer = null;
 
     private Menu(Player holder) {
         this.holder = holder;
@@ -48,6 +56,12 @@ public class Menu {
         this.holder.closeMenu();
     }
 
+    public void onClose() {
+        if (this.closeConsumer != null) {
+            this.closeConsumer.accept(this);
+        }
+    }
+
     /**
      * Shows the landing page of the menu.
      */
@@ -77,18 +91,52 @@ public class Menu {
         }
     }
 
+    public void showSignInput(BiConsumer<Player, List<String>> consumer) {
+        this.isDirty = true;
+
+        SignInput.of(this.holder).setInputConsumer((player, lines) -> {
+            consumer.accept(player, lines);
+
+            this.isDirty = false;
+        }).show();
+    }
+
+    public void showSignInput(BiConsumer<Player, List<String>> consumer, Text... lines) {
+        this.isDirty = true;
+
+        SignInput.of(this.holder, Arrays.asList(lines)).setInputConsumer((player, l) -> {
+            consumer.accept(player, l);
+
+            this.isDirty = false;
+        }).show();
+    }
+
+    public void showSignInput(BiConsumer<Player, List<String>> consumer, List<Text> lines) {
+        this.isDirty = true;
+
+        SignInput.of(this.holder, lines).setInputConsumer((player, l) -> {
+            consumer.accept(player, l);
+
+            this.isDirty = false;
+        }).show();
+    }
+
     /**
      * Adds a page to the menu.
      * 
      * @param page
      *            The page
+     * 
+     * @return The menu
      */
-    public void addPage(Page page) {
+    public Menu addPage(Page page) {
         page.setMenu(this);
         page.setHolder(this.holder);
         page.build();
 
         this.pages.put(page.getID(), page);
+
+        return this;
     }
 
     /**
@@ -109,13 +157,31 @@ public class Menu {
      * 
      * @param page
      *            The landing page
+     * 
+     * @return The menu
      */
-    public void setLandingPage(Page page) {
+    public Menu setLandingPage(Page page) {
         page.setMenu(this);
         page.setHolder(this.holder);
         page.build();
-        
+
         this.pages.put("landing", page);
+
+        return this;
+    }
+
+    /**
+     * Sets the close consumer of the menu.
+     * 
+     * @param closeConsumer
+     *            The consumer
+     * 
+     * @return The menu
+     */
+    public Menu setCloseConsumer(Consumer<Menu> closeConsumer) {
+        this.closeConsumer = closeConsumer;
+
+        return this;
     }
 
     /**
@@ -146,7 +212,7 @@ public class Menu {
     public Page getLandingPage() {
         return this.pages.get("landing");
     }
-    
+
     /**
      * Gets the page currently opened on the menu.
      * 

@@ -48,6 +48,16 @@ public class Collection {
     }
 
     /**
+     * Inserts an entry in the collection.
+     * 
+     * @param container
+     *            The data of the entry
+     */
+    public void insert(DataContainer<String, Object> container) {
+        this.handle.insertOne(DatabaseUtils.containerToDocument(null, container));
+    }
+
+    /**
      * Inserts or updates and entry in the collection.
      * 
      * @param key
@@ -63,6 +73,18 @@ public class Collection {
     }
 
     /**
+     * Inserts or updates and entry in the collection.
+     * 
+     * @param query
+     *            The query
+     * @param container
+     *            The data of the entry
+     */
+    public void upsert(DataContainer<String, Object> query, DataContainer<String, Object> container) {
+        this.handle.updateOne(DatabaseUtils.containerToDocument(null, query), new Document("$set", DatabaseUtils.containerToDocument(null, container)), new UpdateOptions().upsert(true));
+    }
+
+    /**
      * Updates an entry in the collection.
      * 
      * @param key
@@ -75,6 +97,18 @@ public class Collection {
         query.append("{documentKey}", key);
 
         this.handle.updateOne(query, new Document("$set", DatabaseUtils.containerToDocument(key, container)));
+    }
+
+    /**
+     * Updates an entry in the collection.
+     * 
+     * @param query
+     *            The query
+     * @param container
+     *            The data of the entry
+     */
+    public void update(DataContainer<String, Object> query, DataContainer<String, Object> container) {
+        this.handle.updateOne(DatabaseUtils.containerToDocument(null, query), new Document("$set", DatabaseUtils.containerToDocument(null, container)));
     }
 
     /**
@@ -109,6 +143,16 @@ public class Collection {
     }
 
     /**
+     * Deletes an entry from the collection.
+     * 
+     * @param query
+     *            The query
+     */
+    public void delete(DataContainer<String, Object> query) {
+        this.handle.deleteOne(DatabaseUtils.containerToDocument(null, query));
+    }
+
+    /**
      * Deletes multiple entries from the collection with the same key.
      * 
      * @param key
@@ -119,6 +163,16 @@ public class Collection {
         query.append("{documentKey}", key);
 
         this.handle.deleteMany(query);
+    }
+
+    /**
+     * Deletes multiple entries from the collection with the same key.
+     * 
+     * @param query
+     *            The query
+     */
+    public void deleteMultiple(DataContainer<String, Object> query) {
+        this.handle.deleteMany(DatabaseUtils.containerToDocument(null, query));
     }
 
     /**
@@ -148,8 +202,10 @@ public class Collection {
     /**
      * Returns one or more entries from the collection.
      * 
-     * @param query
-     *            The query
+     * @param key
+     *            The key
+     * @param value
+     *            The value of the key
      * @return A list of entries
      */
     public List<DataContainer<String, Object>> retrieve(String key, Object value) {
@@ -159,6 +215,27 @@ public class Collection {
         query.append(key, value);
 
         FindIterable<Document> iterable = this.handle.find(query);
+        iterable.forEach(new Block<Document>() {
+            @Override
+            public void apply(final Document document) {
+                results.add(DatabaseUtils.documentToContainer(document));
+            }
+        });
+
+        return results;
+    }
+
+    /**
+     * Returns one or more entries from the collection.
+     * 
+     * @param query
+     *            The query
+     * @return A list of entries
+     */
+    public List<DataContainer<String, Object>> retrieve(DataContainer<String, Object> query) {
+        ArrayList<DataContainer<String, Object>> results = new ArrayList<DataContainer<String, Object>>();
+
+        FindIterable<Document> iterable = this.handle.find(DatabaseUtils.containerToDocument(null, query));
         iterable.forEach(new Block<Document>() {
             @Override
             public void apply(final Document document) {
@@ -200,6 +277,17 @@ public class Collection {
         query.append("{documentKey}", key);
 
         return this.handle.count(query);
+    }
+
+    /**
+     * Returns the amount of entries in the collection by entry key.
+     * 
+     * @param query
+     *            The query
+     * @return The amount
+     */
+    public long count(DataContainer<String, Object> query) {
+        return this.handle.count(DatabaseUtils.containerToDocument(null, query));
     }
 
     /**

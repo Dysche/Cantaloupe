@@ -20,22 +20,20 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 public class ArmorStandStatue extends WorldObject {
-    private ImmutableLocation                      location     = null;
-    private BlockFace                              blockFace    = null;
-    private float                                  headRotation = 0f;
-    private Vector3f                               headPose     = null, bodyPose = null, leftArmPose = null, rightArmPose = null, leftLegPose = null, rightLegPose = null;
-    private FakeArmorStand                         entity       = null;
-    private Text                                   displayName  = null;
-    private DataContainer<EnumItemSlot, ItemStack> equipment    = null;
-    private boolean                                invisible    = false, small = false, basePlate = true, arms = false;
+    private ImmutableLocation                      location    = null;
+    private BlockFace                              blockFace   = null;
+    private Vector3f                               headPose    = null, bodyPose = null, leftArmPose = null, rightArmPose = null, leftLegPose = null, rightLegPose = null;
+    private FakeArmorStand                         entity      = null;
+    private Text                                   displayName = null;
+    private DataContainer<EnumItemSlot, ItemStack> equipment   = null;
+    private boolean                                invisible   = false, small = false, basePlate = true, arms = false;
 
     private final List<Player>                     players;
 
-    private ArmorStandStatue(ImmutableLocation location, BlockFace blockFace, float headRotation, Vector3f headPose, Vector3f bodyPose, Vector3f leftArmPose, Vector3f rightArmPose, Vector3f leftLegPose, Vector3f rightLegPose, DataContainer<EnumItemSlot, ItemStack> equipment, Text displayName, boolean invisible,
-            boolean small, boolean basePlate, boolean arms) {
+    private ArmorStandStatue(ImmutableLocation location, BlockFace blockFace, Vector3f headPose, Vector3f bodyPose, Vector3f leftArmPose, Vector3f rightArmPose, Vector3f leftLegPose, Vector3f rightLegPose, DataContainer<EnumItemSlot, ItemStack> equipment, Text displayName, boolean invisible, boolean small,
+            boolean basePlate, boolean arms) {
         this.location = location;
         this.blockFace = blockFace;
-        this.headRotation = headRotation;
         this.headPose = headPose;
         this.bodyPose = bodyPose;
         this.leftArmPose = leftArmPose;
@@ -65,24 +63,8 @@ public class ArmorStandStatue extends WorldObject {
     }
 
     private void create() {
-        this.entity = FakeArmorStand.builder()
-                .location(this.location.add(0.5, 0, 0.5))
-                .facing(this.blockFace)
-                .headRotation(this.headRotation)
-                .headPose(this.headPose)
-                .bodyPose(this.bodyPose)
-                .leftArmPose(this.leftArmPose)
-                .rightArmPose(this.rightArmPose)
-                .leftLegPose(this.leftLegPose)
-                .rightLegPose(this.rightLegPose)
-                .equipment(this.equipment)
-                .customName(this.displayName)
-                .customNameVisible(this.displayName != null ? true : false)
-                .invisible(this.invisible)
-                .small(this.small)
-                .basePlate(this.basePlate)
-                .arms(this.arms)
-                .build();
+        this.entity = FakeArmorStand.builder().location(this.location.add(0.5, 0, 0.5)).facing(this.blockFace).headPose(this.headPose).bodyPose(this.bodyPose).leftArmPose(this.leftArmPose).rightArmPose(this.rightArmPose).leftLegPose(this.leftLegPose).rightLegPose(this.rightLegPose).equipment(this.equipment)
+                .customName(this.displayName).customNameVisible(this.displayName != null ? true : false).invisible(this.invisible).small(this.small).basePlate(this.basePlate).arms(this.arms).build();
     }
 
     public void placeFor(Player player) {
@@ -150,11 +132,6 @@ public class ArmorStandStatue extends WorldObject {
 
         this.blockFace = blockFace;
         this.location = ImmutableLocation.of(this.location.getWorld(), this.location.getPosition(), new Vector2f(blockFace != BlockFace.UP && blockFace != BlockFace.DOWN ? MathUtils.faceToYaw(blockFace) : 0, blockFace == BlockFace.UP ? 90 : blockFace == BlockFace.DOWN ? -90 : 0));
-    }
-
-    public void setHeadRotation(float headRotation) {
-        this.entity.setHeadRotation(this.players, headRotation);
-        this.headRotation = headRotation;
     }
 
     public void setHeadPose(Vector3f headPose) {
@@ -226,10 +203,6 @@ public class ArmorStandStatue extends WorldObject {
         return this.blockFace;
     }
 
-    public float getHeadRotation() {
-        return this.headRotation;
-    }
-
     public Vector3f getHeadPose() {
         return new Vector3f(this.headPose.x, this.headPose.y, this.headPose.z);
     }
@@ -295,16 +268,15 @@ public class ArmorStandStatue extends WorldObject {
     }
 
     public static final class Builder {
-        private ImmutableLocation                      location     = null;
-        private BlockFace                              blockFace    = null;
-        private World                                  world        = null;
-        private Vector3d                               position     = null;
-        private Vector2f                               rotation     = null;
-        private float                                  headRotation = -1f;
-        private Vector3f                               headPose     = null, bodyPose = null, leftArmPose = null, rightArmPose = null, leftLegPose = null, rightLegPose = null;
-        private Text                                   displayName  = null;
-        private boolean                                invisible    = false, small = false, basePlate = true, arms = false;
-        private DataContainer<EnumItemSlot, ItemStack> equipment    = null;
+        private ImmutableLocation                      location    = null;
+        private BlockFace                              blockFace   = null;
+        private World                                  world       = null;
+        private Vector3d                               position    = null;
+        private Vector2f                               rotation    = null;
+        private Vector3f                               headPose    = null, bodyPose = null, leftArmPose = null, rightArmPose = null, leftLegPose = null, rightLegPose = null;
+        private Text                                   displayName = null;
+        private boolean                                invisible   = false, small = false, basePlate = true, arms = false;
+        private DataContainer<EnumItemSlot, ItemStack> equipment   = null;
 
         private Builder() {
             this.equipment = DataContainer.of();
@@ -336,12 +308,6 @@ public class ArmorStandStatue extends WorldObject {
 
         public Builder facing(BlockFace blockFace) {
             this.blockFace = blockFace;
-
-            return this;
-        }
-
-        public Builder headRotation(float headRotation) {
-            this.headRotation = headRotation;
 
             return this;
         }
@@ -461,7 +427,7 @@ public class ArmorStandStatue extends WorldObject {
                 }
             }
 
-            ArmorStandStatue statue = new ArmorStandStatue(this.location, this.blockFace, this.headRotation, this.headPose, this.bodyPose, this.leftArmPose, this.rightArmPose, this.leftLegPose, this.rightLegPose, this.equipment, this.displayName, this.invisible, this.small, this.basePlate, this.arms);
+            ArmorStandStatue statue = new ArmorStandStatue(this.location, this.blockFace, this.headPose, this.bodyPose, this.leftArmPose, this.rightArmPose, this.leftLegPose, this.rightLegPose, this.equipment, this.displayName, this.invisible, this.small, this.basePlate, this.arms);
             statue.create();
 
             return statue;

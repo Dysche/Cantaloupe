@@ -31,9 +31,9 @@ import org.joml.Vector3f;
 public class FakeArmorStand extends FakeEntity {
     private DataContainer<EnumItemSlot, ItemStack> equipment = null;
 
-    private FakeArmorStand(ImmutableLocation location, BlockFace blockFace, float headRotation, Vector3f headPose, Vector3f bodyPose, Vector3f leftArmPose, Vector3f rightArmPose, Vector3f leftLegPose, Vector3f rightLegPose, DataContainer<EnumItemSlot, ItemStack> equipment, String customName, boolean customNameVisible,
-            boolean invisible, boolean small, boolean basePlate, boolean arms) {
-        super(EntityType.ARMOR_STAND, location, blockFace, headRotation, customName, customNameVisible, invisible, true);
+    private FakeArmorStand(ImmutableLocation location, BlockFace blockFace, Vector3f headPose, Vector3f bodyPose, Vector3f leftArmPose, Vector3f rightArmPose, Vector3f leftLegPose, Vector3f rightLegPose, DataContainer<EnumItemSlot, ItemStack> equipment, String customName, boolean customNameVisible, boolean invisible,
+            boolean small, boolean basePlate, boolean arms) {
+        super(EntityType.ARMOR_STAND, location, blockFace, Float.MIN_VALUE, customName, customNameVisible, invisible, true);
 
         this.equipment = equipment;
         this.create(headPose, bodyPose, leftArmPose, rightArmPose, leftLegPose, rightLegPose, small, basePlate, arms);
@@ -370,14 +370,7 @@ public class FakeArmorStand extends FakeEntity {
             return this;
         }
 
-        /**
-         * Sets the head rotation of the builder.
-         * 
-         * @param headRotation
-         *            The head rotation
-         * @return The builder
-         */
-        @Override
+        @Deprecated
         public Builder headRotation(float headRotation) {
             this.headRotation = headRotation;
 
@@ -655,8 +648,8 @@ public class FakeArmorStand extends FakeEntity {
                 }
             }
 
-            return new FakeArmorStand(this.location, this.blockFace, this.headRotation, this.headPose, this.bodyPose, this.leftArmPose, this.rightArmPose, this.leftLegPose, this.rightLegPose, this.equipment, this.customName != null ? this.customName.toLegacy() : "", this.customNameVisible, this.invisible, this.small,
-                    this.basePlate, this.arms);
+            return new FakeArmorStand(this.location, this.blockFace, this.headPose, this.bodyPose, this.leftArmPose, this.rightArmPose, this.leftLegPose, this.rightLegPose, this.equipment, this.customName != null ? this.customName.toLegacy() : "", this.customNameVisible, this.invisible, this.small, this.basePlate,
+                    this.arms);
         }
     }
 }

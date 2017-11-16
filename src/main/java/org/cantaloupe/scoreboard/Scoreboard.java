@@ -17,8 +17,8 @@ public class Scoreboard {
     private final DataContainer<String, Objective> objectives;
     private final DataContainer<String, Team>      teams;
 
-    private Scoreboard() {
-        this.handle = Bukkit.getScoreboardManager().getNewScoreboard();
+    private Scoreboard(org.bukkit.scoreboard.Scoreboard handle) {
+        this.handle = handle != null ? handle : Bukkit.getScoreboardManager().getNewScoreboard();
         this.objectives = DataContainer.of();
         this.teams = DataContainer.of();
     }
@@ -28,8 +28,17 @@ public class Scoreboard {
      * 
      * @return The scoreboard
      */
+    public static Scoreboard of(org.bukkit.scoreboard.Scoreboard handle) {
+        return new Scoreboard(handle);
+    }
+
+    /**
+     * Creates and returns a new scoreboard.
+     * 
+     * @return The scoreboard
+     */
     public static Scoreboard of() {
-        return new Scoreboard();
+        return new Scoreboard(null);
     }
 
     /**

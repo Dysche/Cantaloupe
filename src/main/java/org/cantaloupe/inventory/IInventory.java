@@ -53,7 +53,7 @@ public interface IInventory<T extends org.bukkit.inventory.Inventory> {
         DataContainer<Integer, ItemStack> itemStacks = DataContainer.of();
 
         this.toHandle().all(itemStack.toHandle()).forEach((index, itemStackHandle) -> {
-            itemStacks.put(index, ItemStack.of(itemStackHandle));
+            itemStacks.put(index, itemStackHandle != null ? ItemStack.of(itemStackHandle) : null);
         });
 
         return itemStacks;
@@ -63,7 +63,7 @@ public interface IInventory<T extends org.bukkit.inventory.Inventory> {
         DataContainer<Integer, ItemStack> itemStacks = DataContainer.of();
 
         this.toHandle().all(material).forEach((index, itemStackHandle) -> {
-            itemStacks.put(index, ItemStack.of(itemStackHandle));
+            itemStacks.put(index, itemStackHandle != null ? ItemStack.of(itemStackHandle) : null);
         });
 
         return itemStacks;
@@ -146,7 +146,7 @@ public interface IInventory<T extends org.bukkit.inventory.Inventory> {
     }
 
     public default IInventory<T> setItem(int index, ItemStack itemStack) {
-        this.toHandle().setItem(index, itemStack.toHandle());
+        this.toHandle().setItem(index, itemStack != null ? itemStack.toHandle() : null);
 
         return this;
     }
@@ -162,8 +162,8 @@ public interface IInventory<T extends org.bukkit.inventory.Inventory> {
     public default IInventory<T> setContents(Collection<ItemStack> itemStacks) {
         List<org.bukkit.inventory.ItemStack> itemHandles = new ArrayList<org.bukkit.inventory.ItemStack>();
 
-        for (ItemStack stack : itemStacks) {
-            itemHandles.add(stack.toHandle());
+        for (ItemStack itemStack : itemStacks) {
+            itemHandles.add(itemStack != null ? itemStack.toHandle() : null);
         }
 
         this.toHandle().setContents(itemHandles.toArray(new org.bukkit.inventory.ItemStack[0]));
@@ -182,8 +182,8 @@ public interface IInventory<T extends org.bukkit.inventory.Inventory> {
     public default IInventory<T> setStorageContents(Collection<ItemStack> itemStacks) {
         List<org.bukkit.inventory.ItemStack> itemHandles = new ArrayList<org.bukkit.inventory.ItemStack>();
 
-        for (ItemStack stack : itemStacks) {
-            itemHandles.add(stack.toHandle());
+        for (ItemStack itemStack : itemStacks) {
+            itemHandles.add(itemStack != null ? itemStack.toHandle() : null);
         }
 
         this.toHandle().setStorageContents(itemHandles.toArray(new org.bukkit.inventory.ItemStack[0]));
@@ -222,7 +222,9 @@ public interface IInventory<T extends org.bukkit.inventory.Inventory> {
     }
 
     public default ItemStack getItem(int index) {
-        return ItemStack.of(this.toHandle().getItem(index));
+        org.bukkit.inventory.ItemStack itemStackHandle = this.toHandle().getItem(index);
+
+        return itemStackHandle != null ? ItemStack.of(itemStackHandle) : null;
     }
 
     public default List<ItemStack> getContents() {
@@ -230,7 +232,7 @@ public interface IInventory<T extends org.bukkit.inventory.Inventory> {
         ItemStack[] items = new ItemStack[itemHandles.length];
 
         for (int i = 0; i < itemHandles.length; i++) {
-            items[i] = ItemStack.of(itemHandles[i]);
+            items[i] = itemHandles[i] != null ? ItemStack.of(itemHandles[i]) : null;
         }
 
         return Arrays.asList(items);
@@ -241,7 +243,7 @@ public interface IInventory<T extends org.bukkit.inventory.Inventory> {
         ItemStack[] items = new ItemStack[itemHandles.length];
 
         for (int i = 0; i < itemHandles.length; i++) {
-            items[i] = ItemStack.of(itemHandles[i]);
+            items[i] = itemHandles[i] != null ? ItemStack.of(itemHandles[i]) : null;
         }
 
         return Arrays.asList(items);

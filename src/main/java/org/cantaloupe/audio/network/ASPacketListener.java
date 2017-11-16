@@ -30,7 +30,7 @@ public class ASPacketListener implements IPacketListener {
         WebServerConnection clientConnection = (WebServerConnection) connection;
 
         if (packet instanceof C002PacketParams) {
-            Optional<Player> playerOpt = Cantaloupe.getPlayerManager().getPlayer(((C002PacketParams) packet).getUUID());
+            Optional<Player> playerOpt = Cantaloupe.getPlayerManager().tryGetPlayer(((C002PacketParams) packet).getUUID());
 
             if (playerOpt.isPresent()) {
                 Player player = playerOpt.get();

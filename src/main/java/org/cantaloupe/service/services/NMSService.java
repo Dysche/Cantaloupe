@@ -42,14 +42,20 @@ public class NMSService implements IService {
     public Class<?> NMS_PACKET_OUT_PLAYERINFO_CLASS             = null;
     public Class<?> NMS_PACKET_OUT_ENTITYTELEPORT_CLASS         = null;
     public Class<?> NMS_PACKET_OUT_ENTITYHEADROTATION_CLASS     = null;
+    public Class<?> NMS_PACKET_OUT_ANIMATION_CLASS              = null;
     public Class<?> NMS_PACKET_OUT_MAPCHUNK_CLASS               = null;
     public Class<?> NMS_PACKET_OUT_TITLE_CLASS                  = null;
     public Class<?> NMS_PACKET_OUT_CHAT_CLASS                   = null;
     public Class<?> NMS_PACKET_OUT_CAMERA_CLASS                 = null;
     public Class<?> NMS_PACKET_OUT_PLAYERLISTHEADERFOOTER_CLASS = null;
+    public Class<?> NMS_PACKET_OUT_OPENSIGNEDITOR_CLASS         = null;
+    public Class<?> NMS_PACKET_OUT_UPDATESIGN_CLASS             = null;
+    public Class<?> NMS_PACKET_OUT_TILEENTITYDATA_CLASS         = null;
+    public Class<?> NMS_PACKET_OUT_BLOCKCHANGE_CLASS            = null;
     public Class<?> NMS_PACKET_IN_USEENTITY_CLASS               = null;
     public Class<?> NMS_PACKET_IN_ENTITYACTION_CLASS            = null;
     public Class<?> NMS_PACKET_IN_STEERVEHICLE_CLASS            = null;
+    public Class<?> NMS_PACKET_IN_UPDATESIGN_CLASS              = null;
 
     public Class<?> NMS_ENTITY_CLASS                            = null;
     public Class<?> NMS_ENTITY_LIVING_CLASS                     = null;
@@ -79,6 +85,7 @@ public class NMSService implements IService {
     public Class<?> NMS_IBLOCKDATA_CLASS                        = null;
     public Class<?> NMS_VECTOR3F_CLASS                          = null;
     public Class<?> NMS_BLOCKPOSITION_CLASS                     = null;
+    public Class<?> NMS_BASEBLOCKPOSITION_CLASS                 = null;
     public Class<?> NMS_ICHATBASECOMPONENT_CLASS                = null;
     public Class<?> NMS_CHATSERIALIZER_CLASS                    = null;
 
@@ -132,14 +139,20 @@ public class NMSService implements IService {
         this.NMS_PACKET_OUT_PLAYERINFO_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet201PlayerInfo" : "PacketPlayOutPlayerInfo");
         this.NMS_PACKET_OUT_ENTITYTELEPORT_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet34EntityTeleport" : "PacketPlayOutEntityTeleport");
         this.NMS_PACKET_OUT_ENTITYHEADROTATION_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet35EntityHeadRotation" : "PacketPlayOutEntityHeadRotation");
+        this.NMS_PACKET_OUT_ANIMATION_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet18ArmAnimation" : "PacketPlayOutAnimation");
         this.NMS_PACKET_OUT_MAPCHUNK_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet51MapChunk" : "PacketPlayOutMapChunk");
         this.NMS_PACKET_OUT_TITLE_CLASS = this.getNMSClass("PacketPlayOutTitle");
         this.NMS_PACKET_OUT_CHAT_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet3Chat" : "PacketPlayOutChat");
         this.NMS_PACKET_OUT_CAMERA_CLASS = this.getNMSClass("PacketPlayOutCamera");
         this.NMS_PACKET_OUT_PLAYERLISTHEADERFOOTER_CLASS = this.getNMSClass("PacketPlayOutPlayerListHeaderFooter");
+        this.NMS_PACKET_OUT_UPDATESIGN_CLASS = this.intVersion < 9 ? this.getNMSClass(this.getIntVersion() < 7 ? "Packet130UpdateSign" : "PacketPlayOutUpdateSign") : null;
+        this.NMS_PACKET_OUT_OPENSIGNEDITOR_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet133OpenTileEntity" : "PacketPlayOutOpenSignEditor");
+        this.NMS_PACKET_OUT_TILEENTITYDATA_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet132TileEntityData" : "PacketPlayOutTileEntityData");
+        this.NMS_PACKET_OUT_BLOCKCHANGE_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet53BlockChange" : "PacketPlayOutBlockChange");
         this.NMS_PACKET_IN_USEENTITY_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet7UseEntity" : "PacketPlayInUseEntity");
         this.NMS_PACKET_IN_ENTITYACTION_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet19EntityAction" : "PacketPlayInEntityAction");
         this.NMS_PACKET_IN_STEERVEHICLE_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet27PlayerInput" : "PacketPlayInSteerVehicle");
+        this.NMS_PACKET_IN_UPDATESIGN_CLASS = this.getNMSClass(this.getIntVersion() < 7 ? "Packet130UpdateSign" : "PacketPlayInUpdateSign");
 
         this.NMS_ENTITY_CLASS = this.getNMSClass("Entity");
         this.NMS_ENTITY_LIVING_CLASS = this.getNMSClass("EntityLiving");
@@ -169,6 +182,7 @@ public class NMSService implements IService {
         this.NMS_IBLOCKDATA_CLASS = this.getNMSClass("IBlockData");
         this.NMS_VECTOR3F_CLASS = this.getNMSClass("Vector3f");
         this.NMS_BLOCKPOSITION_CLASS = this.getNMSClass("BlockPosition");
+        this.NMS_BASEBLOCKPOSITION_CLASS = this.getNMSClass("BaseBlockPosition");
         this.NMS_ICHATBASECOMPONENT_CLASS = this.getNMSClass("IChatBaseComponent");
         this.NMS_CHATSERIALIZER_CLASS = this.NMS_ICHATBASECOMPONENT_CLASS.getClasses()[0];
 
@@ -496,6 +510,28 @@ public class NMSService implements IService {
     @SuppressWarnings("deprecation")
     public int getCombinedID(Material material, byte data) {
         return material.getId() + (data << 12);
+    }
+
+    /**
+     * Gets a vector from a blockposition NMS handle.
+     * 
+     * @param handle
+     *            The handle
+     * 
+     * @return The vector
+     */
+    public Vector3i getBlockPositionFromHandle(Object handle) {
+        try {
+            int x = (int) ReflectionHelper.invokeDeclaredMethod("getX", handle, this.NMS_BASEBLOCKPOSITION_CLASS);
+            int y = (int) ReflectionHelper.invokeDeclaredMethod("getY", handle, this.NMS_BASEBLOCKPOSITION_CLASS);
+            int z = (int) ReflectionHelper.invokeDeclaredMethod("getZ", handle, this.NMS_BASEBLOCKPOSITION_CLASS);
+
+            return new Vector3i(x, y, z);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     @Override

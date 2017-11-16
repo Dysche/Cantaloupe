@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.cantaloupe.Cantaloupe;
 import org.cantaloupe.player.Player;
 import org.cantaloupe.text.Text;
 
@@ -15,11 +16,11 @@ import org.cantaloupe.text.Text;
  */
 public class Team {
     private final org.bukkit.scoreboard.Team handle;
-    private final List<Player>               players;
+    private final List<String>               entries;
 
     protected Team(org.bukkit.scoreboard.Team handle) {
         this.handle = handle;
-        this.players = new ArrayList<Player>();
+        this.entries = new ArrayList<String>();
     }
 
     /**
@@ -29,8 +30,18 @@ public class Team {
      *            The player
      */
     public void addPlayer(Player player) {
-        this.handle.addEntry(player.getName());
-        this.players.add(player);
+        this.addEntry(player.getName());
+    }
+
+    /**
+     * Adds an entry to the team.
+     * 
+     * @param name
+     *            The entity
+     */
+    public void addEntry(String entry) {
+        this.handle.addEntry(entry);
+        this.entries.add(entry);
     }
 
     /**
@@ -40,8 +51,18 @@ public class Team {
      *            The player
      */
     public void removePlayer(Player player) {
-        this.handle.removeEntry(player.getName());
-        this.players.remove(player);
+        this.removeEntry(player.getName());
+    }
+
+    /**
+     * Removes an entry from the team.
+     * 
+     * @param entry
+     *            The entry
+     */
+    public void removeEntry(String entry) {
+        this.handle.removeEntry(entry);
+        this.entries.remove(entry);
     }
 
     /**
@@ -53,7 +74,19 @@ public class Team {
      * @return True if it does, false if not
      */
     public boolean hasPlayer(Player player) {
-        return this.players.contains(player);
+        return this.hasEntry(player.getName());
+    }
+
+    /**
+     * Checks if the team has an entry.
+     * 
+     * @param entry
+     *            The entry
+     * 
+     * @return True if it does, false if not
+     */
+    public boolean hasEntry(String entry) {
+        return this.entries.contains(entry);
     }
 
     /**
@@ -95,7 +128,7 @@ public class Team {
      *            The option status
      */
     public void setOption(Option option, OptionStatus status) {
-        this.handle.setOption(org.bukkit.scoreboard.Team.Option.valueOf(option.name()), org.bukkit.scoreboard.Team.OptionStatus.valueOf(option.name()));
+        this.handle.setOption(org.bukkit.scoreboard.Team.Option.valueOf(option.name()), org.bukkit.scoreboard.Team.OptionStatus.valueOf(status.name()));
     }
 
     /**
@@ -198,8 +231,25 @@ public class Team {
      * 
      * @return The list of players
      */
+    public List<String> getEntries() {
+        return this.entries;
+    }
+
+    /**
+     * Gets a list of players from the team.
+     * 
+     * @return The list of players
+     */
     public List<Player> getPlayers() {
-        return this.players;
+        List<Player> players = new ArrayList<Player>();
+
+        for (String entry : this.entries) {
+            Cantaloupe.getPlayerManager().tryGetPlayer(entry).ifPresent(player -> {
+                players.add(player);
+            });
+        }
+
+        return players;
     }
 
     protected org.bukkit.scoreboard.Team toHandle() {

@@ -12,6 +12,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 public class Skin {
     private String texture   = null;
@@ -41,6 +42,17 @@ public class Skin {
 
             Skin skin = new Skin((String) object.get("value"), (String) object.get("signature"));
             SkinCache.addSkin(name, skin);
+
+            return skin;
+        }
+    }
+
+    public static Skin of(URL url) {
+        if (SkinCache.hasSkin(url.toString())) {
+            return SkinCache.getSkin(url.toString());
+        } else {
+            Skin skin = new Skin(Base64Coder.encodeString("{textures:{SKIN:{url:\"" + url.toString() + "\"}}}"), null);
+            SkinCache.addSkin(url.toString(), skin);
 
             return skin;
         }
