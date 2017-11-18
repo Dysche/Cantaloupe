@@ -45,7 +45,7 @@ public class PlayerListener implements Listener {
         if (!event.getPlayer().hasPlayedBefore()) {
             player.onFirstJoin();
         }
-
+        
         event.setJoinMessage(null);
     }
 
@@ -338,7 +338,6 @@ public class PlayerListener implements Listener {
 
                 if (player.getWorld().isObject(event.getRightClicked().getLocationForObject())) {
                     tool.onRightClickObject(player, player.getWorld().getObject(event.getRightClicked().getLocationForObject()));
-                    event.setCancelled(true);
 
                     return;
                 }
@@ -358,8 +357,7 @@ public class PlayerListener implements Listener {
 
                 if (player.getWorld().isObject(event.getRightClicked().getLocationForObject())) {
                     tool.onRightClickObject(player, player.getWorld().getObject(event.getRightClicked().getLocationForObject()));
-                    event.setCancelled(true);
-
+                    
                     return;
                 }
             }

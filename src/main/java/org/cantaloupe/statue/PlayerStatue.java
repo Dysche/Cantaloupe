@@ -69,7 +69,7 @@ public class PlayerStatue extends WorldObject {
                     public void run() {
                         entity.removeFromTab(player);
                     }
-                }, 40);
+                }, 45);
             }
 
             this.entity.spawn(player);

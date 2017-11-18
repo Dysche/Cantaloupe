@@ -26,6 +26,9 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 
 public class PacketAccessor {
+    private static boolean interactLock   = false;
+    private static boolean interactAtLock = false;
+
     public static void addFor(Player player) {
         NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
@@ -33,11 +36,15 @@ public class PacketAccessor {
             @Override
             public void channelRead(ChannelHandlerContext context, Object packet) throws Exception {
                 if (packet.getClass() == service.NMS_PACKET_IN_USEENTITY_CLASS) {
-                    handleUseEntityPacket(player, packet);
+                    if (handleUseEntityPacket(player, packet)) {
+                        return;
+                    }
                 } else if (packet.getClass() == service.NMS_PACKET_IN_STEERVEHICLE_CLASS) {
                     handleSteerVehiclePacket(player, packet);
                 } else if (packet.getClass() == service.NMS_PACKET_IN_UPDATESIGN_CLASS) {
-                    handleUpdateSignPacket(player, packet);
+                    if (handleUpdateSignPacket(player, packet)) {
+                        return;
+                    }
                 }
 
                 super.channelRead(context, packet);
@@ -63,7 +70,7 @@ public class PacketAccessor {
         });
     }
 
-    private static void handleUseEntityPacket(Player player, Object packet) {
+    private static boolean handleUseEntityPacket(Player player, Object packet) {
         try {
             int entityID = (int) ReflectionHelper.getDeclaredField("a", packet);
             Enum<?> action = (Enum<?>) ReflectionHelper.getDeclaredField("action", packet);
@@ -71,38 +78,38 @@ public class PacketAccessor {
             FakeEntity entity = FakeEntityContainer.getEntity(entityID);
             if (entity != null) {
                 if (!PacketVerifier.verifyEntityUsePacket(player, entity)) {
-                    return;
+                    return true;
                 }
 
                 if (action.name().equals("INTERACT")) {
-                    PlayerInteractFakeEntityEvent event = new PlayerInteractFakeEntityEvent(player, entity);
-                    Bukkit.getServer().getPluginManager().callEvent(event);
-
-                    if (event.isCancelled()) {
-                        return;
+                    if (!interactLock) {
+                        PlayerInteractFakeEntityEvent event = new PlayerInteractFakeEntityEvent(player, entity);
+                        Bukkit.getServer().getPluginManager().callEvent(event);
                     }
+
+                    interactLock = !interactLock;
                 } else if (action.name().equals("INTERACT_AT")) {
-                    Object clickedPositionObject = ReflectionHelper.getDeclaredField("c", packet);
-                    Vector3d clickedPosition = new Vector3d((double) ReflectionHelper.getField("x", clickedPositionObject), (double) ReflectionHelper.getField("y", clickedPositionObject), (double) ReflectionHelper.getField("z", clickedPositionObject));
+                    if (!interactAtLock) {
+                        Object clickedPositionObject = ReflectionHelper.getDeclaredField("c", packet);
+                        Vector3d clickedPosition = new Vector3d((double) ReflectionHelper.getField("x", clickedPositionObject), (double) ReflectionHelper.getField("y", clickedPositionObject), (double) ReflectionHelper.getField("z", clickedPositionObject));
 
-                    PlayerInteractAtFakeEntityEvent event = new PlayerInteractAtFakeEntityEvent(player, entity, clickedPosition);
-                    Bukkit.getServer().getPluginManager().callEvent(event);
-
-                    if (event.isCancelled()) {
-                        return;
+                        PlayerInteractAtFakeEntityEvent event = new PlayerInteractAtFakeEntityEvent(player, entity, clickedPosition);
+                        Bukkit.getServer().getPluginManager().callEvent(event);
                     }
+
+                    interactAtLock = !interactAtLock;
                 } else if (action.name().equals("ATTACK")) {
                     PlayerAttackFakeEntityEvent event = new PlayerAttackFakeEntityEvent(player, entity);
                     Bukkit.getServer().getPluginManager().callEvent(event);
-
-                    if (event.isCancelled()) {
-                        return;
-                    }
                 }
+
+                return true;
             }
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
     private static void handleSteerVehiclePacket(Player player, Object packet) {
@@ -118,7 +125,7 @@ public class PacketAccessor {
         }
     }
 
-    private static void handleUpdateSignPacket(Player player, Object packet) {
+    private static boolean handleUpdateSignPacket(Player player, Object packet) {
         if (player.getCurrentSignInput() != null) {
             NMSService service = Cantaloupe.getServiceManager().provide(NMSService.class);
 
@@ -140,11 +147,15 @@ public class PacketAccessor {
                     player.getCurrentSignInput().onInput(lines);
 
                     Bukkit.getServer().getPluginManager().callEvent(new SignInputEvent(player, lines));
+
+                    return true;
                 }
             } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
         }
+
+        return false;
     }
 
     private static Channel getChannel(Player player) {
